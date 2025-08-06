@@ -1,0 +1,182 @@
+TIMESTAMP: 2025-06-09 21:53:33.249242
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-09 17:44:59] Log file cleared after successful upload
+[2025-06-09 18:05:15] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 18:05:19] [SILENT_AUDIO] Starting silent session
+[2025-06-09 18:05:19] [SILENT_AUDIO] Player state changed to: PlayerState.playing
+[2025-06-09 18:05:22] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 18:05:22] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 18:05:23] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 18:05:23] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 18:05:23] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 18:05:57] [ATTENTION] AppLifecycleState changed: AppLifecycleState.inactive
+[2025-06-09 18:05:57] [ATTENTION] AppLifecycleState changed: AppLifecycleState.paused
+[2025-06-09 18:10:15] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 18:10:29] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 18:10:29] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 18:10:30] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 18:10:31] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 18:10:31] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 18:11:13] [ATTENTION] AppLifecycleState changed: AppLifecycleState.hidden
+e
+[2025-06-09 18:11:13] [ATTENTION] Auto-resuming playback for index 0
+ycleState.resumed
+[2025-06-09 18:11:13] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 18:11:13] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 18:11:15] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 18:11:15] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 18:11:15] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 18:11:20] [ATTENTION] AppLifecycleState changed: AppLifecycleState.inactive
+[2025-06-09 18:11:21] [ATTENTION] AppLifecycleState changed: AppLifecycleState.paused
+[2025-06-09 20:06:21] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:06:23] [SILENT_AUDIO] Starting silent session
+[2025-06-09 20:06:23] [SILENT_AUDIO] Player state changed to: PlayerState.playing
+[2025-06-09 20:06:26] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:06:26] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:06:28] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 20:06:28] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 20:06:28] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 20:06:30] [ATTENTION] AppLifecycleState changed: AppLifecycleState.inactive
+[2025-06-09 20:06:30] [ATTENTION] AppLifecycleState changed: AppLifecycleState.paused
+[2025-06-09 20:11:21] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:11:31] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:11:31] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:13:40] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:13:42] [SILENT_AUDIO] Starting silent session
+[2025-06-09 20:13:42] [SILENT_AUDIO] Player state changed to: PlayerState.playing
+[2025-06-09 20:13:45] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:13:45] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:13:46] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 20:13:46] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 20:13:46] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 20:13:49] [ATTENTION] AppLifecycleState changed: AppLifecycleState.inactive
+[2025-06-09 20:13:49] [ATTENTION] AppLifecycleState changed: AppLifecycleState.paused
+[2025-06-09 20:18:40] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:18:50] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:18:50] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:18:52] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 20:18:52] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 20:18:52] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 20:23:42] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:23:56] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:23:56] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:23:58] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 20:23:58] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 20:23:58] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 20:28:44] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:29:01] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:29:02] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:29:04] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 20:29:04] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 20:29:04] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 20:33:46] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:34:07] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:34:07] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:34:09] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 20:34:09] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 20:34:09] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 20:38:48] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:39:13] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:39:13] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:39:15] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 20:39:15] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 20:39:15] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 20:43:50] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:44:19] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:44:19] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:44:21] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 20:44:21] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 20:44:21] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 20:48:52] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:49:25] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:49:25] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:49:27] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 20:49:27] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 20:49:27] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 20:53:54] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:54:30] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:54:30] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:54:32] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 20:54:32] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 20:54:32] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 20:58:56] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:59:36] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 20:59:37] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 20:59:38] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 20:59:38] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 20:59:38] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:03:58] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:04:42] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:04:43] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 21:04:44] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 21:04:44] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 21:04:44] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:09:00] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:09:48] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:09:48] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 21:09:50] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 21:09:50] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 21:09:50] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:14:02] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:14:55] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:14:55] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 21:14:56] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 21:14:56] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 21:14:56] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:19:04] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:20:01] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:20:01] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 21:20:03] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 21:20:03] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 21:20:03] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:24:06] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:25:07] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:25:07] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 21:25:09] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 21:25:09] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 21:25:09] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:29:07] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:30:14] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:30:14] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 21:30:15] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 21:30:15] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 21:30:15] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:34:09] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:35:19] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:35:19] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 21:35:21] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 21:35:21] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 21:35:21] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:39:11] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:40:26] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:40:26] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 21:40:28] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 21:40:28] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 21:40:28] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:44:13] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:45:32] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:45:32] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 21:45:34] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 21:45:34] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 21:45:34] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:49:15] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:50:37] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:50:38] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 21:50:39] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 21:50:39] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 21:50:39] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:53:26] [ATTENTION] AppLifecycleState changed: AppLifecycleState.inactive
+[2025-06-09 21:53:26] [ATTENTION] Auto-resuming playback for index 0
+ycleState.resumed
+[2025-06-09 21:53:26] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 21:53:27] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 21:53:28] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 21:53:28] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 21:53:28] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 21:53:29] [SILENT_AUDIO] Stopping silent session
+[2025-06-09 21:53:29] [SILENT_AUDIO] Silent session stopped
+: PlayerState.stopped
+[2025-06-09 21:53:29] [SILENT_AUDIO] Player state changed to: PlayerState.disposed
+[2025-06-09 21:53:33] Sending debug logs to server...

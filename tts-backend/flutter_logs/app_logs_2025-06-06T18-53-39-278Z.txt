@@ -1,0 +1,109 @@
+TIMESTAMP: 2025-06-07 00:23:38.299699
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-06 23:32:20] Log file cleared after successful upload
+[2025-06-06 23:32:27] No audioUrl provided for keep Smiling
+[2025-06-06 23:32:27] No audio file available and no URL provided to download from
+[2025-06-06 23:32:27] Audio cache error: Exception: No audio file available and no URL provided to download from
+Stack: #0      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:106)
+<asynchronous suspension>
+#1      _HomeScreenState._playAttentionGuideVoice (package:motivation_app/screens/home_screen.dart:1089)
+<asynchronous suspension>
+#2      _HomeScreenState._scheduleNextAttentionGuide.<anonymous closure> (package:motivation_app/screens/home_screen.dart:1072)
+<asynchronous suspension>
+
+[2025-06-06 23:33:31] [ATTENTION_GUIDE] Enqueue guide: "keep Smiling" at 2025-06-06T23:33:31.608863
+ at 2025-06-06T23:33:31.608698
+[2025-06-06 23:33:31] [ATTENTION_GUIDE] Starting queue processing at 2025-06-06T23:33:31.618157
+[2025-06-06 23:33:31] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-US] at 2025-06-06T23:33:31.619411
+[2025-06-06 23:33:31] [ATTENTION_GUIDE] Audio source set to: null
+[2025-06-06 23:33:37] [ATTENTION_GUIDE] Voice error: PlatformException(AndroidAudioError, Failed to set source. For troubleshooting, see: https://github.com/bluefireteam/audioplayers/blob/main/troubleshooting.md, java.io.FileNotFoundException: : open failed: ENOENT (No such file or directory)
+	at libcore.io.IoBridge.open(IoBridge.java:574)
+	at java.io.FileInputStream.<init>(FileInputStream.java:179)
+	at android.media.MediaPlayer.setDataSource(MediaPlayer.java:1278)
+	at android.media.MediaPlayer.setDataSource(MediaPlayer.java:1245)
+	at android.media.MediaPlayer.setDataSource(MediaPlayer.java:1210)
+	at xyz.luan.audioplayers.source.UrlSource.setForMediaPlayer(UrlSource.kt:16)
+	at xyz.luan.audioplayers.player.MediaPlayerWrapper.setSource(MediaPlayerWrapper.kt:51)
+	at xyz.luan.audioplayers.player.WrappedPlayer.setSource(WrappedPlayer.kt:32)
+	at xyz.luan.audioplayers.AudioplayersPlugin.methodHandler(AudioplayersPlugin.kt:112)
+	at xyz.luan.audioplayers.AudioplayersPlugin.access$methodHandler(AudioplayersPlugin.kt:21)
+	at xyz.luan.audioplayers.AudioplayersPlugin$onAttachedToEngine$1$1.invoke(AudioplayersPlugin.kt:37)
+	at xyz.luan.audioplayers.AudioplayersPlugin$onAttachedToEngine$1$1.invoke(AudioplayersPlugin.kt:37)
+	at xyz.luan.audioplayers.AudioplayersPlugin.safeCall(AudioplayersPlugin.kt:56)
+	at xyz.luan.audioplayers.AudioplayersPlugin.onAttachedToEngine$lambda$0(AudioplayersPlugin.kt:37)
+	at xyz.luan.audioplayers.AudioplayersPlugin.$r8$lambda$1vepZk-E6R5vmkq5YXudNp2pY8I(Unknown Source:0)
+	at xyz.luan.audioplayers.AudioplayersPlugin$$ExternalSyntheticLambda0.onMethodCall(D8$$SyntheticClass:0)
+	at io.flutter.plugin.common.MethodChannel$IncomingMethodCallHandler.onMessage(MethodChannel.java:267)
+	at io.flutter.embedding.engine.dart.DartMessenger.invokeHandler(DartMessenger.java:292)
+	at io.flutter.embedding.engine.dart.DartMessenger.lambda$dispatchMessageToQueue$0$io-flutter-embedding-engine-dart-DartMessenger(DartMessenger.java:319)
+	at io.flutter.embedding.engine.dart.DartMessenger$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+	at android.os.Handler.handleCallback(Handler.java:958)
+	at android.os.Handler.dispatchMessage(Handler.java:99)
+	at android.os.Looper.loopOnce(Looper.java:230)
+	at android.os.Looper.loop(Looper.java:319)
+	at android.app.ActivityThread.main(ActivityThread.java:8919)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:578)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1103)
+Caused by: android.system.ErrnoException: open failed: ENOENT (No such file or directory)
+	at libcore.io.Linux.open(Native Method)
+	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+	at libcore.io.BlockGuardOs.open(BlockGuardOs.java:274)
+	at libcore.io.ForwardingOs.open(ForwardingOs.java:563)
+	at android.app.ActivityThread$AndroidOs.open(ActivityThread.java:8782)
+	at libcore.io.IoBridge.open(IoBridge.java:560)
+	... 27 more
+, null)
+[2025-06-06 23:33:37] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-US] at 2025-06-06T23:33:37.012166
+[2025-06-06 23:33:37] [ATTENTION_GUIDE] Queue processing complete at 2025-06-06T23:33:37.013542
+[2025-06-06 23:33:42] [ATTENTION_GUIDE] Starting timer for: "keep Smiling" interval: 300s (300000ms) at 2025-06-06T23:33:42.368020
+[2025-06-06 23:33:42] [ATTENTION_GUIDE] Starting queue processing at 2025-06-06T23:33:42.375041
+[2025-06-06 23:33:42] [ATTENTION_GUIDE] Waiting 4s gap before next message at 2025-06-06T23:33:42.379504
+[2025-06-06 23:33:47] [ATTENTION_GUIDE] Gap wait complete at 2025-06-06T23:33:47.019184
+[2025-06-06 23:33:47] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-06T23:33:47.024740
+[2025-06-06 23:33:47] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/c9d55cf4d4742f1f945fc286563d4ed9.mp3
+[2025-06-06 23:33:47] [ATTENTION_GUIDE] Player resuming at 2025-06-06T23:33:47.111394
+[2025-06-06 23:33:47] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-06T23:33:47.119659
+[2025-06-06 23:33:48] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-06T23:33:48.871908
+[2025-06-06 23:33:48] [ATTENTION_GUIDE] Queue processing complete at 2025-06-06T23:33:48.884406
+[2025-06-06 23:50:41] No audioUrl provided for keep Smiling
+[2025-06-06 23:50:41] No audio file available and no URL provided to download from
+[2025-06-06 23:50:41] Audio cache error: Exception: No audio file available and no URL provided to download from
+Stack: #0      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:106)
+<asynchronous suspension>
+#1      _HomeScreenState._playAttentionGuideVoice (package:motivation_app/screens/home_screen.dart:1089)
+<asynchronous suspension>
+#2      _HomeScreenState._scheduleNextAttentionGuide.<anonymous closure> (package:motivation_app/screens/home_screen.dart:1072)
+<asynchronous suspension>
+
+[2025-06-06 23:51:01] [ATTENTION_GUIDE] Timer fired for: "keep Smiling" at 2025-06-06T23:51:01.595668
+[2025-06-06 23:51:01] [ATTENTION_GUIDE] Enqueue guide: "keep Smiling" at 2025-06-06T23:51:01.603435
+[2025-06-06 23:51:01] [ATTENTION_GUIDE] Starting queue processing at 2025-06-06T23:51:01.606507
+[2025-06-06 23:51:01] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-06T23:51:01.609735
+[2025-06-06 23:51:01] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/c9d55cf4d4742f1f945fc286563d4ed9.mp3
+[2025-06-06 23:51:01] [ATTENTION_GUIDE] Player resuming at 2025-06-06T23:51:01.692450
+[2025-06-06 23:51:01] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-06T23:51:01.712246
+[2025-06-06 23:51:03] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-06T23:51:03.511326
+[2025-06-06 23:51:03] [ATTENTION_GUIDE] Queue processing complete at 2025-06-06T23:51:03.524785
+[2025-06-07 00:21:48] No audioUrl provided for keep Smiling
+[2025-06-07 00:21:48] No audio file available and no URL provided to download from
+[2025-06-07 00:21:48] Audio cache error: Exception: No audio file available and no URL provided to download from
+Stack: #0      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:106)
+<asynchronous suspension>
+#1      _HomeScreenState._playAttentionGuideVoice (package:motivation_app/screens/home_screen.dart:1089)
+<asynchronous suspension>
+#2      _HomeScreenState._scheduleNextAttentionGuide.<anonymous closure> (package:motivation_app/screens/home_screen.dart:1072)
+<asynchronous suspension>
+
+[2025-06-07 00:23:20] [ATTENTION_GUIDE] Timer fired for: "keep Smiling" at 2025-06-07T00:23:20.095900
+[2025-06-07 00:23:20] [ATTENTION_GUIDE] Enqueue guide: "keep Smiling" at 2025-06-07T00:23:20.099828
+[2025-06-07 00:23:20] [ATTENTION_GUIDE] Starting queue processing at 2025-06-07T00:23:20.101189
+[2025-06-07 00:23:20] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-07T00:23:20.102542
+[2025-06-07 00:23:20] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/c9d55cf4d4742f1f945fc286563d4ed9.mp3
+[2025-06-07 00:23:20] [ATTENTION_GUIDE] Player resuming at 2025-06-07T00:23:20.142809
+[2025-06-07 00:23:20] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-07T00:23:20.150450
+[2025-06-07 00:23:21] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-07T00:23:21.878641
+[2025-06-07 00:23:21] [ATTENTION_GUIDE] Queue processing complete at 2025-06-07T00:23:21.899444
+[2025-06-07 00:23:38] Sending debug logs to server...

@@ -1,0 +1,29 @@
+TIMESTAMP: 2025-06-09 14:30:29.660094
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-09 03:30:48] Log file cleared after successful upload
+[2025-06-09 12:19:22] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:19:24] [SILENT_AUDIO] Starting silent session
+[2025-06-09 12:19:24] [SILENT_AUDIO] Silent session started
+[2025-06-09 12:19:24] [SILENT_AUDIO] Player state changed to: PlayerState.playing
+[2025-06-09 12:19:28] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:24:22] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:24:28] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:29:24] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:29:28] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:34:26] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:34:28] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:39:28] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:39:28] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:44:28] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:44:29] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:49:28] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:49:31] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:54:28] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 12:54:33] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 13:33:00] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 13:38:00] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 13:59:17] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 14:16:58] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 14:30:29] Sending debug logs to server...

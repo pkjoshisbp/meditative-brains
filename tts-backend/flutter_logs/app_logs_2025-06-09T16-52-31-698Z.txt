@@ -1,0 +1,39 @@
+TIMESTAMP: 2025-06-09 22:22:31.250604
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-09 21:53:34] Log file cleared after successful upload
+[2025-06-09 22:11:12] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 22:12:01] [SILENT_AUDIO] Starting silent session
+[2025-06-09 22:12:01] [SILENT_AUDIO] Player state changed to: PlayerState.playing
+[2025-06-09 22:12:05] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 22:12:05] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 22:12:06] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 22:12:06] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 22:12:06] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 22:12:35] [ATTENTION] AppLifecycleState changed: AppLifecycleState.inactive
+[2025-06-09 22:12:35] [ATTENTION] AppLifecycleState changed: AppLifecycleState.paused
+[2025-06-09 22:16:23] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 22:17:11] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 22:17:11] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 22:17:13] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 22:17:13] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 22:17:13] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 22:21:24] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 22:22:17] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 22:22:17] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 22:22:19] [ATTENTION] Player state changed to: PlayerState.completed
+[2025-06-09 22:22:19] [ATTENTION] Player state changed to: PlayerState.stopped
+[2025-06-09 22:22:19] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 22:22:26] [ATTENTION] AppLifecycleState changed: AppLifecycleState.hidden
+e
+[2025-06-09 22:22:26] [ATTENTION] AppLifecycleState changed: AppLifecycleState.resumed
+[2025-06-09 22:22:26] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 22:22:27] [ATTENTION] Player state changed to: PlayerState.playing
+[2025-06-09 22:22:28] [ATTENTION] Player state changed to: PlayerState.stopped
+d
+[2025-06-09 22:22:28] [ATTENTION] Player state changed to: PlayerState.disposed
+[2025-06-09 22:22:29] [SILENT_AUDIO] Stopping silent session
+[2025-06-09 22:22:29] [SILENT_AUDIO] Player state changed to: PlayerState.stopped
+[2025-06-09 22:22:29] [SILENT_AUDIO] Player state changed to: PlayerState.disposed
+[2025-06-09 22:22:31] Sending debug logs to server...

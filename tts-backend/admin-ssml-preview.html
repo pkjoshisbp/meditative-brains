@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Message SSML Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+        
+        .close:hover {
+            opacity: 0.7;
+        }
+        
+        .modal-body {
+            padding: 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .ssml-preview {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            color: #333;
+        }
+        
+        .ssml-message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            background: white;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .ssml-markup {
+            color: #d73a49;
+            font-weight: 600;
+        }
+        
+        .ssml-text {
+            color: #24292e;
+        }
+        
+        .ssml-emphasis {
+            color: #6f42c1;
+            font-weight: bold;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+            margin: 10px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #c3e6cb;
+            margin: 10px 0;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .copy-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .message-item {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Admin - Message SSML Preview</h1>
+            <p>Edit your messages and preview them in SSML format for enhanced text-to-speech delivery</p>
+        </div>
+        
+        <div class="card">
+            <div class="form-group">
+                <label for="messagesInput">💬 Enter Your Messages (one per line):</label>
+                <textarea 
+                    id="messagesInput" 
+                    rows="12" 
+                    placeholder="Enter your messages here, one per line:
+
+You are confident and powerful.
+Success flows to you naturally.
+Your potential is limitless.
+Every challenge makes you stronger.
+You trust in your abilities completely."
+                ></textarea>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-success" onclick="saveMessages()">
+                    💾 Save Messages
+                </button>
+                <button class="btn btn-primary" onclick="previewSSML()">
+                    🎭 Preview SSML
+                </button>
+                <button class="btn btn-secondary" onclick="loadSampleMessages()">
+                    📄 Load Sample
+                </button>
+            </div>
+            
+            <div id="messageStatus"></div>
+        </div>
+    </div>
+    
+    <!-- SSML Preview Modal -->
+    <div id="ssmlModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎭 SSML Preview</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="ssmlContent">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Generating SSML preview...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample messages for demonstration
+        const sampleMessages = [
+            "You are confident and powerful, radiating strength in everything you do.",
+            "Success flows to you naturally because you believe in your abilities.",
+            "Your potential is limitless, and you embrace every opportunity for growth.",
+            "Every challenge makes you stronger, wiser, and more resilient.",
+            "You trust in your abilities completely and move forward with courage.",
+            "Your positive energy attracts amazing opportunities into your life.",
+            "You are worthy of all the success and happiness that comes your way."
+        ];
+
+        function loadSampleMessages() {
+            document.getElementById('messagesInput').value = sampleMessages.join('\n');
+            showStatus('Sample messages loaded successfully!', 'success');
+        }
+
+        function saveMessages() {
+            const messages = getMessagesFromInput();
+            if (messages.length === 0) {
+                showStatus('Please enter at least one message.', 'error');
+                return;
+            }
+            
+            // Here you would typically save to your backend
+            console.log('Saving messages:', messages);
+            showStatus(`Successfully saved ${messages.length} messages!`, 'success');
+        }
+
+        function previewSSML() {
+            const messages = getMessagesFromInput();
+            if (messages.length === 0) {
+                showStatus('Please enter at least one message to preview.', 'error');
+                return;
+            }
+
+            showModal();
+            showLoading();
+            
+            // Call the backend API to get SSML preview
+            fetch('/api/motivationMessage/preview-ssml', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    messages: messages
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displaySSMLPreview(data.ssmlMessages);
+                } else {
+                    showError('Failed to generate SSML preview: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Network error occurred while generating SSML preview.');
+            });
+        }
+
+        function getMessagesFromInput() {
+            const text = document.getElementById('messagesInput').value.trim();
+            if (!text) return [];
+            
+            return text.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+        }
+
+        function displaySSMLPreview(ssmlMessages) {
+            const contentDiv = document.getElementById('ssmlContent');
+            let html = '';
+            
+            ssmlMessages.forEach((ssml, index) => {
+                html += `
+                    <div class="message-item">
+                        <div class="ssml-message">
+                            <button class="copy-btn" onclick="copyToClipboard('${escapeHtml(ssml)}')">📋 Copy</button>
+                            <strong>Message ${index + 1}:</strong>
+                            <div class="ssml-preview">${formatSSMLDisplay(ssml)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            contentDiv.innerHTML = html;
+        }
+
+        function formatSSMLDisplay(ssml) {
+            return ssml
+                .replace(/\[([^\]]+)\]/g, '<span class="ssml-markup">[$1]</span>')
+                .replace(/\*\*([^*]+)\*\*/g, '<span class="ssml-emphasis">**$1**</span>')
+                .replace(/\*([^*]+)\*/g, '<span class="ssml-emphasis">*$1*</span>');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/'/g, "\\'");
+        }
+
+        function showModal() {
+            document.getElementById('ssmlModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('ssmlModal').style.display = 'none';
+        }
+
+        function showLoading() {
+            document.getElementById('ssmlContent').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Generating SSML preview...</p>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            document.getElementById('ssmlContent').innerHTML = `
+                <div class="error">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('messageStatus');
+            statusDiv.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showStatus('SSML copied to clipboard!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showStatus('Failed to copy to clipboard.', 'error');
+            });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('ssmlModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Load sample messages on page load
+        window.onload = function() {
+            loadSampleMessages();
+        }
+    </script>
+</body>
+</html>

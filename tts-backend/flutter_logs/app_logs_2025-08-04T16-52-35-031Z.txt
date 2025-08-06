@@ -1,0 +1,18 @@
+TIMESTAMP: 2025-08-04 22:22:34.572428
+DEVICE INFO: android AP3A.240905.015.A2.M536BXXUAFYE3
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-08-04 22:22:15] Log file cleared after successful upload
+[2025-08-04 22:22:20] EqualizerService: Initializing EqualizerService
+[2025-08-04 22:22:20] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: treble_boost
+[2025-08-04 22:22:20] EqualizerService: EqualizerService initialized successfully
+[2025-08-04 22:22:20] EqualizerScreen: Loaded equalizer settings
+[2025-08-04 22:22:28] EqualizerScreen: Starting background music equalizer test
+[2025-08-04 22:22:28] EqualizerBackgroundMusicService: Initializing equalizer background music service
+[2025-08-04 22:22:28] EqualizerBackgroundMusicService: Background music service initialized successfully
+[2025-08-04 22:22:28] EqualizerBackgroundMusicService: Starting background music for category: https://www.soundjay.com/misc/sounds/raindrops.mp3
+[2025-08-04 22:22:28] EqualizerBackgroundMusicService: Downloading background music from: https://motivation.mywebsolutions.co.in/bg-music/https://www.soundjay.com/misc/sounds/raindrops.mp3.mp3
+[2025-08-04 22:22:28] EqualizerBackgroundMusicService: Failed to download and cache music - Exception: Failed to download background music: 404
+[2025-08-04 22:22:28] EqualizerBackgroundMusicService: Failed to start background music - Exception: Failed to download background music: 404
+[2025-08-04 22:22:28] EqualizerScreen: Background music test failed - Exception: Failed to download background music: 404
+[2025-08-04 22:22:34] Sending debug logs to server...

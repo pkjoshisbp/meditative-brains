@@ -1,0 +1,16 @@
+TIMESTAMP: 2025-06-07 16:02:55.843309
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-07 15:31:59] Log file cleared after successful upload
+[2025-06-07 15:34:11] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 15:44:40] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 15:44:52] [ATTENTION_GUIDE] Starting timer for: "keep Smiling" interval: 300s (300000ms) at 2025-06-07T15:44:52.803645
+[2025-06-07 15:44:52] [ATTENTION_GUIDE] Starting queue processing at 2025-06-07T15:44:52.813140
+[2025-06-07 15:44:52] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-07T15:44:52.815143
+[2025-06-07 15:44:52] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/dbdd8b2e77857e3e9e0e5d2b837ab3af.mp3
+[2025-06-07 15:44:52] [ATTENTION_GUIDE] Player resuming at 2025-06-07T15:44:52.855066
+[2025-06-07 15:44:52] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-07T15:44:52.861240
+[2025-06-07 15:44:54] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-07T15:44:54.552420
+[2025-06-07 15:44:55] [ATTENTION_GUIDE] Queue processing complete at 2025-06-07T15:44:55.083018
+[2025-06-07 16:02:55] Sending debug logs to server...

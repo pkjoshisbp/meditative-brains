@@ -1,0 +1,72 @@
+TIMESTAMP: 2025-06-07 23:08:55.310847
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-07 16:02:56] Log file cleared after successful upload
+[2025-06-07 16:09:09] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 16:09:18] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 16:09:29] [ATTENTION_GUIDE] Enqueue guide: "keep Smiling" at 2025-06-07T16:09:29.485375
+ at 2025-06-07T16:09:29.485183
+[2025-06-07 16:09:29] [ATTENTION_GUIDE] Starting queue processing at 2025-06-07T16:09:29.493451
+[2025-06-07 16:09:29] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-07T16:09:29.496802
+[2025-06-07 16:09:30] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/dbdd8b2e77857e3e9e0e5d2b837ab3af.mp3
+[2025-06-07 16:09:30] [ATTENTION_GUIDE] Player resuming at 2025-06-07T16:09:30.349512
+[2025-06-07 16:09:30] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-07T16:09:30.360743
+[2025-06-07 16:09:32] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-07T16:09:32.084363
+[2025-06-07 16:09:32] [ATTENTION_GUIDE] Queue processing complete at 2025-06-07T16:09:32.109761
+[2025-06-07 16:13:53] [ATTENTION_GUIDE] Enqueue guide: "keep Smiling" at 2025-06-07T16:13:53.664595
+ at 2025-06-07T16:13:53.664398
+[2025-06-07 16:13:53] [ATTENTION_GUIDE] Starting queue processing at 2025-06-07T16:13:53.671046
+[2025-06-07 16:13:53] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-07T16:13:53.672865
+[2025-06-07 16:13:54] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/dbdd8b2e77857e3e9e0e5d2b837ab3af.mp3
+[2025-06-07 16:13:54] [ATTENTION_GUIDE] Player resuming at 2025-06-07T16:13:54.537807
+[2025-06-07 16:13:54] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-07T16:13:54.548880
+[2025-06-07 16:13:56] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-07T16:13:56.276994
+[2025-06-07 16:13:56] [ATTENTION_GUIDE] Queue processing complete at 2025-06-07T16:13:56.306644
+[2025-06-07 16:43:06] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 16:45:42] [ATTENTION_GUIDE] Timer fired for: "keep Smiling" at 2025-06-07T16:45:42.567446
+[2025-06-07 16:45:42] [ATTENTION_GUIDE] Enqueue guide: "keep Smiling" at 2025-06-07T16:45:42.574398
+[2025-06-07 16:45:42] [ATTENTION_GUIDE] Starting queue processing at 2025-06-07T16:45:42.576005
+[2025-06-07 16:45:42] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-07T16:45:42.578540
+[2025-06-07 16:45:45] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/dbdd8b2e77857e3e9e0e5d2b837ab3af.mp3
+[2025-06-07 16:45:45] [ATTENTION_GUIDE] Player resuming at 2025-06-07T16:45:45.300803
+[2025-06-07 16:45:45] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-07T16:45:45.323226
+[2025-06-07 16:45:47] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-07T16:45:47.145865
+[2025-06-07 16:45:47] [ATTENTION_GUIDE] Queue processing complete at 2025-06-07T16:45:47.199223
+[2025-06-07 16:54:27] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 17:04:07] [ATTENTION_GUIDE] Timer fired for: "keep Smiling" at 2025-06-07T17:04:07.837472
+[2025-06-07 17:04:07] [ATTENTION_GUIDE] Enqueue guide: "keep Smiling" at 2025-06-07T17:04:07.840579
+[2025-06-07 17:04:07] [ATTENTION_GUIDE] Starting queue processing at 2025-06-07T17:04:07.841625
+[2025-06-07 17:04:07] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-07T17:04:07.842542
+[2025-06-07 17:04:08] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/dbdd8b2e77857e3e9e0e5d2b837ab3af.mp3
+[2025-06-07 17:04:08] [ATTENTION_GUIDE] Player resuming at 2025-06-07T17:04:08.778056
+[2025-06-07 17:04:08] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-07T17:04:08.784771
+[2025-06-07 17:04:10] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-07T17:04:10.534090
+[2025-06-07 17:04:10] [ATTENTION_GUIDE] Queue processing complete at 2025-06-07T17:04:10.554668
+[2025-06-07 17:08:00] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 17:16:10] [ATTENTION_GUIDE] Timer fired for: "keep Smiling" at 2025-06-07T17:16:10.814643
+[2025-06-07 17:16:10] [ATTENTION_GUIDE] Enqueue guide: "keep Smiling" at 2025-06-07T17:16:10.822966
+[2025-06-07 17:16:10] [ATTENTION_GUIDE] Starting queue processing at 2025-06-07T17:16:10.825559
+[2025-06-07 17:16:10] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-07T17:16:10.827200
+[2025-06-07 17:16:11] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/dbdd8b2e77857e3e9e0e5d2b837ab3af.mp3
+[2025-06-07 17:16:11] [ATTENTION_GUIDE] Player resuming at 2025-06-07T17:16:11.240429
+[2025-06-07 17:16:11] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-07T17:16:11.260719
+[2025-06-07 17:16:13] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-07T17:16:13.104539
+[2025-06-07 17:16:13] [ATTENTION_GUIDE] Queue processing complete at 2025-06-07T17:16:13.127831
+[2025-06-07 17:31:03] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 17:36:10] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 17:41:12] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 21:11:58] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 21:13:00] [ATTENTION_GUIDE] Enqueue guide: "keep Smiling" at 2025-06-07T21:13:00.585632
+ at 2025-06-07T21:13:00.585464
+[2025-06-07 21:13:00] [ATTENTION_GUIDE] Starting queue processing at 2025-06-07T21:13:00.591289
+[2025-06-07 21:13:00] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-07T21:13:00.592211
+[2025-06-07 21:13:01] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/dbdd8b2e77857e3e9e0e5d2b837ab3af.mp3
+[2025-06-07 21:13:01] [ATTENTION_GUIDE] Player resuming at 2025-06-07T21:13:01.476448
+[2025-06-07 21:13:01] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-07T21:13:01.486404
+[2025-06-07 21:13:03] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-07T21:13:03.238471
+[2025-06-07 21:13:03] [ATTENTION_GUIDE] Queue processing complete at 2025-06-07T21:13:03.269586
+[2025-06-07 21:34:12] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 22:44:06] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 23:07:11] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/3268e5a28da9e93e7cc3d397fdda2e2c.mp3
+[2025-06-07 23:08:55] Sending debug logs to server...

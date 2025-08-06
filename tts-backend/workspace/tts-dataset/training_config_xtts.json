@@ -1,0 +1,104 @@
+{
+  "model": "vits",
+  "run_name": "vits_test",
+  "output_path": "./workspace/my-vits-checkpoints",
+
+  "audio": {
+    "sample_rate": 16000,
+    "num_mels": 80,
+    "fft_size": 1024,
+    "win_length": 1024,
+    "hop_length": 256,
+    "mel_fmin": 0,
+    "mel_fmax": 8000,
+    "power": 1.0,
+    "signal_norm": true,
+    "min_level_db": -100,
+    "ref_level_db": 20,
+    "max_norm": 1.0,
+    "clip_norm": true,
+    "symmetric_norm": true,
+    "do_trim_silence": false,
+    "trim_db": 60
+  },
+
+  "model_args": {
+    "hidden_channels": 192,
+    "num_chars": 80,
+    "use_phonemes": false,
+    "use_sdp": true,
+    "encoder_params": {
+      "hidden_channels": 192,
+      "filter_channels": 768,
+      "num_heads": 2,
+      "num_layers": 6,
+      "kernel_size": 3,
+      "dropout_p": 0.1,
+      "vocab_size": 80
+    }
+  },
+
+  "train_loss_weights": {
+    "mel_loss": 45.0,
+    "kl_loss": 0.2,
+    "duration_loss": 1.0,
+    "discriminator_loss": 1.0,
+    "feature_loss": 2.0
+  },
+
+  "characters": {
+    "characters_class": "TTS.tts.utils.text.characters.Graphemes",
+    "pad": "_",
+    "eos": "~",
+    "bos": "^",
+    "blank": "<BLNK>",
+    "characters": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ",
+    "punctuations": ".,!?-'\n",
+    "pad_id": 0,
+    "eos_id": 1,
+    "bos_id": 2,
+    "blank_id": 3
+  },
+
+  "batch_size": 4,
+  "eval_batch_size": 2,
+  "num_loader_workers": 4,
+  "num_eval_loader_workers": 1,
+  "epochs": 1000,
+
+  "optimizer": "AdamW",
+  "optimizer_params": {
+    "betas": [0.8, 0.99],
+    "eps": 1e-9,
+    "weight_decay": 0.01
+  },
+
+  "lr_gen": 0.0002,
+  "lr_disc": 0.0002,
+
+  "datasets": [
+    {
+      "name": "ljspeech",
+      "path": "/var/www/clients/client1/web51/web/workspace/tts-dataset",
+      "meta_file_train": "metadata.csv",
+      "meta_file_val": "metadata.csv",
+      "formatter": "ljspeech",
+      "meta_file_attn_mask": "",
+      "ignored_speakers": null
+    }
+  ],
+
+  "dataset_config": {
+    "formatter_name": "ljspeech",
+    "dataset_name": "ljspeech",
+    "path": "/var/www/clients/client1/web51/web/workspace/tts-dataset",
+    "meta_file_train": "metadata.csv",
+    "meta_file_val": "metadata.csv",
+    "language": "en",
+    "text_cleaner": ["english_cleaners2"],
+    "enable_eos_bos": true,
+    "add_blank": true,
+    "use_phonemes": false,
+    "ignore_speakers": null
+  }
+}

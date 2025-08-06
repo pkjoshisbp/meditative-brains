@@ -1,0 +1,121 @@
+{
+  "model": "vits",
+  "run_name": "hindi_vits_run",
+  "output_path": "./workspace/my-vits-checkpoints",
+
+  "characters": {
+  "pad": "_",
+  "eos": "~",
+  "bos": "^",
+  "blank": null,
+  "characters": "अआइईउऊएऐओऔऋऌऍऑऎएऐऒओऔअंअःकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसहळऴऩऽािीुूृेैोौंःँ।,\"'् ", 
+  "punctuations": "",
+  "phonemes": "",
+  "characters_class": "TTS.tts.utils.text.characters.Graphemes"
+},
+
+  "datasets": [
+    {
+      "formatter": "ljspeech",
+      "dataset_name": "hindi_dataset",
+      "path": "./workspace/tts-dataset",
+      "meta_file_train": "metadata.csv",
+      "meta_file_val": "metadata.csv",
+      "csv_separator": "|",
+      "delimiter": "|",
+      "language": "hi",
+      "phonemizer": "",
+      "meta_file_attn_mask": "",
+      "ignored_speakers": null
+    }
+  ],
+
+  "audio": {
+    "sample_rate": 16000,
+    "num_mels": 80,
+    "fft_size": 1024,
+    "hop_length": 256,
+    "win_length": 1024,
+    "mel_fmin": 0,
+    "mel_fmax": 8000
+  },
+
+  "trainer": {
+    "batch_size": 8,
+    "eval_batch_size": 8,
+    "epochs": 300,
+    "eval_split_size": 0.1,
+    "run_eval": true,
+    "print_step": 10,
+    "eval_step": 100,
+    "save_step": 200,
+    "save_best_after": 5,
+    "save_every_epoch": true,
+    "test_split_size": 0.0,
+    "num_loader_workers": 2
+  },
+
+  "optimizer": "AdamW",
+  "optimizer_params": {
+    "betas": [0.8, 0.99],
+    "eps": 1e-9,
+    "weight_decay": 0.01
+  },
+  "optimizer_disc": "AdamW",
+  "optimizer_disc_params": {
+    "betas": [0.8, 0.99],
+    "eps": 1e-9,
+    "weight_decay": 0.01
+  },
+
+  "lr_gen": 0.0002,
+  "lr_disc": 0.0002,
+  "lr_scheduler_gen": "ExponentialLR",
+  "lr_scheduler_gen_params": {
+    "gamma": 0.999875,
+    "last_epoch": -1
+  },
+  "lr_scheduler_disc": "ExponentialLR",
+  "lr_scheduler_disc_params": {
+    "gamma": 0.999875,
+    "last_epoch": -1
+  },
+
+  "grad_clip": [1000.0, 1000.0],
+  "scheduler_after_epoch": true,
+
+  "kl_loss_alpha": 1.0,
+  "disc_loss_alpha": 1.0,
+  "gen_loss_alpha": 1.0,
+  "feat_loss_alpha": 1.0,
+  "mel_loss_alpha": 45.0,
+  "dur_loss_alpha": 1.0,
+  "speaker_encoder_loss_alpha": 1.0,
+
+  "use_cuda": false,
+  "seed": 42,
+  "return_wav": true,
+  "compute_linear_spec": true,
+
+  "use_weighted_sampler": false,
+  "weighted_sampler_attrs": {},
+  "weighted_sampler_multipliers": {},
+
+  "r": 1,
+  "add_blank": true,
+
+  "test_sentences": [
+    ["आप अपना चेहरा हमेशा प्रकाश की ओर रखते हैं।"]
+  ],
+
+  "num_speakers": 0,
+  "use_speaker_embedding": false,
+  "speakers_file": null,
+  "speaker_embedding_channels": 256,
+  "language_ids_file": null,
+  "use_language_embedding": false,
+
+  "use_d_vector_file": false,
+  "d_vector_file": null,
+  "d_vector_dim": null
+}

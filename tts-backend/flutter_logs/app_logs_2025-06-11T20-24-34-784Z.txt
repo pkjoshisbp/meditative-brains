@@ -1,0 +1,23 @@
+TIMESTAMP: 2025-06-12 01:54:34.209216
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-11 17:32:52] Log file cleared after successful upload
+[2025-06-12 01:13:58] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-12 01:14:03] [SILENT_AUDIO] Starting silent session
+[2025-06-12 01:14:03] [SILENT_AUDIO] Player state changed to: PlayerState.playing
+[2025-06-12 01:14:05] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-12 01:18:58] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-12 01:24:00] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-12 01:29:02] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-12 01:34:04] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-12 01:39:05] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-12 01:44:07] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-12 01:49:09] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-12 01:54:11] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-12 01:54:24] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-12 01:54:28] [SILENT_AUDIO] Stopping silent session
+[2025-06-12 01:54:28] [SILENT_AUDIO] Silent session stopped
+: PlayerState.stopped
+[2025-06-12 01:54:28] [SILENT_AUDIO] Player state changed to: PlayerState.disposed
+[2025-06-12 01:54:34] Sending debug logs to server...

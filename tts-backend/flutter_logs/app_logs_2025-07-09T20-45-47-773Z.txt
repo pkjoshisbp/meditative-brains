@@ -1,0 +1,38 @@
+TIMESTAMP: 2025-07-10 02:15:47.353536
+DEVICE INFO: android AP3A.240905.015.A2.M536BXXUAFYE3
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-07-10 01:34:03] Log file cleared after successful upload
+[2025-07-10 01:34:32] [APP_LIFECYCLE] Current audio playback state: isPlaying=false
+[2025-07-10 01:34:32] [APP_LIFECYCLE] Current audio playback state: isPlaying=false
+[2025-07-10 01:40:27] [APP_LIFECYCLE] Current audio playback state: isPlaying=false
+[2025-07-10 01:40:28] [APP_LIFECYCLE] Current audio playback state: isPlaying=false
+[2025-07-10 01:40:29] [APP_LIFECYCLE] Current audio playback state: isPlaying=false
+[2025-07-10 01:40:29] [APP_LIFECYCLE] Current audio playback state: isPlaying=false
+[2025-07-10 02:14:56] [HOME] Foreground audio service initialized
+[2025-07-10 02:14:56] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-07-10 02:15:00] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-keep-my-face-toward-the-sunshine-167a8220bd80deaabc9f8fad5093a05a.mp3
+[2025-07-10 02:15:00] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-cultivate-a-positive-attitude-to-make-my-dreams-come-true-55e16d53547cc4cbca0218d1f027f1d6.mp3
+[2025-07-10 02:15:00] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-love-what-i-do-and-it-shows-in-my-work-08ea73e0a6cd406641ce92ecbb296ce2.mp3
+[2025-07-10 02:15:00] [NATIVE_PLAYBACK] Starting native message scheduling like music apps
+[2025-07-10 02:15:06] [HOME] Foreground audio service initialized
+[2025-07-10 02:15:06] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-07-10 02:15:08] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-keep-my-face-toward-the-sunshine-167a8220bd80deaabc9f8fad5093a05a.mp3
+[2025-07-10 02:15:08] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-cultivate-a-positive-attitude-to-make-my-dreams-come-true-55e16d53547cc4cbca0218d1f027f1d6.mp3
+[2025-07-10 02:15:08] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-love-what-i-do-and-it-shows-in-my-work-08ea73e0a6cd406641ce92ecbb296ce2.mp3
+[2025-07-10 02:15:08] [NATIVE_PLAYBACK] Starting native message scheduling like music apps
+[2025-07-10 02:15:31] [HOME] Foreground audio service initialized
+[2025-07-10 02:15:31] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-07-10 02:15:33] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-keep-my-face-toward-the-sunshine-167a8220bd80deaabc9f8fad5093a05a.mp3
+[2025-07-10 02:15:33] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-cultivate-a-positive-attitude-to-make-my-dreams-come-true-55e16d53547cc4cbca0218d1f027f1d6.mp3
+[2025-07-10 02:15:33] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-love-what-i-do-and-it-shows-in-my-work-08ea73e0a6cd406641ce92ecbb296ce2.mp3
+[2025-07-10 02:15:33] [NATIVE_PLAYBACK] Starting native message scheduling like music apps
+[2025-07-10 02:15:37] [HOME] Foreground audio service initialized
+[2025-07-10 02:15:37] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-07-10 02:15:39] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-keep-my-face-toward-the-sunshine-167a8220bd80deaabc9f8fad5093a05a.mp3
+[2025-07-10 02:15:39] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-cultivate-a-positive-attitude-to-make-my-dreams-come-true-55e16d53547cc4cbca0218d1f027f1d6.mp3
+[2025-07-10 02:15:39] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/en-US-AvaMultilingualNeural/i-love-what-i-do-and-it-shows-in-my-work-08ea73e0a6cd406641ce92ecbb296ce2.mp3
+[2025-07-10 02:15:39] [NATIVE_PLAYBACK] Starting native message scheduling like music apps
+[2025-07-10 02:15:44] [HOME] Foreground audio service initialized
+[2025-07-10 02:15:44] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-07-10 02:15:47] Sending debug logs to server...

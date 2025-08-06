@@ -1,0 +1,68 @@
+{
+  "model": "glow_tts",
+  "run_name": "glow_tts",
+  
+  "audio": {
+    "sample_rate": 16000,
+    "max_wav_value": 32768.0,
+    "mel_fmin": 0,
+    "mel_fmax": 8000,
+    "fft_size": 1024,
+    "win_length": 1024,
+    "hop_length": 256,
+    "frame_shift_ms": null,
+    "frame_length_ms": null,
+    "stft_pad_mode": "reflect",
+    "mel_num": 80,
+    "do_trim_silence": true,
+    "trim_db": 60
+  },
+
+  "glow_tts_config": {
+    "encoder_type": "rel_pos_transformer",
+    "encoder_params": {
+      "kernel_size": 3,
+      "dropout_p": 0.1,
+      "num_conv_layers": 2,
+      "num_layers": 6,
+      "hidden_channels_ffn": 768,
+      "num_heads": 2
+    },
+    "use_encoder_prenet": true,
+    "hidden_channels": 192,
+    "mean_only": true,
+    "out_channels": 80,
+    "num_flow_blocks": 12,
+    "inference_noise_scale": 0.33,
+    "length_scale": 1.0
+  },
+
+  "train_config": {
+    "output_path": "tts-checkpoint",
+    "epochs": 1000,
+    "batch_size": 32,
+    "eval_batch_size": 16,
+    "mixed_precision": false,
+    "run_eval": true,
+    "test_delay_epochs": -1,
+    "print_eval": false,
+    "print_step": 25,
+    "num_loader_workers": 4,
+    "num_eval_loader_workers": 4
+  },
+
+  "text_config": {
+    "text_cleaner": "basic_cleaners",
+    "enable_eos_bos": true,
+    "characters": {
+      "characters_class": "TTS.tts.utils.text.characters.Graphemes",
+      "pad": "_",
+      "eos": "~",
+      "bos": "^",
+      "blank": "<BLNK>",
+      "characters": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ",
+      "punctuations": ".,!?-'\"",
+      "phonemes": null
+    }
+  }
+}

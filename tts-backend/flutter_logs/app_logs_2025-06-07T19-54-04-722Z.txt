@@ -1,0 +1,12 @@
+TIMESTAMP: 2025-06-08 01:24:04.313385
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-08 01:07:06] Log file cleared after successful upload
+[2025-06-08 01:23:11] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-08 01:23:16] [ATTENTION] Starting playback for guide 0
+[2025-06-08 01:23:16] [ATTENTION] Starting background music
+[2025-06-08 01:23:16] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-08 01:23:16] [ATTENTION] Started playback
+[2025-06-08 01:23:18] [ATTENTION] Playback completed
+[2025-06-08 01:24:04] Sending debug logs to server...

@@ -1,0 +1,72 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+/tts-backend/node_modules
+/tts-backend/.env
+/tts-backend/.env.backup
+/tts-backend/.env.production
+/tts-backend/.phpunit.result.cache
+/tts-backend/Homestead.json
+/tts-backend/Homestead.yaml
+/tts-backend/auth.json
+/tts-backend/npm-debug.log
+/tts-backend/yarn-error.log
+/tts-backend/.fleet
+/tts-backend/.idea
+/tts-backend/.vscode
+/tts-backend/public/build
+/tts-backend/audio-cache
+/tts-backend/bg-music
+/tts-backend/tts-venv
+/tts-backend/logs/
+/tts-backend/app.log
+
+# VITS Model Files (Large AI Models) - excluding Node.js models
+*.pth
+*.pt
+*.bin
+*.safetensors
+# Large AI model directories in TTS backend
+/tts-backend/checkpoints/
+/tts-backend/outputs/
+/tts-backend/TTS/tts_models/
+/tts-backend/TTS/vocoder_models/
+# Keep Node.js models but exclude Python AI models in models directory
+/tts-backend/models/**/*.pth
+/tts-backend/models/**/*.pt
+/tts-backend/models/**/*.bin
+/tts-backend/models/**/*.safetensors
+
+# Large dataset files and audio outputs
+*.wav
+*.mp3
+*.flac
+*.ogg
+# Allow sample audio files in public directory
+!/public/sample-audio/*.mp3
+!/public/sample-audio/*.wav
+# Exclude audio cache and background music
+/tts-backend/audio-cache/
+/tts-backend/bg-music/
+# Exclude test outputs and workspace audio files
+/tts-backend/test_outputs/
+/tts-backend/validation_outputs/
+/tts-backend/parler_*/
+/tts-backend/workspace/tts-dataset/
+/tts-backend/temp_audio/

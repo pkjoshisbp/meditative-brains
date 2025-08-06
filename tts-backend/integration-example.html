@@ -1,0 +1,172 @@
+<!-- 
+    INTEGRATION GUIDE: Adding SSML Preview to Your Existing Admin Interface
+    
+    This example shows how to integrate the SSML preview functionality
+    into your existing admin/messages page.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Messages with SSML Preview Integration Example</title>
+    
+    <!-- Your existing CSS -->
+    <style>
+        /* Your existing admin styles... */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-primary { background: #007bff; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        
+        .btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>📝 Edit Messages</h1>
+        
+        <!-- Your existing form -->
+        <form id="messageForm">
+            <div class="form-group">
+                <label for="categorySelect">Category:</label>
+                <select id="categorySelect">
+                    <option value="supreme-confidence">Supreme Confidence</option>
+                    <option value="motivation">Motivation</option>
+                    <option value="success">Success Mindset</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="messagesTextarea">Messages (one per line):</label>
+                <textarea 
+                    id="messagesTextarea" 
+                    rows="15" 
+                    placeholder="Enter your messages here, one per line..."
+                >You are confident and powerful in everything you do.
+Success flows to you naturally because you believe in yourself.
+Your potential is limitless and you embrace growth every day.
+Every challenge makes you stronger and more resilient.
+You trust completely in your abilities and move forward with courage.</textarea>
+            </div>
+            
+            <!-- Button group with your existing buttons + new SSML preview button -->
+            <div class="form-group">
+                <div class="button-group" id="buttonContainer">
+                    <!-- Your existing buttons -->
+                    <button type="submit" class="btn btn-primary">
+                        💾 Save Messages
+                    </button>
+                    
+                    <!-- The SSML Preview button will be added here automatically -->
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Include the SSML Preview Manager -->
+    <script src="/ssml-preview-manager.js"></script>
+    
+    <script>
+        // Your existing JavaScript code...
+        
+        // Initialize SSML preview functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add the SSML Preview button to your button container
+            ssmlPreviewManager.addPreviewButton('buttonContainer', 'messagesTextarea');
+            
+            // Your existing form handling code...
+            document.getElementById('messageForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveMessages();
+            });
+        });
+        
+        // Your existing save function
+        function saveMessages() {
+            const messages = document.getElementById('messagesTextarea').value;
+            const category = document.getElementById('categorySelect').value;
+            
+            // Your existing save logic...
+            console.log('Saving messages:', messages);
+            console.log('Category:', category);
+            
+            // Example API call (replace with your actual endpoint)
+            /*
+            fetch('/api/messages/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    category: category,
+                    messages: messages.split('\n').filter(m => m.trim())
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Messages saved successfully!');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving messages.');
+            });
+            */
+            
+            alert('Messages saved successfully!');
+        }
+    </script>
+</body>
+</html>

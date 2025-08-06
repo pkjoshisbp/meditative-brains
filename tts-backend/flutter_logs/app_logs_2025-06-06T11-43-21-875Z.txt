@@ -1,0 +1,16 @@
+TIMESTAMP: 2025-06-06 17:13:20.886901
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-06 16:49:42] [ATTENTION_GUIDE] Enqueue guide: "Keep Smiling " at 2025-06-06T16:49:42.638311
+ at 2025-06-06T16:49:42.635479
+[2025-06-06 16:49:42] [ATTENTION_GUIDE] Starting queue processing at 2025-06-06T16:49:42.698848
+[2025-06-06 16:49:42] [ATTENTION_GUIDE] Playing guide: "Keep Smiling " [en-IN] at 2025-06-06T16:49:42.707886
+[2025-06-06 16:49:42] [ATTENTION_GUIDE] Downloading and caching audio: https://motivation.mywebsolutions.co.in:3000/audio-cache/en-IN/attention-guide/en-US-AvaMultilingualNeural/keep-smiling-daff66c089f74022d9f5bcf118151e0a.mp3
+[2025-06-06 16:49:43] [ATTENTION_GUIDE] Cached audio at: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/98954b007eac52f46abb25b9fa009575.mp3
+[2025-06-06 16:49:43] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/98954b007eac52f46abb25b9fa009575.mp3
+[2025-06-06 16:49:43] [ATTENTION_GUIDE] Player resuming at 2025-06-06T16:49:43.579016
+[2025-06-06 16:49:43] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-06T16:49:43.593584
+[2025-06-06 16:49:45] [ATTENTION_GUIDE] Finished playing: "Keep Smiling " [en-IN] at 2025-06-06T16:49:45.430359
+[2025-06-06 16:49:45] [ATTENTION_GUIDE] Queue processing complete at 2025-06-06T16:49:45.485807
+[2025-06-06 17:13:20] Sending debug logs to server...

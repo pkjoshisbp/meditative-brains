@@ -1,0 +1,54 @@
+TIMESTAMP: 2025-06-07 02:28:38.441157
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-07 00:23:39] Log file cleared after successful upload
+[2025-06-07 01:04:52] No audioUrl provided for keep Smiling
+[2025-06-07 01:04:52] No audio file available and no URL provided to download from
+[2025-06-07 01:04:52] Audio cache error: Exception: No audio file available and no URL provided to download from
+Stack: #0      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:106)
+<asynchronous suspension>
+#1      _HomeScreenState._playAttentionGuideVoice (package:motivation_app/screens/home_screen.dart:1089)
+<asynchronous suspension>
+#2      _HomeScreenState._scheduleNextAttentionGuide.<anonymous closure> (package:motivation_app/screens/home_screen.dart:1072)
+<asynchronous suspension>
+
+[2025-06-07 01:22:40] No audioUrl provided for keep Smiling
+[2025-06-07 01:22:40] No audio file available and no URL provided to download from
+[2025-06-07 01:22:40] Audio cache error: Exception: No audio file available and no URL provided to download from
+Stack: #0      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:106)
+<asynchronous suspension>
+#1      _HomeScreenState._playAttentionGuideVoice (package:motivation_app/screens/home_screen.dart:1089)
+<asynchronous suspension>
+#2      _HomeScreenState._scheduleNextAttentionGuide.<anonymous closure> (package:motivation_app/screens/home_screen.dart:1072)
+<asynchronous suspension>
+
+[2025-06-07 01:47:00] No audioUrl provided for keep Smiling
+[2025-06-07 01:47:00] No audio file available and no URL provided to download from
+[2025-06-07 01:47:00] Audio cache error: Exception: No audio file available and no URL provided to download from
+Stack: #0      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:106)
+<asynchronous suspension>
+#1      _HomeScreenState._playAttentionGuideVoice (package:motivation_app/screens/home_screen.dart:1089)
+<asynchronous suspension>
+#2      _HomeScreenState._scheduleNextAttentionGuide.<anonymous closure> (package:motivation_app/screens/home_screen.dart:1072)
+<asynchronous suspension>
+
+[2025-06-07 02:11:53] [ATTENTION_GUIDE] Enqueue guide: "keep Smiling" at 2025-06-07T02:11:53.229472
+ at 2025-06-07T02:11:53.229329
+[2025-06-07 02:11:53] [ATTENTION_GUIDE] Starting queue processing at 2025-06-07T02:11:53.236807
+[2025-06-07 02:11:53] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-07T02:11:53.238111
+[2025-06-07 02:11:53] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/c9d55cf4d4742f1f945fc286563d4ed9.mp3
+[2025-06-07 02:11:53] [ATTENTION_GUIDE] Player resuming at 2025-06-07T02:11:53.334770
+[2025-06-07 02:11:53] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-07T02:11:53.341785
+[2025-06-07 02:11:55] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-07T02:11:55.079877
+[2025-06-07 02:11:55] [ATTENTION_GUIDE] Queue processing complete at 2025-06-07T02:11:55.092470
+[2025-06-07 02:18:04] [ATTENTION_GUIDE] Enqueue guide: "keep Smiling" at 2025-06-07T02:18:04.894534
+ at 2025-06-07T02:18:04.894380
+[2025-06-07 02:18:04] [ATTENTION_GUIDE] Starting queue processing at 2025-06-07T02:18:04.900515
+[2025-06-07 02:18:04] [ATTENTION_GUIDE] Playing guide: "keep Smiling" [en-IN] at 2025-06-07T02:18:04.901571
+[2025-06-07 02:18:04] [ATTENTION_GUIDE] Audio source set to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/c9d55cf4d4742f1f945fc286563d4ed9.mp3
+[2025-06-07 02:18:04] [ATTENTION_GUIDE] Player resuming at 2025-06-07T02:18:04.927069
+[2025-06-07 02:18:04] [ATTENTION_GUIDE] Waiting for playback completion at 2025-06-07T02:18:04.933157
+[2025-06-07 02:18:06] [ATTENTION_GUIDE] Finished playing: "keep Smiling" [en-IN] at 2025-06-07T02:18:06.626365
+[2025-06-07 02:18:06] [ATTENTION_GUIDE] Queue processing complete at 2025-06-07T02:18:06.639785
+[2025-06-07 02:28:38] Sending debug logs to server...

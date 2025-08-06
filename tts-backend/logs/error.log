@@ -1,0 +1,4 @@
+2025-08-05 18:28:33.499 [ERROR]: API endpoint not found: /api/auth/login
+2025-08-06 16:28:11.945 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2025-08-06 16:28:12.008 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2025-08-06 17:06:34.194 [ERROR]: API endpoint not found: /api/v1/check-version

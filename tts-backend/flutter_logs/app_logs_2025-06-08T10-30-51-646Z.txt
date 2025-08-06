@@ -1,0 +1,15 @@
+TIMESTAMP: 2025-06-08 16:00:50.943748
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-08 15:42:27] Log file cleared after successful upload
+[2025-06-08 15:53:09] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-08 15:53:11] [SILENT_AUDIO] Starting silent session
+[2025-06-08 15:53:12] [SILENT_AUDIO] Silent session started
+[2025-06-08 15:53:12] [SILENT_AUDIO] Player state changed to: PlayerState.playing
+[2025-06-08 15:53:15] [SILENT_AUDIO] Session already playing
+[2025-06-08 15:53:15] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-08 16:00:49] [SILENT_AUDIO] Stopping silent session
+[2025-06-08 16:00:49] [SILENT_AUDIO] Player state changed to: PlayerState.stopped
+[2025-06-08 16:00:49] [SILENT_AUDIO] Player state changed to: PlayerState.disposed
+[2025-06-08 16:00:50] Sending debug logs to server...

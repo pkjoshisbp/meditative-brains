@@ -1,0 +1,4 @@
+systemctl status node_app.service
+systemctl start node_app.service
+systemctl restart node_app.service
+systemctl stop node_app.service

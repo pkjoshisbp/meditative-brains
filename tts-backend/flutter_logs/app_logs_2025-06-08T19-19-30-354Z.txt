@@ -1,0 +1,16 @@
+TIMESTAMP: 2025-06-09 00:49:29.865293
+DEVICE INFO: android UP1A.231005.007.M536BXXSAEYC4
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2025-06-09 00:24:42] Log file cleared after successful upload
+[2025-06-09 00:39:36] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 00:39:40] [SILENT_AUDIO] Starting silent session
+[2025-06-09 00:39:40] [SILENT_AUDIO] Error starting session: Unable to load asset: "assets/assets/audio/silent.mp3".
+[2025-06-09 00:39:43] [SILENT_AUDIO] Starting silent session
+[2025-06-09 00:39:43] [SILENT_AUDIO] Error starting session: Unable to load asset: "assets/assets/audio/silent.mp3".
+[2025-06-09 00:39:43] [SILENT_AUDIO] Starting silent session
+[2025-06-09 00:39:43] [SILENT_AUDIO] Error starting session: Unable to load asset: "assets/assets/audio/silent.mp3".
+[2025-06-09 00:39:43] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/980ee3fac6ba54e19463a5ab70780999.mp3
+[2025-06-09 00:49:27] [SILENT_AUDIO] Stopping silent session
+[2025-06-09 00:49:27] [SILENT_AUDIO] Silent session stopped
+[2025-06-09 00:49:29] Sending debug logs to server...
