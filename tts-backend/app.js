@@ -18,8 +18,8 @@ import logger from './utils/logger.js';
 
 // Define HTTPS options with your SSL certificate and key
 const options = {
-    cert: fs.readFileSync('/var/www/clients/client1/web51/ssl/motivation.mywebsolutions.co.in-le.crt'),
-    key: fs.readFileSync('/var/www/clients/client1/web51/ssl/motivation.mywebsolutions.co.in-le.key')
+    cert: fs.readFileSync('/var/www/meditative-brains.com/ssl/meditative-brains.com-le.crt'),
+    key: fs.readFileSync('/var/www/meditative-brains.com/ssl/meditative-brains.com-le.key')
 };
 
 const app = express();
@@ -71,9 +71,9 @@ mongoose.connect('mongodb://pawan:pragati123..@127.0.0.1:27017/motivation')
             logger.info(`Created audio cache directory: ${audioCachePath}`);
         }
         
-        // Create the HTTPS server and start listening on port 3000
-        https.createServer(options, app).listen(3000, () => {
-            logger.info('Server running on port 3000 with HTTPS');
+        // Create the HTTPS server and start listening on port 3001
+        https.createServer(options, app).listen(3001, () => {
+            logger.info('Server running on port 3001 with HTTPS');
             logger.info(`Audio cache directory: ${audioCachePath}`);
         });
     })

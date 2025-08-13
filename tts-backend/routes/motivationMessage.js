@@ -34,10 +34,17 @@ motivationMessageRouter.post('/', async (req, res) => {
     // Normalize language code
     const formattedLanguage = language === 'hn-IN' ? 'hi-IN' : language.replace('_', '-');
     
-    // Always use AvaMultilingualNeural for supported languages
-    const selectedSpeaker = ['en-IN', 'en-US', 'hi-IN', 'hn-IN'].includes(formattedLanguage) 
-      ? 'en-US-AvaMultilingualNeural'
-      : (speaker || selectAppropriateVoice(formattedLanguage));
+    // Set speaker based on engine
+    let selectedSpeaker;
+    if (engine === 'vits') {
+      // For VITS engine, use VITS speaker names
+      selectedSpeaker = speaker || 'p225'; // Default VITS speaker
+    } else {
+      // For Azure TTS, use AvaMultilingualNeural for supported languages
+      selectedSpeaker = ['en-IN', 'en-US', 'hi-IN', 'hn-IN'].includes(formattedLanguage) 
+        ? 'en-US-AvaMultilingualNeural'
+        : (speaker || 'en-US-AriaNeural'); // Default Azure speaker
+    }
 
     const recordData = {
       categoryId,
@@ -152,14 +159,33 @@ motivationMessageRouter.post('/generate-category-audio', async (req, res) => {
             text,
             ssml: ssmlToUse
           });
+          
+          // Use message's prosody settings if available, otherwise fall back to request body
+          const messageRate = message.prosodyRate || rate || 'medium';
+          const messagePitch = message.prosodyPitch || pitch || 'medium';
+          const messageVolume = message.prosodyVolume || volume || 'medium';
+          
+          // Convert prosodyRate to VITS speed parameter
+          let vitsSpeed = 1.0; // default
+          if (messageRate === 'slow' || messageRate === 'x-slow') {
+            vitsSpeed = 1.2; // slower speech
+          } else if (messageRate === 'fast' || messageRate === 'x-fast') {
+            vitsSpeed = 0.8; // faster speech
+          } else if (typeof messageRate === 'number') {
+            vitsSpeed = 1.0 / messageRate; // inverse relationship for VITS
+          }
+          
           const audioOptions = {
-            engine,
-            language,
-            speaker,
-            speakerStyle: speakerStyle || 'empathetic',
-            speakerPersonality,
+            engine: message.engine || engine,
+            language: message.language || language,
+            speaker: message.speaker || speaker,
+            speakerStyle: message.speakerStyle || speakerStyle || 'empathetic',
+            speakerPersonality: message.speakerPersonality || speakerPersonality,
             category: categoryName.category,
-            rate, pitch, volume,
+            rate: messageRate, 
+            pitch: messagePitch, 
+            volume: messageVolume,
+            speed: vitsSpeed, // Add VITS speed parameter
             noise: 0.667,
             noiseW: 0.8,
             ssml: ssmlToUse // Use SSML from DB if present
@@ -404,6 +430,17 @@ motivationMessageRouter.get('/generate-message-audio/:recordId/:messageIndex', a
     }
 
     // Generate audio
+    // Convert prosodyRate to VITS speed parameter
+    let vitsSpeed = 1.0; // default
+    const messageRate = messageDoc.prosodyRate || messageDoc.rate || 'medium';
+    if (messageRate === 'slow' || messageRate === 'x-slow') {
+      vitsSpeed = 1.2; // slower speech
+    } else if (messageRate === 'fast' || messageRate === 'x-fast') {
+      vitsSpeed = 0.8; // faster speech
+    } else if (typeof messageRate === 'number') {
+      vitsSpeed = 1.0 / messageRate; // inverse relationship for VITS
+    }
+    
     const audioOptions = {
       engine: messageDoc.engine,
       language: messageDoc.language,
@@ -411,9 +448,10 @@ motivationMessageRouter.get('/generate-message-audio/:recordId/:messageIndex', a
       speakerStyle: messageDoc.speakerStyle || 'empathetic',
       speakerPersonality: messageDoc.speakerPersonality,
       category: messageDoc.categoryId?.category || 'default',
-      rate: messageDoc.rate,
-      pitch: messageDoc.pitch,
-      volume: messageDoc.volume,
+      rate: messageDoc.prosodyRate || messageDoc.rate,
+      pitch: messageDoc.prosodyPitch || messageDoc.pitch,
+      volume: messageDoc.prosodyVolume || messageDoc.volume,
+      speed: vitsSpeed, // Add VITS speed parameter
       noise: 0.667,
       noiseW: 0.8,
       ssml
@@ -514,5 +552,131 @@ function transformToSSML(message, index = 0) {
 
   return ssmlMessage;
 }
+
+// DELETE request to delete a single message by ID
+motivationMessageRouter.delete('/:id', async (req, res) => {
+  logger.info('DELETE /api/motivationMessage/:id - Incoming request', { params: req.params });
+  const { id } = req.params;
+  
+  try {
+    // First, check if the message exists
+    const messageToDelete = await MotivationMessage.findById(id).populate('categoryId');
+    
+    if (!messageToDelete) {
+      logger.error('Message not found for deletion', { id });
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Message not found',
+        messageId: id
+      });
+    }
+    
+    // Log the message details before deletion
+    logger.info('Message to be deleted', { 
+      messageId: id,
+      categoryId: messageToDelete.categoryId?._id,
+      categoryName: messageToDelete.categoryId?.category,
+      messageCount: messageToDelete.messages?.length || 0
+    });
+    
+    // Delete the message
+    await MotivationMessage.findByIdAndDelete(id);
+    
+    logger.info('Message deleted successfully', { messageId: id });
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'Message deleted successfully',
+      messageId: id,
+      deletedMessage: {
+        id: messageToDelete._id,
+        categoryId: messageToDelete.categoryId?._id,
+        categoryName: messageToDelete.categoryId?.category,
+        messageCount: messageToDelete.messages?.length || 0
+      }
+    });
+    
+  } catch (error) {
+    logger.error('Error deleting message', { 
+      error: error.message, 
+      stack: error.stack, 
+      messageId: id 
+    });
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      messageId: id
+    });
+  }
+});
+
+// DELETE request to delete specific message by ID from a category
+motivationMessageRouter.delete('/category/:categoryId/message/:messageId', async (req, res) => {
+  logger.info('DELETE /api/motivationMessage/category/:categoryId/message/:messageId - Incoming request', { params: req.params });
+  const { categoryId, messageId } = req.params;
+  
+  try {
+    // First, check if the message exists and belongs to the specified category
+    const messageToDelete = await MotivationMessage.findOne({ 
+      _id: messageId, 
+      categoryId: categoryId 
+    }).populate('categoryId');
+    
+    if (!messageToDelete) {
+      logger.error('Message not found or does not belong to specified category', { messageId, categoryId });
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Message not found or does not belong to the specified category',
+        messageId,
+        categoryId
+      });
+    }
+    
+    // Log the message details before deletion
+    logger.info('Message to be deleted from category', { 
+      messageId,
+      categoryId,
+      categoryName: messageToDelete.categoryId?.category,
+      messageCount: messageToDelete.messages?.length || 0,
+      engine: messageToDelete.engine,
+      language: messageToDelete.language,
+      speaker: messageToDelete.speaker
+    });
+    
+    // Delete the specific message
+    await MotivationMessage.findByIdAndDelete(messageId);
+    
+    logger.info('Message deleted successfully from category', { messageId, categoryId });
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'Message deleted successfully from category',
+      messageId,
+      categoryId,
+      deletedMessage: {
+        id: messageToDelete._id,
+        categoryId: messageToDelete.categoryId?._id,
+        categoryName: messageToDelete.categoryId?.category,
+        engine: messageToDelete.engine,
+        language: messageToDelete.language,
+        speaker: messageToDelete.speaker
+      }
+    });
+    
+  } catch (error) {
+    logger.error('Error deleting message from category', { 
+      error: error.message, 
+      stack: error.stack, 
+      messageId,
+      categoryId
+    });
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      messageId,
+      categoryId
+    });
+  }
+});
 
 export default motivationMessageRouter;

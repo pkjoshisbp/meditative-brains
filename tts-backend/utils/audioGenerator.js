@@ -5,6 +5,7 @@ import { execSync } from 'child_process';
 import axios from 'axios';
 import logger from './logger.js';
 import slugify from 'slugify'; // If not installed, run: npm install slugify
+import { parseSSMLForVITS, enhanceTextForVITS } from './ssmlParser.js';
 
 // Load voices list once at startup
 import voicesList from '../azure-voices.json' assert { type: 'json' };
@@ -61,7 +62,7 @@ function formatProsodyRate(rate) {
 }
 
 // Add base URL configuration
-const BASE_URL = process.env.BASE_URL || 'https://motivation.mywebsolutions.co.in:3000';
+const BASE_URL = process.env.BASE_URL || 'https://meditative-brains.com:3001';
 
 function generateAudioPaths(text, options = {}) {
   // Always use the category from options, fallback to 'default'
@@ -75,9 +76,46 @@ function generateAudioPaths(text, options = {}) {
   // Log the category value used for path generation
   logger.debug('generateAudioPaths: category value', { category, optionsCategory: options.category || '<<undefined>>' });
 
+  // Map speaker based on engine
+  let folderSpeaker = speaker;
+  if (engine === 'vits') {
+    // For VITS, map speakers based on language and preference
+    if (language === 'hi-IN' || language === 'hi') {
+      // Hindi language - use local Hindi models
+      if (speaker.includes('female') || speaker.includes('f') || speaker === 'hi-female') {
+        folderSpeaker = 'hi-female';
+      } else if (speaker.includes('male') || speaker.includes('m') || speaker === 'hi-male') {
+        folderSpeaker = 'hi-male';
+      } else {
+        // Default to female for Hindi
+        folderSpeaker = 'hi-female';
+      }
+    } else {
+      // English language - use VCTK speakers
+      if (speaker.includes('p225') || speaker.includes('p-225') || speaker.includes('female')) {
+        folderSpeaker = 'p225';
+      } else if (speaker.includes('p227') || speaker.includes('p-227') || speaker.includes('male')) {
+        folderSpeaker = 'p227';
+      } else if (speaker.includes('p230')) {
+        folderSpeaker = 'p230';
+      } else if (speaker.includes('p245')) {
+        folderSpeaker = 'p245';
+      } else {
+        // Default VITS speaker for English
+        folderSpeaker = 'p225';
+      }
+    }
+    logger.debug('VITS speaker mapping in generateAudioPaths', { 
+      originalSpeaker: speaker, 
+      folderSpeaker, 
+      language 
+    });
+  }
+  // For Azure, keep the original speaker name
+
   const hash = hashMessage(text);
   const slug = slugifyText(text);
-  const extension = engine === 'azure' ? 'mp3' : 'wav';
+  const extension = 'aac'; // Use AAC for both Azure and VITS for Flutter compatibility
 
   // Build path: en-US/category/model/filename
   const categoryPath = category ? slugifyText(category) : 'default';
@@ -85,7 +123,7 @@ function generateAudioPaths(text, options = {}) {
     'audio-cache',
     language,
     categoryPath,
-    speaker,
+    folderSpeaker, // Use the mapped speaker name
     `${slug}-${hash}.${extension}`
   ).replace(/\\/g, '/');
 
@@ -180,15 +218,34 @@ async function generateAudioFile(text, filePath, options) {
           headers: {
             'Ocp-Apim-Subscription-Key': AZURE_KEY,
             'Content-Type': 'application/ssml+xml',
-            'X-Microsoft-OutputFormat': 'audio-24khz-160kbitrate-mono-mp3',
+            'X-Microsoft-OutputFormat': 'riff-48khz-16bit-mono-pcm', // Request WAV format for AAC conversion
             'User-Agent': 'MotivationAppClient',
           },
           responseType: 'arraybuffer',
         }
       );
       if (!response.data || response.data.length === 0) throw new Error('Empty response from Azure TTS');
-      fs.writeFileSync(filePath, response.data);
-      logger.info('Generated Azure audio', { filePath, fileSize: response.data.length, category: options.category });
+      
+      // Save WAV temporarily then convert to AAC
+      const tempWavPath = filePath.replace('.aac', '.wav');
+      fs.writeFileSync(tempWavPath, response.data);
+      
+      // Convert WAV to AAC using FFmpeg
+      const ffmpegCommand = `ffmpeg -i "${tempWavPath}" -c:a aac -b:a 192k -ac 1 -ar 48000 "${filePath}" -y`;
+      logger.debug('Azure WAV to AAC conversion command:', { ffmpegCommand });
+      
+      execSync(ffmpegCommand, { stdio: 'pipe' });
+      logger.info('Generated Azure audio and converted to AAC', { 
+        filePath, 
+        fileSize: fs.existsSync(filePath) ? fs.statSync(filePath).size : 0,
+        category: options.category 
+      });
+      
+      // Clean up temporary WAV file
+      if (fs.existsSync(tempWavPath)) {
+        fs.unlinkSync(tempWavPath);
+        logger.debug('Cleaned up temporary Azure WAV file', { tempWavPath });
+      }
     } catch (err) {
       if (err.response && err.response.data) {
         logger.error('Azure TTS error details', { data: err.response.data });
@@ -205,13 +262,134 @@ async function generateAudioFile(text, filePath, options) {
     try {
       const hash = hashMessage(text); // Add missing hash variable
       const tempTextPath = path.join(TEMP_TEXT_DIR, `${hash}.txt`);
-      fs.writeFileSync(tempTextPath, text);
-      const command = `python3 run_vits_inference.py --text_file "${tempTextPath}" --output "${filePath}" --length_scale ${options.speed} --noise_scale ${options.noise} --noise_scale_w ${options.noiseW}`;
-      execSync(command);
-      logger.info('Generated VITS audio', { filePath });
-      fs.unlinkSync(tempTextPath); // Clean up temp file
+      
+      // Process SSML for VITS if provided, otherwise use text directly
+      let processedText = text;
+      let vitsParams = {
+        speed: options.speed || 1.0,
+        noise: options.noise || 0.667,
+        noiseW: options.noiseW || 0.8
+      };
+
+      if (options.ssml && options.ssml !== text) {
+        logger.info('Processing SSML for VITS', { ssml: options.ssml });
+        const ssmlResult = parseSSMLForVITS(options.ssml);
+        processedText = enhanceTextForVITS(ssmlResult.text, ssmlResult.vitsParams);
+        
+        // Apply SSML-derived parameters
+        if (ssmlResult.vitsParams.length_scale) {
+          vitsParams.speed = ssmlResult.vitsParams.length_scale;
+        }
+        if (ssmlResult.vitsParams.noise_scale) {
+          vitsParams.noise = ssmlResult.vitsParams.noise_scale;
+        }
+        if (ssmlResult.vitsParams.noise_scale_w) {
+          vitsParams.noiseW = ssmlResult.vitsParams.noise_scale_w;
+        }
+        
+        logger.info('Applied SSML parameters to VITS', { 
+          originalText: text,
+          processedText,
+          vitsParams,
+          ssmlParams: ssmlResult.vitsParams
+        });
+      }
+      
+      fs.writeFileSync(tempTextPath, processedText);
+      
+      // Ensure the output directory exists
+      const outputDir = path.dirname(filePath);
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      
+      // For VITS, generate WAV first, then convert to AAC
+      const tempWavPath = filePath.replace('.aac', '.wav');
+      
+      // Determine speaker mapping for VITS
+      let vitsSpeaker = options.speaker || 'p225';
+      if (options.language === 'hi-IN' || options.language === 'hi') {
+        // Hindi language - use local Hindi models
+        if (vitsSpeaker.includes('female') || vitsSpeaker.includes('f') || vitsSpeaker === 'hi-female') {
+          vitsSpeaker = 'hi-female';
+        } else if (vitsSpeaker.includes('male') || vitsSpeaker.includes('m') || vitsSpeaker === 'hi-male') {
+          vitsSpeaker = 'hi-male';
+        } else {
+          vitsSpeaker = 'hi-female'; // Default to female for Hindi
+        }
+      } else {
+        // English language - use VCTK speakers
+        if (vitsSpeaker.includes('p225') || vitsSpeaker.includes('p-225') || vitsSpeaker.includes('female')) {
+          vitsSpeaker = 'p225';
+        } else if (vitsSpeaker.includes('p227') || vitsSpeaker.includes('p-227') || vitsSpeaker.includes('male')) {
+          vitsSpeaker = 'p227';
+        } else if (vitsSpeaker.includes('p230')) {
+          vitsSpeaker = 'p230';
+        } else if (vitsSpeaker.includes('p245')) {
+          vitsSpeaker = 'p245';
+        } else {
+          vitsSpeaker = 'p225'; // Default VITS speaker for English
+        }
+      }
+      
+      // Provide default values for VITS parameters if not specified
+      const speed = vitsParams.speed;
+      const noise = vitsParams.noise;
+      const noiseW = vitsParams.noiseW;
+      
+      // Use the virtual environment's Python executable directly
+      const pythonPath = path.join(process.cwd(), 'tts-venv', 'bin', 'python3');
+      const command = `${pythonPath} run_vits_inference.py --text_file "${tempTextPath}" --output "${tempWavPath}" --speaker "${vitsSpeaker}" --language "${options.language || 'en'}" --length_scale ${speed} --noise_scale ${noise} --noise_scale_w ${noiseW}`;
+      
+      // Set environment variables for TTS library
+      const env = {
+        ...process.env,
+        MPLCONFIGDIR: path.join(process.cwd(), 'tmp', 'matplotlib'),
+        XDG_CACHE_HOME: path.join(process.cwd(), 'tmp', 'cache'),
+        HOME: process.cwd(),
+        COQUI_TTS_CACHE_DIR: '/var/www/clients/client1/web63/web/tts-backend/home/mywebmotivation/.local/share/tts'
+      };
+      
+      logger.debug('VITS command details:', { 
+        command, 
+        outputPath: tempWavPath,
+        finalPath: filePath,
+        relativePath: path.relative(process.cwd(), filePath),
+        pythonPath,
+        speaker: vitsSpeaker,
+        language: options.language || 'en',
+        processedText: processedText.substring(0, 100) + '...',
+        vitsParams,
+        env: { COQUI_TTS_CACHE_DIR: env.COQUI_TTS_CACHE_DIR } 
+      });
+      
+      // Generate WAV file with VITS
+      execSync(command, { stdio: 'pipe', env });
+      logger.info('Generated VITS WAV audio successfully', { 
+        tempWavPath, 
+        fileSize: fs.existsSync(tempWavPath) ? fs.statSync(tempWavPath).size : 0 
+      });
+      
+      // Convert WAV to AAC using FFmpeg
+      const ffmpegCommand = `ffmpeg -i "${tempWavPath}" -c:a aac -b:a 192k -ac 1 -ar 48000 "${filePath}" -y`;
+      logger.debug('VITS WAV to AAC conversion command:', { ffmpegCommand });
+      
+      execSync(ffmpegCommand, { stdio: 'pipe' });
+      logger.info('Converted VITS audio to AAC', { 
+        finalPath: filePath,
+        relativePath: path.relative(process.cwd(), filePath),
+        fileSize: fs.existsSync(filePath) ? fs.statSync(filePath).size : 0 
+      });
+      
+      // Clean up temporary files
+      fs.unlinkSync(tempTextPath);
+      if (fs.existsSync(tempWavPath)) {
+        fs.unlinkSync(tempWavPath);
+        logger.debug('Cleaned up temporary WAV file', { tempWavPath });
+      }
+      
     } catch (error) {
-      logger.error('VITS generation error', { error: error.message });
+      logger.error('VITS generation error', { error: error.message, stack: error.stack });
       throw error;
     }
   }
@@ -255,9 +433,46 @@ async function generateAudioForMessage(text, options = {}) {
   // Log the category value used for path generation
   logger.debug('generateAudioPaths: category value', { category, optionsCategory: options.category || '<<undefined>>' });
 
+  // Map speaker based on engine
+  let folderSpeaker = speaker;
+  if (engine === 'vits') {
+    // For VITS, map speakers based on language and preference
+    if (language === 'hi-IN' || language === 'hi') {
+      // Hindi language - use local Hindi models
+      if (speaker.includes('female') || speaker.includes('f') || speaker === 'hi-female') {
+        folderSpeaker = 'hi-female';
+      } else if (speaker.includes('male') || speaker.includes('m') || speaker === 'hi-male') {
+        folderSpeaker = 'hi-male';
+      } else {
+        // Default to female for Hindi
+        folderSpeaker = 'hi-female';
+      }
+    } else {
+      // English language - use VCTK speakers
+      if (speaker.includes('p225') || speaker.includes('p-225') || speaker.includes('female')) {
+        folderSpeaker = 'p225';
+      } else if (speaker.includes('p227') || speaker.includes('p-227') || speaker.includes('male')) {
+        folderSpeaker = 'p227';
+      } else if (speaker.includes('p230')) {
+        folderSpeaker = 'p230';
+      } else if (speaker.includes('p245')) {
+        folderSpeaker = 'p245';
+      } else {
+        // Default VITS speaker for English
+        folderSpeaker = 'p225';
+      }
+    }
+    logger.debug('VITS speaker mapping', { 
+      originalSpeaker: speaker, 
+      folderSpeaker, 
+      language 
+    });
+  }
+  // For Azure, keep the original speaker name
+
   const hash = hashMessage(text);
   const slug = slugifyText(text);
-  const extension = engine === 'azure' ? 'mp3' : 'wav';
+  const extension = 'aac'; // Use AAC for both Azure and VITS for Flutter compatibility
 
   // Build path: en-US/category/model/filename
   const categoryPath = category ? slugifyText(category) : 'default';
@@ -265,16 +480,16 @@ async function generateAudioForMessage(text, options = {}) {
     'audio-cache',
     language,
     categoryPath,
-    speaker,
+    folderSpeaker, // Use the mapped speaker name
     `${slug}-${hash}.${extension}`
   ).replace(/\\/g, '/');
 
   audioUrl = `${BASE_URL}/${relativePath}`;
-  filePath = path.join(AUDIO_CACHE_BASE, language, categoryPath, speaker, `${slug}-${hash}.${extension}`);
+  filePath = path.join(AUDIO_CACHE_BASE, language, categoryPath, folderSpeaker, `${slug}-${hash}.${extension}`);
 
   // Check if audio file already exists
   if (fs.existsSync(filePath)) {
-    logger.info('Audio file already exists, skipping generation', { filePath });
+    logger.info('Audio file already exists, skipping generation', { filePath, engine, speaker: folderSpeaker });
     return { relativePath, audioUrl, filePath };
   }
 
