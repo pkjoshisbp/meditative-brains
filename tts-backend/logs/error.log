@@ -1,4 +1,174 @@
-2025-08-05 18:28:33.499 [ERROR]: API endpoint not found: /api/auth/login
-2025-08-06 16:28:11.945 [ERROR]: API endpoint not found: /api/v2/static/not.found
-2025-08-06 16:28:12.008 [ERROR]: API endpoint not found: /api/v2/static/not.found
-2025-08-06 17:06:34.194 [ERROR]: API endpoint not found: /api/v1/check-version
+2025-08-11 15:00:35.503 [ERROR]: Error: Command failed: /var/www/clients/client1/web51/web/tts-venv/bin/python3 run_vits_inference.py --text_file "/var/www/clients/client1/web51/web/temp-texts/4645dbd1a661bd074969e749251662c4.txt" --output "/var/www/clients/client1/web51/web/audio-cache/en-US/positive-attitude/p225/i-keep-my-face-toward-the-sunshine-i-cul-4645dbd1a661bd074969e749251662c4.wav" --length_scale 1 --noise_scale 0.667 --noise_scale_w 0.8
+Traceback (most recent call last):
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/util/connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/usr/lib/python3.10/socket.py", line 955, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno -2] Name or service not known
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 793, in urlopen
+    response = self._make_request(
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 491, in _make_request
+    raise new_e
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 467, in _make_request
+    self._validate_conn(conn)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 1099, in _validate_conn
+    conn.connect()
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connection.py", line 616, in connect
+    self.sock = sock = self._new_conn()
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connection.py", line 205, in _new_conn
+    raise NameResolutionError(self.host, self, e) from e
+urllib3.exceptions.NameResolutionError: <urllib3.connection.HTTPSConnection object at 0x7f76af18a020>: Failed to resolve 'coqui.gateway.scarf.sh' ([Errno -2] Name or service not known)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 847, in urlopen
+    retries = retries.increment(
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/util/retry.py", line 515, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='coqui.gateway.scarf.sh', port=443): Max retries exceeded with url: /v0.6.1_models/tts_models--en--ljspeech--vits.zip (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f76af18a020>: Failed to resolve 'coqui.gateway.scarf.sh' ([Errno -2] Name or service not known)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/www/clients/client1/web51/web/run_vits_inference.py", line 32, in <module>
+    generate_voice(text, args.output, args.length_scale, args.noise_scale, args.noise_scale_w)
+  File "/var/www/clients/client1/web51/web/run_vits_inference.py", line 5, in generate_voice
+    tts = TTS(model_name="tts_models/en/ljspeech/vits", progress_bar=False, gpu=False)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/api.py", line 74, in __init__
+    self.load_tts_model_by_name(model_name, gpu)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/api.py", line 171, in load_tts_model_by_name
+    model_path, config_path, vocoder_path, vocoder_config_path, model_dir = self.download_model_by_name(
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/api.py", line 129, in download_model_by_name
+    model_path, config_path, model_item = self.manager.download_model(model_name)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/utils/manage.py", line 411, in download_model
+    self.create_dir_and_download_model(model_name, model_item, output_path)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/utils/manage.py", line 352, in create_dir_and_download_model
+    raise e
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/utils/manage.py", line 345, in create_dir_and_download_model
+    self._download_github_model(model_item, output_path)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/utils/manage.py", line 233, in _download_github_model
+    self._download_zip_file(model_item["github_rls_url"], output_path, self.progress_bar)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/utils/manage.py", line 531, in _download_zip_file
+    r = requests.get(file_url, stream=True)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/adapters.py", line 519, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='coqui.gateway.scarf.sh', port=443): Max retries exceeded with url: /v0.6.1_models/tts_models--en--ljspeech--vits.zip (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f76af18a020>: Failed to resolve 'coqui.gateway.scarf.sh' ([Errno -2] Name or service not known)"))
+
+    at checkExecSyncError (node:child_process:861:11)
+    at execSync (node:child_process:932:15)
+    at generateAudioFile (file:///var/www/clients/client1/web51/web/utils/audioGenerator.js:234:7)
+    at generateAudioForMessage (file:///var/www/clients/client1/web51/web/utils/audioGenerator.js:306:9)
+    at file:///var/www/clients/client1/web51/web/routes/motivationMessage.js:251:50
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-08-11 15:00:35.505 [ERROR]: Error processing message 689887988144a6ddb84ac191: Command failed: /var/www/clients/client1/web51/web/tts-venv/bin/python3 run_vits_inference.py --text_file "/var/www/clients/client1/web51/web/temp-texts/4645dbd1a661bd074969e749251662c4.txt" --output "/var/www/clients/client1/web51/web/audio-cache/en-US/positive-attitude/p225/i-keep-my-face-toward-the-sunshine-i-cul-4645dbd1a661bd074969e749251662c4.wav" --length_scale 1 --noise_scale 0.667 --noise_scale_w 0.8
+Traceback (most recent call last):
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/util/connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/usr/lib/python3.10/socket.py", line 955, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno -2] Name or service not known
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 793, in urlopen
+    response = self._make_request(
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 491, in _make_request
+    raise new_e
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 467, in _make_request
+    self._validate_conn(conn)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 1099, in _validate_conn
+    conn.connect()
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connection.py", line 616, in connect
+    self.sock = sock = self._new_conn()
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connection.py", line 205, in _new_conn
+    raise NameResolutionError(self.host, self, e) from e
+urllib3.exceptions.NameResolutionError: <urllib3.connection.HTTPSConnection object at 0x7f76af18a020>: Failed to resolve 'coqui.gateway.scarf.sh' ([Errno -2] Name or service not known)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/connectionpool.py", line 847, in urlopen
+    retries = retries.increment(
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/urllib3/util/retry.py", line 515, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='coqui.gateway.scarf.sh', port=443): Max retries exceeded with url: /v0.6.1_models/tts_models--en--ljspeech--vits.zip (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f76af18a020>: Failed to resolve 'coqui.gateway.scarf.sh' ([Errno -2] Name or service not known)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/var/www/clients/client1/web51/web/run_vits_inference.py", line 32, in <module>
+    generate_voice(text, args.output, args.length_scale, args.noise_scale, args.noise_scale_w)
+  File "/var/www/clients/client1/web51/web/run_vits_inference.py", line 5, in generate_voice
+    tts = TTS(model_name="tts_models/en/ljspeech/vits", progress_bar=False, gpu=False)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/api.py", line 74, in __init__
+    self.load_tts_model_by_name(model_name, gpu)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/api.py", line 171, in load_tts_model_by_name
+    model_path, config_path, vocoder_path, vocoder_config_path, model_dir = self.download_model_by_name(
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/api.py", line 129, in download_model_by_name
+    model_path, config_path, model_item = self.manager.download_model(model_name)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/utils/manage.py", line 411, in download_model
+    self.create_dir_and_download_model(model_name, model_item, output_path)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/utils/manage.py", line 352, in create_dir_and_download_model
+    raise e
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/utils/manage.py", line 345, in create_dir_and_download_model
+    self._download_github_model(model_item, output_path)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/utils/manage.py", line 233, in _download_github_model
+    self._download_zip_file(model_item["github_rls_url"], output_path, self.progress_bar)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/TTS/utils/manage.py", line 531, in _download_zip_file
+    r = requests.get(file_url, stream=True)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "/var/www/clients/client1/web51/web/tts-venv/lib/python3.10/site-packages/requests/adapters.py", line 519, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='coqui.gateway.scarf.sh', port=443): Max retries exceeded with url: /v0.6.1_models/tts_models--en--ljspeech--vits.zip (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f76af18a020>: Failed to resolve 'coqui.gateway.scarf.sh' ([Errno -2] Name or service not known)"))
+
+2025-08-11 17:17:38.608 [ERROR]: SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at parse (/var/www/clients/client1/web51/web/node_modules/body-parser/lib/types/json.js:92:19)
+    at /var/www/clients/client1/web51/web/node_modules/body-parser/lib/read.js:128:18
+    at AsyncResource.runInAsyncScope (node:async_hooks:203:9)
+    at invokeCallback (/var/www/clients/client1/web51/web/node_modules/raw-body/index.js:238:16)
+    at done (/var/www/clients/client1/web51/web/node_modules/raw-body/index.js:227:7)
+    at IncomingMessage.onEnd (/var/www/clients/client1/web51/web/node_modules/raw-body/index.js:287:7)
+    at IncomingMessage.emit (node:events:525:35)
+    at endReadableNT (node:internal/streams/readable:1358:12)
+    at processTicksAndRejections (node:internal/process/task_queues:83:21)
+2025-08-11 17:32:38.545 [ERROR]: Azure TTS error details
+2025-08-11 17:32:38.547 [ERROR]: Azure TTS error
+2025-08-11 18:03:44.757 [ERROR]: Azure TTS error details
+2025-08-11 18:03:44.759 [ERROR]: Azure TTS error
+2025-08-11 22:19:11.607 [ERROR]: Azure TTS error details
+2025-08-11 22:19:11.609 [ERROR]: Azure TTS error
+2025-08-14 01:22:24.759 [ERROR]: API endpoint not found: /api/categories
+2025-08-14 01:22:39.090 [ERROR]: API endpoint not found: /api/categories
+2025-08-14 01:24:42.446 [ERROR]: API endpoint not found: /api/categories
+2025-08-14 01:24:52.374 [ERROR]: API endpoint not found: /api/categories/getAll
+2025-08-14 01:25:17.305 [ERROR]: API endpoint not found: /api/categories

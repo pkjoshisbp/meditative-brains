@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\FlutterApiController;
+use App\Http\Controllers\Api\MusicLibraryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +18,29 @@ use App\Http\Controllers\Api\FlutterApiController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+// Music Library API Routes for Flutter
+Route::prefix('music-library')->group(function () {
+    // Public routes (no authentication required)
+    Route::get('/', [MusicLibraryController::class, 'index']);
+    Route::get('/preview/{productId}', [MusicLibraryController::class, 'preview']);
+    
+    // Protected routes (authentication required)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/my-library', [MusicLibraryController::class, 'myLibrary']);
+        Route::get('/check-access', [MusicLibraryController::class, 'checkAccess']);
+        Route::get('/full-audio/{productId}', [MusicLibraryController::class, 'getFullAudio']);
+    });
+});
+
+// TTS Categories API Routes for Flutter
+Route::prefix('tts')->group(function () {
+    Route::get('/categories', [MusicLibraryController::class, 'ttsCategories']);
+    
+    Route::middleware('auth:sanctum')->group(function () {
+        // TTS-specific routes will be added in Part 2
+    });
 });
 
 // Flutter App API Routes

@@ -1,0 +1,1 @@
+Hello, this is a test message for VITS audio generation using the copy file.
