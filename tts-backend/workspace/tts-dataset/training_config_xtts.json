@@ -79,7 +79,7 @@
   "datasets": [
     {
       "name": "ljspeech",
-      "path": "/var/www/clients/client1/web51/web/workspace/tts-dataset",
+      "path": "/var/www/clients/client1/web63/web/tts-backend/workspace/tts-dataset",
       "meta_file_train": "metadata.csv",
       "meta_file_val": "metadata.csv",
       "formatter": "ljspeech",
@@ -91,7 +91,7 @@
   "dataset_config": {
     "formatter_name": "ljspeech",
     "dataset_name": "ljspeech",
-    "path": "/var/www/clients/client1/web51/web/workspace/tts-dataset",
+    "path": "/var/www/clients/client1/web63/web/tts-backend/workspace/tts-dataset",
     "meta_file_train": "metadata.csv",
     "meta_file_val": "metadata.csv",
     "language": "en",

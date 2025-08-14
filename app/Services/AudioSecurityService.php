@@ -17,27 +17,37 @@ class AudioSecurityService
     }
 
     /**
-     * Encrypt and store audio file
+     * Encrypt and store audio file with optimized encryption
      */
     public function encryptAndStore($audioFile, $filename = null)
     {
-        $filename = $filename ?: Str::random(40) . '.enc';
+        if (!$filename) {
+            // Generate filename based on original file
+            $originalName = basename($audioFile);
+            $nameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+            $filename = $nameWithoutExt . '.enc';
+        }
         
         // Read the original audio file
         $audioContent = file_get_contents($audioFile);
         
-        // Encrypt the content
-        $encryptedContent = Crypt::encrypt($audioContent);
+        // Use OpenSSL for more efficient encryption (binary output)
+        $key = hash('sha256', config('app.key'), true);
+        $iv = openssl_random_pseudo_bytes(16);
+        $encryptedContent = openssl_encrypt($audioContent, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        
+        // Prepend IV to encrypted content for decryption
+        $finalContent = $iv . $encryptedContent;
         
         // Store in private storage
         $path = 'encrypted-audio/' . $filename;
-        Storage::disk('local')->put($path, $encryptedContent);
+        Storage::disk('local')->put($path, $finalContent);
         
         return $path;
     }
 
     /**
-     * Decrypt audio file content
+     * Decrypt audio file content with optimized decryption
      */
     public function decryptAudio($encryptedPath)
     {
@@ -46,7 +56,20 @@ class AudioSecurityService
         }
 
         $encryptedContent = Storage::disk('local')->get($encryptedPath);
-        return Crypt::decrypt($encryptedContent);
+        
+        // Extract IV and encrypted data
+        $iv = substr($encryptedContent, 0, 16);
+        $encryptedData = substr($encryptedContent, 16);
+        
+        // Decrypt using OpenSSL
+        $key = hash('sha256', config('app.key'), true);
+        $decryptedContent = openssl_decrypt($encryptedData, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        
+        if ($decryptedContent === false) {
+            throw new \Exception('Failed to decrypt audio file');
+        }
+        
+        return $decryptedContent;
     }
 
     /**
@@ -209,38 +232,61 @@ class AudioSecurityService
         $basePath = 'audio/original';
         $fullPath = $directory ? $basePath . '/' . trim($directory, '/') : $basePath;
         
-        if (!Storage::disk('local')->exists($fullPath)) {
-            return ['files' => [], 'directories' => []];
+        // Get the absolute filesystem path
+        $absolutePath = storage_path('app/' . $fullPath);
+        
+        if (!is_dir($absolutePath)) {
+            return [
+                'files' => [], 
+                'directories' => [],
+                'current_path' => $directory
+            ];
         }
 
-        $contents = Storage::disk('local')->listContents($fullPath);
-        $files = [];
-        $directories = [];
-
-        foreach ($contents as $item) {
-            if ($item['type'] === 'file') {
-                $extension = strtolower(pathinfo($item['path'], PATHINFO_EXTENSION));
-                if (in_array($extension, ['mp3', 'wav', 'm4a', 'flac', 'aac', 'ogg'])) {
-                    $files[] = [
-                        'name' => basename($item['path']),
-                        'path' => $item['path'],
-                        'size' => $item['size'] ?? 0,
-                        'modified' => $item['lastModified'] ?? null
+        try {
+            $files = [];
+            $directories = [];
+            
+            // Use PHP's scandir for more reliable results
+            $items = scandir($absolutePath);
+            
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..') continue;
+                
+                $itemPath = $absolutePath . '/' . $item;
+                $relativePath = $directory ? $directory . '/' . $item : $item;
+                
+                if (is_dir($itemPath)) {
+                    $directories[] = [
+                        'name' => $item,
+                        'path' => $relativePath  // This should be relative to original folder
                     ];
+                } elseif (is_file($itemPath)) {
+                    $extension = strtolower(pathinfo($item, PATHINFO_EXTENSION));
+                    if (in_array($extension, ['mp3', 'wav', 'm4a', 'flac', 'aac', 'ogg'])) {
+                        $files[] = [
+                            'name' => $item,
+                            'path' => $relativePath,
+                            'size' => filesize($itemPath),
+                            'modified' => filemtime($itemPath)
+                        ];
+                    }
                 }
-            } elseif ($item['type'] === 'dir') {
-                $directories[] = [
-                    'name' => basename($item['path']),
-                    'path' => $item['path']
-                ];
             }
-        }
 
-        return [
-            'files' => $files,
-            'directories' => $directories,
-            'current_path' => $directory
-        ];
+            return [
+                'files' => $files,
+                'directories' => $directories,
+                'current_path' => $directory
+            ];
+        } catch (\Exception $e) {
+            \Log::error('AudioSecurityService error: ' . $e->getMessage());
+            return [
+                'files' => [], 
+                'directories' => [],
+                'current_path' => $directory
+            ];
+        }
     }
 
     /**
@@ -248,23 +294,32 @@ class AudioSecurityService
      */
     public function encryptOriginalFile($originalPath, $productId)
     {
-        if (!Storage::disk('local')->exists($originalPath)) {
+        // Build the full path to the original file
+        $fullOriginalPath = 'audio/original/' . ltrim($originalPath, '/');
+        
+        if (!Storage::disk('local')->exists($fullOriginalPath)) {
             throw new \Exception("Original file not found: {$originalPath}");
         }
 
-        // Generate unique encrypted filename
-        $extension = pathinfo($originalPath, PATHINFO_EXTENSION);
-        $encryptedFileName = 'product_' . $productId . '_' . Str::random(16) . '.enc';
+        // Generate encrypted filename based on original filename
+        $originalName = basename($originalPath);
+        $nameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+        $encryptedFileName = $nameWithoutExt . '.enc';
         $encryptedPath = 'audio/encrypted/' . $encryptedFileName;
 
         // Read original file
-        $originalContent = Storage::disk('local')->get($originalPath);
+        $originalContent = Storage::disk('local')->get($fullOriginalPath);
         
-        // Encrypt the content
-        $encryptedContent = Crypt::encrypt($originalContent);
+        // Use OpenSSL for more efficient encryption (binary output)
+        $key = hash('sha256', config('app.key'), true);
+        $iv = openssl_random_pseudo_bytes(16);
+        $encryptedContent = openssl_encrypt($originalContent, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        
+        // Prepend IV to encrypted content for decryption
+        $finalContent = $iv . $encryptedContent;
         
         // Store encrypted file
-        Storage::disk('local')->put($encryptedPath, $encryptedContent);
+        Storage::disk('local')->put($encryptedPath, $finalContent);
         
         // Return the encrypted path for storage in database
         return $encryptedPath;

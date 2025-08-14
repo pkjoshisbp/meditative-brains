@@ -331,6 +331,22 @@ return [
             'url' => 'admin/categories',
             'icon' => 'fas fa-fw fa-folder',
         ],
+        ['header' => 'TTS INTEGRATION'],
+        [
+            'text' => 'TTS Messages',
+            'url' => 'admin/tts/messages',
+            'icon' => 'fas fa-fw fa-comments',
+        ],
+        [
+            'text' => 'TTS Categories',
+            'url' => 'admin/tts/categories',
+            'icon' => 'fas fa-fw fa-tags',
+        ],
+        [
+            'text' => 'Audio Generator',
+            'url' => 'admin/tts/generator',
+            'icon' => 'fas fa-fw fa-volume-up',
+        ],
         ['header' => 'STORE MANAGEMENT'],
         [
             'text' => 'Orders',

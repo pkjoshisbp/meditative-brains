@@ -10,7 +10,7 @@ def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Run GlowTTS inference')
     parser.add_argument('--text', required=True, help='Text to synthesize')
-    parser.add_argument('--model_path', default="/var/www/clients/client1/web51/web/run-April-15-2025_02+50PM-0000000/best_model_13.pth",
+    parser.add_argument('--model_path', default="/var/www/clients/client1/web63/web/tts-backend/run-April-15-2025_02+50PM-0000000/best_model_13.pth",
                       help='Path to model checkpoint')
     parser.add_argument('--config_path', default="./workspace/tts-dataset/training_config_xtts.json",
                       help='Path to config file')

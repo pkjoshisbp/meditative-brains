@@ -42,6 +42,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/products-simple', App\Livewire\Admin\ProductManagerSimple::class)->name('products.simple');
     Route::get('/test', App\Livewire\Admin\TestComponent::class)->name('test');
     Route::get('/test-fixed', App\Livewire\Admin\TestComponentFixed::class)->name('test-fixed');
+    
+    // TTS Integration Routes
+    Route::get('/tts/messages', App\Livewire\Admin\MotivationMessageForm::class)->name('tts.messages');
+    Route::get('/tts/messages-working', App\Livewire\Admin\MotivationMessageFormWorking::class)->name('tts.messages-working');
+    Route::get('/tts/categories', App\Livewire\Admin\CategoryManagement::class)->name('tts.categories');
+    Route::get('/tts/generator', App\Livewire\Admin\AudioGenerator::class)->name('tts.generator');
+    Route::get('/tts/test', App\Livewire\Admin\TtsTest::class)->name('tts.test');
 });
 
 // Authentication routes

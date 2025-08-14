@@ -1,8 +1,12 @@
 import fs from 'fs';
 import axios from 'axios';
+import dotenv from 'dotenv';
 
-const AZURE_REGION = process.env.AZURE_SPEECH_REGION || 'centralindia';
-const AZURE_KEY = process.env.AZURE_SPEECH_KEY || 'your-azure-speech-key-here';
+// Load environment variables
+dotenv.config();
+
+const AZURE_REGION = process.env.AZURE_REGION || 'centralindia';
+const AZURE_KEY = process.env.AZURE_KEY;
 const OUTPUT_FILE = './azure-voices.json';
 
 async function fetchVoices() {

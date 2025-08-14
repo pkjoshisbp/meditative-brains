@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'tts' => [
+        'base_url' => env('TTS_BASE_URL', 'https://motivation.mywebsolutions.co.in/api'),
+        'api_key' => env('TTS_API_KEY'),
+    ],
+
 ];

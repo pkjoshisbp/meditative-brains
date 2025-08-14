@@ -1,10 +1,14 @@
 import requests
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
-# 🔁 Replace these with your Azure Speech resource values
-AZURE_KEY = os.getenv("AZURE_SPEECH_KEY", "your-azure-speech-key-here")
-AZURE_REGION = os.getenv("AZURE_SPEECH_REGION", "centralindia")  # e.g., "eastus"
+# Load environment variables
+load_dotenv()
+
+# 🔁 Azure Speech resource values from environment variables
+AZURE_KEY = os.getenv("AZURE_KEY")
+AZURE_REGION = os.getenv("AZURE_REGION", "centralindia")
 VOICE_NAME = "en-US-AriaNeural"
 
 # 💬 SSML Text

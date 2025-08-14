@@ -4,7 +4,7 @@ import path from 'path';
 import MotivationMessage from './models/MotivationMessage.js';
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 app.use(express.json());
 app.use(express.static(path.join(process.cwd(), 'ui/build')));

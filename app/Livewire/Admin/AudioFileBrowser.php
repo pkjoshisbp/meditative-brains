@@ -113,9 +113,9 @@ class AudioFileBrowser extends Component
         $fileData = $audioService->getAvailableAudioFiles($this->currentDirectory);
 
         return view('livewire.admin.audio-file-browser', [
-            'files' => $fileData['files'],
-            'directories' => $fileData['directories'],
-            'currentPath' => $fileData['current_path']
+            'files' => $fileData['files'] ?? [],
+            'directories' => $fileData['directories'] ?? [],
+            'currentPath' => $fileData['current_path'] ?? $this->currentDirectory
         ]);
     }
 }

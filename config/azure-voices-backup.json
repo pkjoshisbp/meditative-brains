@@ -1,0 +1,112 @@
+[
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (en-US, AriaNeural)",
+    "DisplayName": "Aria",
+    "LocalName": "Aria",
+    "ShortName": "en-US-AriaNeural",
+    "Gender": "Female",
+    "Locale": "en-US",
+    "LocaleName": "English (United States)",
+    "StyleList": ["chat", "customerservice", "newscast", "angry", "cheerful", "excited", "friendly", "hopeful", "sad", "shouting", "terrified", "unfriendly", "whispering"],
+    "RolePlayList": []
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (en-US, JennyNeural)",
+    "DisplayName": "Jenny",
+    "LocalName": "Jenny",
+    "ShortName": "en-US-JennyNeural",
+    "Gender": "Female",
+    "Locale": "en-US",
+    "LocaleName": "English (United States)",
+    "StyleList": ["assistant", "chat", "customerservice", "newscast", "angry", "cheerful", "excited", "friendly", "hopeful", "sad", "shouting", "terrified", "unfriendly", "whispering"],
+    "RolePlayList": []
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (en-US, GuyNeural)",
+    "DisplayName": "Guy",
+    "LocalName": "Guy",
+    "ShortName": "en-US-GuyNeural",
+    "Gender": "Male",
+    "Locale": "en-US",
+    "LocaleName": "English (United States)",
+    "StyleList": ["newscast", "angry", "cheerful", "excited", "friendly", "hopeful", "sad", "shouting", "terrified", "unfriendly", "whispering"],
+    "RolePlayList": []
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (en-US, DavisNeural)",
+    "DisplayName": "Davis",
+    "LocalName": "Davis",
+    "ShortName": "en-US-DavisNeural",
+    "Gender": "Male",
+    "Locale": "en-US",
+    "LocaleName": "English (United States)",
+    "StyleList": ["chat", "angry", "cheerful", "excited", "friendly", "hopeful", "sad", "shouting", "terrified", "unfriendly", "whispering"],
+    "RolePlayList": []
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (en-GB, SoniaNeural)",
+    "DisplayName": "Sonia",
+    "LocalName": "Sonia",
+    "ShortName": "en-GB-SoniaNeural",
+    "Gender": "Female",
+    "Locale": "en-GB",
+    "LocaleName": "English (United Kingdom)",
+    "StyleList": ["cheerful", "sad"],
+    "RolePlayList": []
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (en-GB, RyanNeural)",
+    "DisplayName": "Ryan",
+    "LocalName": "Ryan",
+    "ShortName": "en-GB-RyanNeural",
+    "Gender": "Male",
+    "Locale": "en-GB",
+    "LocaleName": "English (United Kingdom)",
+    "StyleList": ["chat", "cheerful"],
+    "RolePlayList": []
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (es-ES, ElviraNeural)",
+    "DisplayName": "Elvira",
+    "LocalName": "Elvira",
+    "ShortName": "es-ES-ElviraNeural",
+    "Gender": "Female",
+    "Locale": "es-ES",
+    "LocaleName": "Spanish (Spain)",
+    "StyleList": ["cheerful", "sad"],
+    "RolePlayList": []
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (es-ES, AlvaroNeural)",
+    "DisplayName": "Alvaro",
+    "LocalName": "Alvaro",
+    "ShortName": "es-ES-AlvaroNeural",
+    "Gender": "Male",
+    "Locale": "es-ES",
+    "LocaleName": "Spanish (Spain)",
+    "StyleList": ["cheerful", "sad"],
+    "RolePlayList": []
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (fr-FR, DeniseNeural)",
+    "DisplayName": "Denise",
+    "LocalName": "Denise",
+    "ShortName": "fr-FR-DeniseNeural",
+    "Gender": "Female",
+    "Locale": "fr-FR",
+    "LocaleName": "French (France)",
+    "StyleList": ["cheerful", "sad"],
+    "RolePlayList": []
+  },
+  {
+    "Name": "Microsoft Server Speech Text to Speech Voice (fr-FR, HenriNeural)",
+    "DisplayName": "Henri",
+    "LocalName": "Henri",
+    "ShortName": "fr-FR-HenriNeural",
+    "Gender": "Male",
+    "Locale": "fr-FR",
+    "LocaleName": "French (France)",
+    "StyleList": ["cheerful", "sad"],
+    "RolePlayList": []
+  }
+]

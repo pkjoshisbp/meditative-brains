@@ -9,9 +9,9 @@ from TTS.tts.models.vits import Vits
 def analyze_audio_files():
     """Analyze training audio files"""
     paths = [
-        "/var/www/clients/client1/web51/web/workspace/tts-dataset/wavs/00001.wav",
-        "/var/www/clients/client1/web51/web/workspace/tts-dataset/wavs/00002.wav",
-        "/var/www/clients/client1/web51/web/workspace/tts-dataset/wavs/00003.wav"
+        "/var/www/clients/client1/web63/web/tts-backend/workspace/tts-dataset/wavs/00001.wav",
+        "/var/www/clients/client1/web63/web/tts-backend/workspace/tts-dataset/wavs/00002.wav",
+        "/var/www/clients/client1/web63/web/tts-backend/workspace/tts-dataset/wavs/00003.wav"
     ]
     
     fig, axes = plt.subplots(3, 2, figsize=(15, 10))
@@ -41,8 +41,8 @@ def analyze_audio_files():
 def test_model_output():
     """Test model generation"""
     config = VitsConfig()
-    config.load_json("/var/www/clients/client1/web51/web/workspace/tts-dataset/training_config_xtts.json")
-    checkpoint = torch.load("/var/www/clients/client1/web51/web/workspace/my-vits-checkpoints/vits_test-April-15-2025_02+18AM-0000000/best_model_21.pth", map_location='cpu')
+    config.load_json("/var/www/clients/client1/web63/web/tts-backend/workspace/tts-dataset/training_config_xtts.json")
+    checkpoint = torch.load("/var/www/clients/client1/web63/web/tts-backend/workspace/my-vits-checkpoints/vits_test-April-15-2025_02+18AM-0000000/best_model_21.pth", map_location='cpu')
     
     model = Vits.init_from_config(config)
     model.load_state_dict(checkpoint["model"])

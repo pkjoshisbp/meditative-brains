@@ -1,10 +1,14 @@
 import fs from 'fs';
 import axios from 'axios';
 import path from 'path';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // ==== CONFIGURATION ====
-const AZURE_KEY = process.env.AZURE_SPEECH_KEY || 'your-azure-speech-key-here';
-const AZURE_REGION = process.env.AZURE_SPEECH_REGION || 'centralindia';
+const AZURE_KEY = process.env.AZURE_KEY;
+const AZURE_REGION = process.env.AZURE_REGION || 'centralindia';
 const OUTPUT_FILE = './test-output.mp3';
 
 // Change these to test different voices/languages/text

@@ -37,6 +37,17 @@ yarn-error.log
 /tts-backend/logs/
 /tts-backend/app.log
 
+# Security - API Keys and Secrets
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+.env*
+!.env.example
+/tts-backend/.env*
+!/tts-backend/.env.example
+
 # VITS Model Files (Large AI Models) - excluding Node.js models
 *.pth
 *.pt

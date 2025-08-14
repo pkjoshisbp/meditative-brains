@@ -6,9 +6,9 @@ from TTS.tts.utils.text.tokenizer import TTSTokenizer
 from TTS.utils.audio import AudioProcessor
 
 # Define paths
-output_path = "/var/www/clients/client1/web51/web"
-model_path = "/var/www/clients/client1/web51/web/vits_ljspeech-April-15-2025_05+11PM-0000000/best_model_60.pth"
-config_path = "/var/www/clients/client1/web51/web/vits_ljspeech-April-15-2025_05+11PM-0000000/config.json"
+output_path = "/var/www/clients/client1/web63/web/tts-backend"
+model_path = "/var/www/clients/client1/web63/web/tts-backend/vits_ljspeech-April-15-2025_05+11PM-0000000/best_model_60.pth"
+config_path = "/var/www/clients/client1/web63/web/tts-backend/vits_ljspeech-April-15-2025_05+11PM-0000000/config.json"
 
 # Load config
 config = VitsConfig()

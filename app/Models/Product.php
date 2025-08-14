@@ -24,6 +24,7 @@ class Product extends Model implements HasMedia
         'type',
         'audio_type',
         'audio_features',
+        'audio_path',
         'preview_duration',
         'preview_file',
         'full_file',
