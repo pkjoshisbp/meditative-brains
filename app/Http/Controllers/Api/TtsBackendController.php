@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\TtsCategory;
 use App\Models\TtsAudioProduct;
 use App\Services\AccessControlService;
+use App\Services\AudioService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -14,11 +15,13 @@ use Illuminate\Support\Facades\Log;
 class TtsBackendController extends Controller
 {
     protected $accessControlService;
+    protected $audioService;
     protected $ttsBackendUrl;
 
-    public function __construct(AccessControlService $accessControlService)
+    public function __construct(AccessControlService $accessControlService, AudioService $audioService)
     {
         $this->accessControlService = $accessControlService;
+        $this->audioService = $audioService;
         $this->ttsBackendUrl = 'https://meditative-brains.com:3001';
     }
 
@@ -162,42 +165,29 @@ class TtsBackendController extends Controller
      */
     public function getAvailableVoices(Request $request)
     {
+        $language = $request->get('language', 'en');
+        
         try {
-            $response = Http::timeout(10)->get($this->ttsBackendUrl . '/api/voices');
+            $voicesData = $this->audioService->getAvailableVoices($language);
             
-            if ($response->successful()) {
-                return response()->json($response->json());
-            }
-
-            // Fallback to default voices if backend is unavailable
             return response()->json([
-                'voices' => [
-                    [
-                        'name' => 'en-US-AriaNeural',
-                        'language' => 'English (US)',
-                        'gender' => 'Female',
-                        'provider' => 'Azure'
-                    ],
-                    [
-                        'name' => 'en-US-JennyNeural',
-                        'language' => 'English (US)',
-                        'gender' => 'Female',
-                        'provider' => 'Azure'
-                    ],
-                    [
-                        'name' => 'hi-IN-SwaraNeural',
-                        'language' => 'Hindi (India)',
-                        'gender' => 'Female',
-                        'provider' => 'Azure'
-                    ]
-                ]
+                'success' => true,
+                'language' => $language,
+                'voices' => $voicesData['voices'],
+                'source' => $voicesData['source'] ?? 'backend',
+                'total_count' => count($voicesData['voices'])
             ]);
 
         } catch (\Exception $e) {
-            Log::error('TTS Voices Fetch Error', ['error' => $e->getMessage()]);
-            
+            Log::error('TTS Voices Fetch Error', [
+                'error' => $e->getMessage(),
+                'language' => $language
+            ]);
+
             return response()->json([
-                'error' => 'Unable to fetch voices'
+                'error' => 'Failed to fetch available voices',
+                'language' => $language,
+                'voices' => []
             ], 503);
         }
     }
@@ -453,13 +443,15 @@ class TtsBackendController extends Controller
         
         if (!$messageText) {
             return response()->json([
-                'error' => 'No preview message available for this product'
+                'error' => 'No preview message available for this product',
+                'product_id' => $product->id,
+                'has_samples' => $product->hasPreviewSamples()
             ], 400);
         }
 
         try {
-            // Generate TTS audio via backend
-            $ttsResponse = Http::timeout(60)->post($this->ttsBackendUrl . '/api/generate-preview', [
+            // Use AudioService for enhanced preview generation
+            $audioResult = $this->audioService->generatePreview([
                 'text' => $messageText,
                 'voice' => $request->voice ?? 'default',
                 'speed' => $request->speed ?? 1.0,
@@ -468,36 +460,37 @@ class TtsBackendController extends Controller
                 'background_music_url' => $product->background_music_url
             ]);
 
-            if ($ttsResponse->successful()) {
-                $audioData = $ttsResponse->json();
-                
-                return response()->json([
-                    'success' => true,
-                    'preview_audio_url' => $audioData['preview_url'],
-                    'duration' => $audioData['duration'] ?? $product->preview_duration,
-                    'message_text' => $messageText,
-                    'expires_at' => now()->addHours(2)->toISOString(), // Temporary URL
-                    'product' => [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'category' => $product->category
-                    ]
-                ]);
-            }
-
             return response()->json([
-                'error' => 'Failed to generate preview audio'
-            ], 500);
+                'success' => true,
+                'preview_audio_url' => $audioResult['preview_url'],
+                'duration' => $audioResult['duration'] ?? $product->preview_duration,
+                'message_text' => $messageText,
+                'expires_at' => now()->addHours(2)->toISOString(),
+                'product' => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'category' => $product->category,
+                    'has_background_music' => !empty($product->background_music_url)
+                ],
+                'generation_info' => [
+                    'voice_used' => $request->voice ?? 'default',
+                    'speed_used' => $request->speed ?? 1.0,
+                    'cached' => isset($audioResult['cached']) ? $audioResult['cached'] : false
+                ]
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Preview Generation Error', [
+            Log::error('Enhanced Preview Generation Error', [
                 'error' => $e->getMessage(),
                 'product_id' => $request->product_id,
-                'message_text' => $messageText
+                'message_text' => substr($messageText, 0, 100),
+                'user_id' => Auth::id()
             ]);
 
             return response()->json([
-                'error' => 'Preview service temporarily unavailable'
+                'error' => 'Preview service temporarily unavailable',
+                'details' => config('app.debug') ? $e->getMessage() : 'Please try again later',
+                'product_id' => $product->id
             ], 503);
         }
     }
@@ -546,5 +539,126 @@ class TtsBackendController extends Controller
             'accessible_categories' => $accessibleCategories,
             'access_summary' => $user->getTtsAccessSummary()
         ]);
+    }
+
+    /**
+     * Generate preview for multiple sample messages (bulk preview)
+     */
+    public function generateBulkPreview(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:tts_audio_products,id',
+            'voice' => 'sometimes|string',
+            'speed' => 'sometimes|numeric|min:0.5|max:2.0',
+            'count' => 'sometimes|integer|min:1|max:3'
+        ]);
+
+        $product = TtsAudioProduct::findOrFail($request->product_id);
+        $count = min($request->get('count', 3), count($product->sample_messages ?? []));
+        
+        if (!$product->hasPreviewSamples()) {
+            return response()->json([
+                'error' => 'No preview samples available for this product',
+                'product_id' => $product->id
+            ], 400);
+        }
+
+        try {
+            $previews = [];
+            $sampleMessages = array_slice($product->sample_messages, 0, $count);
+            
+            foreach ($sampleMessages as $index => $message) {
+                try {
+                    $audioResult = $this->audioService->generatePreview([
+                        'text' => $message,
+                        'voice' => $request->voice ?? 'default',
+                        'speed' => $request->speed ?? 1.0,
+                        'language' => $product->language,
+                        'preview_duration' => $product->preview_duration,
+                        'background_music_url' => $product->background_music_url
+                    ]);
+
+                    $previews[] = [
+                        'index' => $index,
+                        'message' => $message,
+                        'preview_url' => $audioResult['preview_url'],
+                        'duration' => $audioResult['duration'],
+                        'success' => true
+                    ];
+                } catch (\Exception $e) {
+                    $previews[] = [
+                        'index' => $index,
+                        'message' => $message,
+                        'error' => 'Failed to generate preview',
+                        'success' => false
+                    ];
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'product' => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'category' => $product->category
+                ],
+                'previews' => $previews,
+                'total_generated' => count(array_filter($previews, fn($p) => $p['success'])),
+                'expires_at' => now()->addHours(2)->toISOString()
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Bulk Preview Generation Error', [
+                'error' => $e->getMessage(),
+                'product_id' => $request->product_id,
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'error' => 'Bulk preview generation failed',
+                'product_id' => $product->id
+            ], 500);
+        }
+    }
+
+    /**
+     * Get audio service status and statistics
+     */
+    public function getAudioServiceStatus(Request $request)
+    {
+        try {
+            $stats = $this->audioService->getGenerationStats();
+            
+            // Test backend connectivity
+            $backendStatus = 'unknown';
+            try {
+                $response = Http::timeout(5)->get($this->ttsBackendUrl . '/health');
+                $backendStatus = $response->successful() ? 'operational' : 'error';
+            } catch (\Exception $e) {
+                $backendStatus = 'unreachable';
+            }
+
+            return response()->json([
+                'success' => true,
+                'audio_service' => $stats,
+                'backend_status' => $backendStatus,
+                'backend_url' => $this->ttsBackendUrl,
+                'features' => [
+                    'preview_generation' => true,
+                    'background_music_mixing' => true,
+                    'caching' => true,
+                    'bulk_preview' => true,
+                    'voice_selection' => true
+                ],
+                'timestamp' => now()->toISOString()
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to get service status',
+                'timestamp' => now()->toISOString()
+            ], 500);
+        }
     }
 }

@@ -53,7 +53,11 @@ Route::prefix('tts')->group(function () {
         // TTS Product Management
         Route::get('/products/catalog', [TtsBackendController::class, 'getTtsProductsCatalog']);
         Route::post('/products/preview', [TtsBackendController::class, 'generatePreviewAudio']);
+        Route::post('/products/bulk-preview', [TtsBackendController::class, 'generateBulkPreview']);
         Route::get('/products/user-purchases', [TtsBackendController::class, 'getUserTtsProducts']);
+        
+        // Audio Service Management
+        Route::get('/audio-service/status', [TtsBackendController::class, 'getAudioServiceStatus']);
     });
 });
 
