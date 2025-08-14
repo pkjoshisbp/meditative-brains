@@ -9,6 +9,8 @@ class TtsCategoryAccess extends Model
 {
     use HasFactory;
 
+    protected $table = 'tts_category_access';
+
     protected $fillable = [
         'user_id',
         'category_name',

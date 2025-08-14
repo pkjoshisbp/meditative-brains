@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\SubscriptionPlan;
 use App\Models\Order;
+use App\Models\TtsAudioProduct;
+use App\Models\TtsProductPurchase;
 use App\Services\PayPalService;
 use App\Services\AccessControlService;
 use Illuminate\Http\Request;
@@ -356,6 +358,200 @@ class PaymentController extends Controller
             'payment_status' => $order->payment_status,
             'total_amount' => $order->total_amount,
             'completed_at' => $order->completed_at
+        ]);
+    }
+
+    /**
+     * Create payment for TTS audio product
+     */
+    public function createTtsProductPayment(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json([
+                'error' => 'Authentication required'
+            ], 401);
+        }
+
+        $request->validate([
+            'product_id' => 'required|exists:tts_audio_products,id'
+        ]);
+
+        $product = TtsAudioProduct::findOrFail($request->product_id);
+
+        // Check if user already owns this product
+        if ($user->hasTtsProductAccess($product->id)) {
+            return response()->json([
+                'error' => 'You already have access to this product',
+                'has_access' => true
+            ], 409);
+        }
+
+        try {
+            // Create PayPal order
+            $paypalOrder = $this->paypalService->createProductOrder([
+                'name' => $product->name,
+                'description' => "TTS Audio: {$product->description}",
+                'amount' => $product->price,
+                'currency' => 'USD',
+                'custom_id' => "tts_product_{$product->id}_{$user->id}"
+            ]);
+
+            // Store order in database
+            $order = Order::create([
+                'user_id' => $user->id,
+                'paypal_order_id' => $paypalOrder['id'],
+                'amount' => $product->price,
+                'currency' => 'USD',
+                'status' => 'pending',
+                'order_type' => 'tts_product',
+                'product_details' => [
+                    'product_id' => $product->id,
+                    'product_type' => 'tts_audio',
+                    'category' => $product->category,
+                    'language' => $product->language,
+                    'product_name' => $product->name
+                ]
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'order_id' => $order->id,
+                'paypal_order_id' => $paypalOrder['id'],
+                'approval_url' => $paypalOrder['links']['approve'] ?? null,
+                'product' => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'category' => $product->category,
+                    'price' => $product->price
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('TTS Product Payment Creation Failed', [
+                'user_id' => $user->id,
+                'product_id' => $product->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to create payment order'
+            ], 500);
+        }
+    }
+
+    /**
+     * Handle successful TTS product purchase
+     */
+    public function handleTtsProductSuccess(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|string',
+            'paypal_order_id' => 'required|string'
+        ]);
+
+        $order = Order::where('paypal_order_id', $request->paypal_order_id)
+            ->where('order_type', 'tts_product')
+            ->firstOrFail();
+
+        try {
+            // Capture PayPal payment
+            $captureResult = $this->paypalService->captureOrder($request->paypal_order_id);
+
+            if ($captureResult['status'] === 'COMPLETED') {
+                DB::transaction(function () use ($order, $captureResult) {
+                    // Update order status
+                    $order->update([
+                        'status' => 'completed',
+                        'paypal_capture_id' => $captureResult['capture_id'] ?? null,
+                        'completed_at' => now()
+                    ]);
+
+                    // Create purchase record
+                    TtsProductPurchase::create([
+                        'user_id' => $order->user_id,
+                        'tts_audio_product_id' => $order->product_details['product_id'],
+                        'order_id' => $order->id,
+                        'amount' => $order->amount,
+                        'currency' => $order->currency,
+                        'status' => 'completed',
+                        'paypal_order_id' => $order->paypal_order_id,
+                        'paypal_capture_id' => $captureResult['capture_id'] ?? null,
+                        'purchased_at' => now()
+                    ]);
+
+                    // Grant access through existing access control system
+                    $product = TtsAudioProduct::find($order->product_details['product_id']);
+                    $this->accessControlService->grantAccess(
+                        $order->user_id,
+                        'tts_category',
+                        $product->category,
+                        null, // No expiration for purchased products
+                        'tts_product_purchase'
+                    );
+                });
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Purchase completed successfully',
+                    'access_granted' => true,
+                    'product_category' => $order->product_details['category'],
+                    'product_name' => $order->product_details['product_name']
+                ]);
+            }
+
+            return response()->json([
+                'error' => 'Payment capture failed'
+            ], 400);
+
+        } catch (\Exception $e) {
+            Log::error('TTS Product Purchase Completion Failed', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to complete purchase'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get user's TTS product purchase history
+     */
+    public function getTtsProductHistory(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json([
+                'error' => 'Authentication required'
+            ], 401);
+        }
+
+        $purchases = $user->completedTtsProductPurchases()
+            ->with('product')
+            ->orderBy('purchased_at', 'desc')
+            ->get();
+
+        $purchaseHistory = $purchases->map(function ($purchase) {
+            return [
+                'id' => $purchase->id,
+                'product_name' => $purchase->product->name,
+                'category' => $purchase->product->category,
+                'amount' => $purchase->amount,
+                'currency' => $purchase->currency,
+                'purchased_at' => $purchase->purchased_at,
+                'paypal_order_id' => $purchase->paypal_order_id
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'purchases' => $purchaseHistory,
+            'total_purchases' => $purchases->count(),
+            'total_spent' => $purchases->sum('amount')
         ]);
     }
 }

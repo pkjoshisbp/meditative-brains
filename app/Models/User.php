@@ -213,25 +213,32 @@ class User extends Authenticatable
             $plan = SubscriptionPlan::where('slug', $activeSubscription->plan_type)->first();
             if ($plan) {
                 if ($plan->includesAllTtsCategories()) {
-                    // Return all available categories
-                    // You might want to fetch this from your TTS backend or database
-                    return [
-                        'Self Confidence', 'Positive Attitude', 'Quit Smoking',
-                        'Will Power', 'Guided Visualization', 'Hypnotherapy'
-                    ];
+                    // Return all available categories from database
+                    return TtsCategory::active()->pluck('name')->toArray();
                 } else {
                     $categories = array_merge($categories, $plan->getIncludedTtsCategories());
                 }
             }
         }
 
-        // Add individually purchased categories
+        // Add individually purchased categories (existing access control system)
         $purchasedCategories = $this->ttsCategoryAccess()
             ->active()
             ->pluck('category_name')
             ->toArray();
 
         $categories = array_merge($categories, $purchasedCategories);
+
+        // Add categories from TTS product purchases
+        $productPurchaseCategories = $this->completedTtsProductPurchases()
+            ->with('product')
+            ->get()
+            ->pluck('product.category')
+            ->unique()
+            ->filter()
+            ->toArray();
+
+        $categories = array_merge($categories, $productPurchaseCategories);
 
         return array_unique($categories);
     }
@@ -270,5 +277,83 @@ class User extends Authenticatable
         $summary['purchased_products'] = $musicProducts->pluck('id')->toArray();
 
         return $summary;
+    }
+
+    /**
+     * Get user's TTS product purchases
+     */
+    public function ttsProductPurchases()
+    {
+        return $this->hasMany(TtsProductPurchase::class);
+    }
+
+    /**
+     * Get user's completed TTS product purchases
+     */
+    public function completedTtsProductPurchases()
+    {
+        return $this->ttsProductPurchases()->completed();
+    }
+
+    /**
+     * Check if user has purchased a specific TTS audio product
+     */
+    public function hasTtsProductAccess($productId)
+    {
+        return $this->completedTtsProductPurchases()
+            ->where('tts_audio_product_id', $productId)
+            ->exists();
+    }
+
+    /**
+     * Check if user has access to a TTS category (via subscription or product purchase)
+     */
+    public function hasTtsCategoryAccessExtended($categoryName)
+    {
+        // Check existing subscription access
+        if ($this->hasTtsCategoryAccess($categoryName)) {
+            return [
+                'has_access' => true,
+                'access_type' => 'subscription',
+                'source' => 'subscription_or_trial'
+            ];
+        }
+
+        // Check individual product purchases in this category
+        $hasPurchasedProduct = $this->completedTtsProductPurchases()
+            ->whereHas('product', function($query) use ($categoryName) {
+                $query->where('category', $categoryName);
+            })
+            ->exists();
+
+        if ($hasPurchasedProduct) {
+            return [
+                'has_access' => true,
+                'access_type' => 'product_purchase',
+                'source' => 'individual_product'
+            ];
+        }
+
+        return [
+            'has_access' => false,
+            'access_type' => 'none',
+            'source' => 'no_access'
+        ];
+    }
+
+    /**
+     * Get user's TTS access summary
+     */
+    public function getTtsAccessSummary()
+    {
+        return [
+            'subscription_access' => $this->getActiveSubscription() ? true : false,
+            'purchased_products' => $this->completedTtsProductPurchases()->count(),
+            'accessible_categories' => $this->getAccessibleTtsCategories(),
+            'trial_access' => $this->ttsCategoryAccess()
+                ->where('access_type', 'trial')
+                ->active()
+                ->exists()
+        ];
     }
 }

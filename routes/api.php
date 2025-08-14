@@ -49,6 +49,11 @@ Route::prefix('tts')->group(function () {
         Route::post('/generate-audio', [TtsBackendController::class, 'generateAudio']);
         Route::post('/search', [TtsBackendController::class, 'searchMessages']);
         Route::get('/user-stats', [TtsBackendController::class, 'getUserStats']);
+        
+        // TTS Product Management
+        Route::get('/products/catalog', [TtsBackendController::class, 'getTtsProductsCatalog']);
+        Route::post('/products/preview', [TtsBackendController::class, 'generatePreviewAudio']);
+        Route::get('/products/user-purchases', [TtsBackendController::class, 'getUserTtsProducts']);
     });
 });
 
@@ -66,6 +71,11 @@ Route::prefix('payment')->group(function () {
         Route::get('/history', [PaymentController::class, 'purchaseHistory']);
         Route::post('/cancel-subscription', [PaymentController::class, 'cancelSubscription']);
         Route::get('/status', [PaymentController::class, 'getPaymentStatus']);
+        
+        // TTS Product Payments
+        Route::post('/create-tts-product-payment', [PaymentController::class, 'createTtsProductPayment']);
+        Route::post('/handle-tts-product-success', [PaymentController::class, 'handleTtsProductSuccess']);
+        Route::get('/tts-product-history', [PaymentController::class, 'getTtsProductHistory']);
     });
 });
 

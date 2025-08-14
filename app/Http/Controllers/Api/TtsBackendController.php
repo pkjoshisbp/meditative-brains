@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\TtsCategory;
+use App\Models\TtsAudioProduct;
 use App\Services\AccessControlService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,15 +35,23 @@ class TtsBackendController extends Controller
             ], 401);
         }
 
-        // Check if user has access to this category
-        $accessCheck = $this->accessControlService->canUserAccess($user, 'tts_category', $category);
+        // Check if user has access to this category (subscription or product purchase)
+        $accessCheck = $user->hasTtsCategoryAccessExtended($category);
         
-        if (!$accessCheck['can_access']) {
+        if (!$accessCheck['has_access']) {
+            // Get available products for this category
+            $availableProducts = TtsAudioProduct::byCategory($category)
+                ->active()
+                ->select('id', 'name', 'price', 'description')
+                ->get();
+
             return response()->json([
                 'error' => 'Access denied',
-                'reason' => $accessCheck['reason'],
+                'reason' => 'No subscription or product purchase found for this category',
                 'category' => $category,
-                'available_for_purchase' => true
+                'access_type' => $accessCheck['access_type'],
+                'available_for_purchase' => true,
+                'available_products' => $availableProducts
             ], 403);
         }
 
@@ -353,5 +363,188 @@ class TtsBackendController extends Controller
         ];
 
         return $descriptions[$category] ?? 'Transform your mindset with targeted affirmations';
+    }
+
+    /**
+     * Get TTS audio products catalog with preview capability
+     */
+    public function getTtsProductsCatalog(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json([
+                'error' => 'Authentication required'
+            ], 401);
+        }
+
+        // Get active categories
+        $categories = TtsCategory::active()->ordered()->get();
+        
+        // Get active products grouped by category
+        $products = TtsAudioProduct::active()
+            ->orderBy('category')
+            ->orderBy('name')
+            ->get()
+            ->groupBy('category');
+
+        $catalog = [];
+        foreach ($categories as $category) {
+            $categoryProducts = $products->get($category->name, collect());
+            
+            $productList = $categoryProducts->map(function ($product) use ($user) {
+                $hasAccess = $user->hasTtsProductAccess($product->id);
+                $categoryAccess = $user->hasTtsCategoryAccessExtended($product->category);
+                
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'description' => $product->description,
+                    'category' => $product->category,
+                    'language' => $product->language,
+                    'price' => $product->price,
+                    'formatted_price' => $product->formatted_price,
+                    'preview_duration' => $product->preview_duration,
+                    'cover_image_url' => $product->cover_image_url,
+                    'total_messages_count' => $product->total_messages_count,
+                    'sample_messages' => $product->sample_messages,
+                    'has_access' => $hasAccess || $categoryAccess['has_access'],
+                    'access_type' => $hasAccess ? 'individual_purchase' : $categoryAccess['access_type'],
+                    'can_preview' => true,
+                    'preview_available' => $product->hasPreviewSamples()
+                ];
+            });
+
+            $catalog[] = [
+                'category' => [
+                    'name' => $category->name,
+                    'display_name' => $category->display_name,
+                    'description' => $category->description,
+                    'icon_url' => $category->icon_url
+                ],
+                'products' => $productList,
+                'user_has_category_access' => $user->hasTtsCategoryAccessExtended($category->name)['has_access']
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'categories' => $catalog,
+            'user_access_summary' => $user->getTtsAccessSummary()
+        ]);
+    }
+
+    /**
+     * Generate preview audio with background music
+     */
+    public function generatePreviewAudio(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:tts_audio_products,id',
+            'message_text' => 'sometimes|string|max:500',
+            'voice' => 'sometimes|string',
+            'speed' => 'sometimes|numeric|min:0.5|max:2.0'
+        ]);
+
+        $product = TtsAudioProduct::findOrFail($request->product_id);
+        
+        // Use provided message or random sample message
+        $messageText = $request->message_text ?? $product->getRandomSampleMessage();
+        
+        if (!$messageText) {
+            return response()->json([
+                'error' => 'No preview message available for this product'
+            ], 400);
+        }
+
+        try {
+            // Generate TTS audio via backend
+            $ttsResponse = Http::timeout(60)->post($this->ttsBackendUrl . '/api/generate-preview', [
+                'text' => $messageText,
+                'voice' => $request->voice ?? 'default',
+                'speed' => $request->speed ?? 1.0,
+                'language' => $product->language,
+                'preview_duration' => $product->preview_duration,
+                'background_music_url' => $product->background_music_url
+            ]);
+
+            if ($ttsResponse->successful()) {
+                $audioData = $ttsResponse->json();
+                
+                return response()->json([
+                    'success' => true,
+                    'preview_audio_url' => $audioData['preview_url'],
+                    'duration' => $audioData['duration'] ?? $product->preview_duration,
+                    'message_text' => $messageText,
+                    'expires_at' => now()->addHours(2)->toISOString(), // Temporary URL
+                    'product' => [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'category' => $product->category
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'error' => 'Failed to generate preview audio'
+            ], 500);
+
+        } catch (\Exception $e) {
+            Log::error('Preview Generation Error', [
+                'error' => $e->getMessage(),
+                'product_id' => $request->product_id,
+                'message_text' => $messageText
+            ]);
+
+            return response()->json([
+                'error' => 'Preview service temporarily unavailable'
+            ], 503);
+        }
+    }
+
+    /**
+     * Get user's purchased TTS products
+     */
+    public function getUserTtsProducts(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json([
+                'error' => 'Authentication required'
+            ], 401);
+        }
+
+        $purchases = $user->completedTtsProductPurchases()
+            ->with('product')
+            ->orderBy('purchased_at', 'desc')
+            ->get();
+
+        $userProducts = $purchases->map(function ($purchase) {
+            return [
+                'purchase_id' => $purchase->id,
+                'product' => [
+                    'id' => $purchase->product->id,
+                    'name' => $purchase->product->name,
+                    'description' => $purchase->product->description,
+                    'category' => $purchase->product->category,
+                    'language' => $purchase->product->language,
+                    'cover_image_url' => $purchase->product->cover_image_url,
+                    'total_messages_count' => $purchase->product->total_messages_count
+                ],
+                'purchased_at' => $purchase->purchased_at,
+                'amount_paid' => $purchase->amount
+            ];
+        });
+
+        // Get accessible categories (including subscription access)
+        $accessibleCategories = $user->getAccessibleTtsCategories();
+
+        return response()->json([
+            'success' => true,
+            'purchased_products' => $userProducts,
+            'accessible_categories' => $accessibleCategories,
+            'access_summary' => $user->getTtsAccessSummary()
+        ]);
     }
 }
