@@ -1,0 +1,6 @@
+GET /api/music-library              - Browse catalog with access info
+GET /api/music-library/my-library   - User's accessible content  
+GET /api/music-library/preview/{id} - Public previews
+GET /api/music-library/full-audio/{id} - Protected full tracks
+GET /api/music-library/check-access - Permission verification
+GET /api/tts/categories            - TTS categories with access

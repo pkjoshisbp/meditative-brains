@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\FlutterApiController;
 use App\Http\Controllers\Api\MusicLibraryController;
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\TtsBackendController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,10 +38,34 @@ Route::prefix('music-library')->group(function () {
 
 // TTS Categories API Routes for Flutter
 Route::prefix('tts')->group(function () {
+    // Public routes
     Route::get('/categories', [MusicLibraryController::class, 'ttsCategories']);
+    Route::get('/voices', [TtsBackendController::class, 'getAvailableVoices']);
+    Route::get('/category-pricing', [TtsBackendController::class, 'getCategoryPricing']);
     
+    // Protected routes (authentication required)
     Route::middleware('auth:sanctum')->group(function () {
-        // TTS-specific routes will be added in Part 2
+        Route::get('/category/{category}/messages', [TtsBackendController::class, 'getCategoryMessages']);
+        Route::post('/generate-audio', [TtsBackendController::class, 'generateAudio']);
+        Route::post('/search', [TtsBackendController::class, 'searchMessages']);
+        Route::get('/user-stats', [TtsBackendController::class, 'getUserStats']);
+    });
+});
+
+// Payment API Routes for Flutter
+Route::prefix('payment')->group(function () {
+    // Public routes
+    Route::get('/plans', [PaymentController::class, 'getSubscriptionPlans']);
+    Route::post('/webhook', [PaymentController::class, 'webhook']); // PayPal webhook
+    
+    // Protected routes (authentication required)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/create-product-payment', [PaymentController::class, 'createProductPayment']);
+        Route::post('/create-subscription-payment', [PaymentController::class, 'createSubscriptionPayment']);
+        Route::post('/handle-success', [PaymentController::class, 'handleSuccess']);
+        Route::get('/history', [PaymentController::class, 'purchaseHistory']);
+        Route::post('/cancel-subscription', [PaymentController::class, 'cancelSubscription']);
+        Route::get('/status', [PaymentController::class, 'getPaymentStatus']);
     });
 });
 
