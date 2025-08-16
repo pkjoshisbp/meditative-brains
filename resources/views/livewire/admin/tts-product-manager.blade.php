@@ -427,7 +427,7 @@
                                                         <option value="">No tracks found</option>
                                                     @endforelse
                                                 </select>
-                                                <small class="form-text text-muted d-block">Files scanned from storage/app/{bg-music|audio/bg-music}/original</small>
+                                                <small class="form-text text-muted d-block">Files scanned from storage/app/bg-music/original</small>
                                                 <button type="button" wire:click="refreshBgMusicFiles" class="btn btn-sm btn-outline-secondary mt-1">Refresh Tracks</button>
                                             </div>
                                         </div>
@@ -724,7 +724,7 @@
                     // Background music via secure issue endpoint (encrypted)
                     if (config.hasBackgroundMusic) {
                         const statusEl = document.getElementById('bg-music-status');
-                        const typeSlug = (config.backgroundMusicTrack || config.backgroundMusicType || config.category || 'relaxing').toString().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+                        const typeSlug = (config.backgroundMusicTrack || config.backgroundMusicType || config.category || 'relaxing').toString();
                         if (statusEl) statusEl.textContent = 'Requesting secure BG music...';
                         try {
                             const resp = await fetch(`/bg-music/issue?track=${encodeURIComponent(typeSlug)}`, { credentials: 'include' });
@@ -733,7 +733,14 @@
                             if (data.url) {
                                 const audio = new Audio(data.url);
                                 audio.loop = true;
-                                audio.volume = config.bgMusicVolume ?? 0.3;
+                                // Ensure volume is a proper float between 0 and 1
+                                const requestedVolRaw = (config.bgMusicVolume !== undefined && config.bgMusicVolume !== null)
+                                    ? config.bgMusicVolume : 0.3;
+                                let requestedVol = parseFloat(requestedVolRaw);
+                                if (isNaN(requestedVol)) requestedVol = 0.3;
+                                requestedVol = Math.min(1, Math.max(0, requestedVol));
+                                audio.volume = requestedVol;
+                                console.log('[TTS] BG music volume applied', { requested: requestedVolRaw, parsed: requestedVol, elementVolume: audio.volume });
                                 await audio.play();
                                 backgroundMusic = audio;
                                 if (statusEl) statusEl.textContent = 'BG music: ' + typeSlug;

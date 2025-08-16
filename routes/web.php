@@ -23,6 +23,7 @@ Route::get('/simple-test', function () {
 })->name('simple-test');
 
 // Audio streaming with signed URLs
+Route::get('/audio/stream', [AudioStreamController::class, 'stream'])->name('audio.stream');
 Route::get('/audio/signed-stream', [AudioStreamController::class, 'signedStream'])
     ->name('audio.signed-stream')
     ->middleware('signed');

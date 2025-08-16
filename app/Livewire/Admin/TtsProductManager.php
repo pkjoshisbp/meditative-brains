@@ -126,28 +126,37 @@ class TtsProductManager extends AdminComponent
     public function loadBgMusicFiles()
     {
         try {
-            $searchPaths = [
-                'bg-music/original'
-            ];
-            $found = [];
-            foreach ($searchPaths as $p) {
-                if (\Storage::disk('local')->exists($p)) {
-                    try {
-                        $files = \Storage::disk('local')->files($p);
-                        foreach ($files as $f) {
-                            if (!preg_match('/\.(mp3|wav|m4a)$/i', $f)) continue;
-                            $base = basename($f);
-                            $name = preg_replace('/\.(mp3|wav|m4a)$/i','',$base);
-                            $found[$name] = true;
-                        }
-                    } catch (\Exception $ie) {
-                        Log::warning('BG music scan path failed '.$p.': '.$ie->getMessage());
+            $dir = storage_path('app/bg-music/original');
+            if (!is_dir($dir)) {
+                $this->bgMusicFiles = [];
+                $this->bgMusicDebug = 'Missing directory: '.$dir;
+                return;
+            }
+            $items = @scandir($dir);
+            if ($items === false) {
+                $this->bgMusicFiles = [];
+                $this->bgMusicDebug = 'scandir failed for '.$dir;
+                return;
+            }
+            $tracks = [];
+            $debug = [];
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..') continue;
+                $full = $dir.DIRECTORY_SEPARATOR.$item;
+                if (is_link($full)) {
+                    $debug[] = 'link:'.$item.'->'.readlink($full);
+                }
+                $real = realpath($full);
+                if ($real && is_file($real)) {
+                    $ext = strtolower(pathinfo($item, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['mp3','wav','m4a','aac','ogg'])) {
+                        $tracks[pathinfo($item, PATHINFO_FILENAME)] = true;
                     }
                 }
             }
-            ksort($found);
-            $this->bgMusicFiles = array_keys($found);
-            if (!$this->background_music_track && count($this->bgMusicFiles)) {
+            ksort($tracks);
+            $this->bgMusicFiles = array_keys($tracks);
+            if (!$this->background_music_track && $this->bgMusicFiles) {
                 $this->background_music_track = $this->bgMusicFiles[0];
             }
             Log::info('Loaded bg music tracks', ['count' => count($this->bgMusicFiles)]);
@@ -161,6 +170,14 @@ class TtsProductManager extends AdminComponent
     {
         $this->loadBgMusicFiles();
         session()->flash('info', 'Background music track list refreshed.');
+    }
+
+    #[On('refreshBgMusicAuto')]
+    public function ensureBgMusicLoaded()
+    {
+        if (empty($this->bgMusicFiles)) {
+            $this->loadBgMusicFiles();
+        }
     }
 
     public function checkBackendConnection()
@@ -479,8 +496,9 @@ class TtsProductManager extends AdminComponent
         $this->enable_silence_padding = $this->editingProduct->enable_silence_padding ?? true;
         $this->silence_start = $this->editingProduct->silence_start ?? 1.0;
         $this->silence_end = $this->editingProduct->silence_end ?? 1.0;
-        $this->has_background_music = $this->editingProduct->has_background_music ?? false;
-        $this->background_music_type = $this->editingProduct->background_music_type ?? 'relaxing';
+    $this->has_background_music = $this->editingProduct->has_background_music ?? false;
+    $this->background_music_type = $this->editingProduct->background_music_type ?? 'relaxing';
+    $this->background_music_track = $this->editingProduct->background_music_track ?? $this->background_music_track;
         
         // Audio URLs
         $this->audio_urls = $this->editingProduct->audio_urls ?? '';
@@ -556,6 +574,7 @@ class TtsProductManager extends AdminComponent
                 'silence_end' => $this->silence_end,
                 'has_background_music' => $this->has_background_music,
                 'background_music_type' => $this->background_music_type,
+                'background_music_track' => $this->background_music_track ?: null,
                 // Audio URLs
                 'audio_urls' => $this->audio_urls,
                 'preview_audio_url' => $this->preview_audio_url,
@@ -625,39 +644,48 @@ class TtsProductManager extends AdminComponent
 
     public function cancel()
     {
-        $this->resetForm();
-        $this->showForm = false;
-    }
-
-    protected function resetForm()
-    {
-        $this->editingProduct = null;
-        $this->name = '';
-        $this->description = '';
-        $this->short_description = '';
-        $this->category = '';
-        $this->price = '';
-        $this->sale_price = '';
-        $this->tags = '';
-        $this->preview_duration = 30;
-        $this->sort_order = 0;
-        $this->is_active = true;
-        $this->is_featured = false;
-        $this->background_music_url = '';
-        $this->cover_image = null;
-        $this->cover_image_path = '';
-        $this->meta_title = '';
-        $this->meta_description = '';
-        $this->meta_keywords = '';
-        $this->backend_category_id = '';
-        $this->total_messages_count = 0;
-        
-        // Reset audio settings
-        $this->bg_music_volume = 0.30;
-        $this->message_repeat_count = 2;
-        $this->repeat_interval = 2.00;
-        $this->message_interval = 10.00;
-        $this->fade_in_duration = 0.5;
+        try {
+            $dir = storage_path('app/bg-music/original');
+            $debug = [];
+            if (!is_dir($dir)) {
+                $this->bgMusicFiles = [];
+                $this->bgMusicDebug = 'Missing dir: '.$dir;
+                return;
+            }
+            $items = @scandir($dir);
+            if ($items === false) {
+                $this->bgMusicFiles = [];
+                $this->bgMusicDebug = 'scandir failed: '.$dir;
+                return;
+            }
+            $tracks = [];
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..') continue;
+                $full = $dir.DIRECTORY_SEPARATOR.$item;
+                if (is_link($full)) {
+                    $debug[] = 'link '.$item.' -> '.readlink($full);
+                }
+                $real = realpath($full);
+                if ($real && is_file($real)) {
+                    $ext = strtolower(pathinfo($item, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['mp3','wav','m4a','aac','ogg'])) {
+                        $tracks[pathinfo($item, PATHINFO_FILENAME)] = true;
+                    }
+                }
+            }
+            ksort($tracks);
+            $this->bgMusicFiles = array_keys($tracks);
+            if (!$this->background_music_track && $this->bgMusicFiles) {
+                $this->background_music_track = $this->bgMusicFiles[0];
+            }
+            $this->bgMusicDebug = 'scanned='.count($items).' valid='.count($this->bgMusicFiles).' '.implode(' | ',$debug);
+            Log::info('Loaded bg music tracks (scandir)', ['count' => count($this->bgMusicFiles)]);
+        } catch (\Exception $e) {
+            Log::warning('Failed loading bg music files: '.$e->getMessage());
+            $this->bgMusicFiles = [];
+            $this->bgMusicDebug = 'exception: '.$e->getMessage();
+        }
+            Log::info('Loaded bg music tracks', ['count' => count($this->bgMusicFiles), 'dir' => $dir]);
         $this->fade_out_duration = 0.5;
         $this->enable_silence_padding = true;
         $this->silence_start = 1.0;
@@ -734,11 +762,11 @@ class TtsProductManager extends AdminComponent
                         'silenceEnd' => $product->silence_end ?? 1.0,
                         'hasBackgroundMusic' => $product->has_background_music ?? false,
                         'backgroundMusicUrl' => $product->background_music_url,
-                        'bgMusicVolume' => $product->bg_music_volume ?? 0.3,
+                        'bgMusicVolume' => isset($product->bg_music_volume) ? (float)$product->bg_music_volume : 0.3,
                         'previewDuration' => $product->preview_duration ?? 30,
                         'category' => $product->category ?? null,
-                        'backgroundMusicType' => ($this->background_music_track ?: $product->background_music_type) ?? null,
-                        'backgroundMusicTrack' => $this->background_music_track
+                        'backgroundMusicType' => $product->background_music_type ?? null,
+                        'backgroundMusicTrack' => $this->background_music_track ?: ($product->background_music_track ?? null)
                         ,'enforceTimeline' => true
                     ];
                     

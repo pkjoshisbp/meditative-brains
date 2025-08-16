@@ -17,12 +17,31 @@ class BgMusicStreamController extends Controller
         ]);
         $track = $request->get('track');
         try {
-            // ensure encrypted exists (mp3 by default)
-            $this->audioSecurityService->encryptBgMusicFile($track . '.mp3');
-            $encryptedPath = 'bg-music/encrypted/' . $track . '.enc';
+            \Log::info('BG issue request', ['track'=>$track]);
+            // Resolve actual filename (case-insensitive match in directory)
+            $dir = storage_path('app/bg-music/original');
+            $candidate = null;
+            if (is_dir($dir)) {
+                $items = scandir($dir);
+                foreach ($items as $item) {
+                    if ($item === '.' || $item === '..') continue;
+                    $base = pathinfo($item, PATHINFO_FILENAME);
+                    if (strcasecmp($base, $track) === 0) {
+                        $candidate = $item; // includes extension
+                        break;
+                    }
+                }
+            }
+            if (!$candidate) {
+                // fallback assume mp3
+                $candidate = $track . '.mp3';
+            }
+            $this->audioSecurityService->encryptBgMusicFile($candidate);
+            $encryptedPath = 'bg-music/encrypted/' . pathinfo($candidate, PATHINFO_FILENAME) . '.enc';
             $url = $this->audioSecurityService->generateSecureUrl($encryptedPath, null, 30); // 30 min
             return response()->json(['url' => $url]);
         } catch (\Exception $e) {
+            \Log::warning('BG issue failed', ['track'=>$track,'error'=>$e->getMessage()]);
             return response()->json(['error' => $e->getMessage()], 404);
         }
     }
