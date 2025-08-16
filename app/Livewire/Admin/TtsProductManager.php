@@ -53,6 +53,9 @@ class TtsProductManager extends AdminComponent
     public $silence_end = 1.0;
     public $has_background_music = false;
     public $background_music_type = 'relaxing';
+    // Background music dynamic files
+    public $bgMusicFiles = [];
+    public $background_music_track = '';
     
     // Audio URLs
     public $audio_urls = '';
@@ -108,12 +111,56 @@ class TtsProductManager extends AdminComponent
             Log::info('TtsProductManager: Backend connection checked, connected: ' . ($this->backendConnected ? 'YES' : 'NO'));
             $this->autoSyncCategories();
             Log::info('TtsProductManager: Auto-sync completed');
+            $this->loadBgMusicFiles();
         } catch (\Exception $e) {
             Log::error('TtsProductManager mount error: ' . $e->getMessage());
             Log::error('TtsProductManager mount trace: ' . $e->getTraceAsString());
             // Don't let mount errors break the component
             $this->backendConnected = false;
         }
+    }
+
+    /**
+     * Scan storage for bg-music/original files and populate list.
+     */
+    public function loadBgMusicFiles()
+    {
+        try {
+            $searchPaths = [
+                'bg-music/original'
+            ];
+            $found = [];
+            foreach ($searchPaths as $p) {
+                if (\Storage::disk('local')->exists($p)) {
+                    try {
+                        $files = \Storage::disk('local')->files($p);
+                        foreach ($files as $f) {
+                            if (!preg_match('/\.(mp3|wav|m4a)$/i', $f)) continue;
+                            $base = basename($f);
+                            $name = preg_replace('/\.(mp3|wav|m4a)$/i','',$base);
+                            $found[$name] = true;
+                        }
+                    } catch (\Exception $ie) {
+                        Log::warning('BG music scan path failed '.$p.': '.$ie->getMessage());
+                    }
+                }
+            }
+            ksort($found);
+            $this->bgMusicFiles = array_keys($found);
+            if (!$this->background_music_track && count($this->bgMusicFiles)) {
+                $this->background_music_track = $this->bgMusicFiles[0];
+            }
+            Log::info('Loaded bg music tracks', ['count' => count($this->bgMusicFiles)]);
+        } catch (\Exception $e) {
+            Log::warning('Failed loading bg music files: '.$e->getMessage());
+            $this->bgMusicFiles = [];
+        }
+    }
+
+    public function refreshBgMusicFiles()
+    {
+        $this->loadBgMusicFiles();
+        session()->flash('info', 'Background music track list refreshed.');
     }
 
     public function checkBackendConnection()
@@ -481,11 +528,10 @@ class TtsProductManager extends AdminComponent
                 'name' => $this->name,
                 'description' => $this->description,
                 'short_description' => $this->short_description,
-                'category' => $this->category ?: $this->name, // Use category if provided, otherwise name
+                'category' => $this->category ?: $this->name,
                 'audio_type' => 'tts',
                 'language' => 'en',
                 'price' => $this->price,
-                'sale_price' => $this->sale_price ?: null,
                 'tags' => $this->tags,
                 'preview_duration' => $this->preview_duration,
                 'sort_order' => $this->sort_order,
@@ -498,7 +544,6 @@ class TtsProductManager extends AdminComponent
                 'meta_keywords' => $this->meta_keywords,
                 'backend_category_id' => $this->backend_category_id ?: null,
                 'total_messages_count' => $this->total_messages_count,
-                
                 // Audio settings
                 'bg_music_volume' => $this->bg_music_volume,
                 'message_repeat_count' => $this->message_repeat_count,
@@ -511,7 +556,6 @@ class TtsProductManager extends AdminComponent
                 'silence_end' => $this->silence_end,
                 'has_background_music' => $this->has_background_music,
                 'background_music_type' => $this->background_music_type,
-                
                 // Audio URLs
                 'audio_urls' => $this->audio_urls,
                 'preview_audio_url' => $this->preview_audio_url,
@@ -620,6 +664,8 @@ class TtsProductManager extends AdminComponent
         $this->silence_end = 1.0;
         $this->has_background_music = false;
         $this->background_music_type = 'relaxing';
+    $this->background_music_track = '';
+    $this->loadBgMusicFiles();
         $this->audio_urls = '';
         $this->preview_audio_url = '';
         
@@ -639,23 +685,61 @@ class TtsProductManager extends AdminComponent
         try {
             // First priority: Check if we have audio_urls array (these are already complete URLs)
             if ($product->audio_urls) {
-                $audioUrls = json_decode($product->audio_urls, true);
+                $raw = json_decode($product->audio_urls, true);
+                $audioUrls = [];
+                if (is_array($raw)) {
+                    foreach ($raw as $item) {
+                        // Accept direct string
+                        if (is_string($item)) {
+                            $audioUrls[] = $item;
+                            continue;
+                        }
+                        // Accept object/assoc array with possible keys
+                        if (is_array($item)) {
+                            $candidate = $item['url']
+                                ?? $item['audio_url']
+                                ?? $item['src']
+                                ?? $item['path']
+                                ?? null;
+                            if (is_string($candidate)) {
+                                $audioUrls[] = $candidate;
+                                continue;
+                            }
+                        }
+                    }
+                }
+                // De-duplicate & filter empties
+                $audioUrls = array_values(array_unique(array_filter($audioUrls)));
                 
-                if (!empty($audioUrls) && is_array($audioUrls)) {
+                if (!empty($audioUrls)) {
+                    // Normalize legacy domain to new domain for playback (temporary until Mongo updated)
+                    $legacyHost = 'motivation.mywebsolutions.co.in:3000';
+                    $newHost = 'meditative-brains.com:3001';
+                    $audioUrls = array_map(function($u) use ($legacyHost, $newHost) {
+                        if (is_string($u) && str_contains($u, $legacyHost)) {
+                            return str_replace($legacyHost, $newHost, $u);
+                        }
+                        return $u;
+                    }, $audioUrls);
                     // Prepare audio configuration for the frontend
                     $audioConfig = [
                         'audioUrls' => $audioUrls,
                         'messageRepeatCount' => $product->message_repeat_count ?? 2,
                         'repeatInterval' => $product->repeat_interval ?? 2.0,
                         'messageInterval' => $product->message_interval ?? 10.0,
-                        'fadeInDuration' => $product->fade_in_duration ?? 0.5,
-                        'fadeOutDuration' => $product->fade_out_duration ?? 0.5,
+                        // fade durations kept for backward compatibility but ignored in JS now
+                        'fadeInDuration' => 0,
+                        'fadeOutDuration' => 0,
                         'silenceStart' => $product->silence_start ?? 1.0,
                         'silenceEnd' => $product->silence_end ?? 1.0,
                         'hasBackgroundMusic' => $product->has_background_music ?? false,
                         'backgroundMusicUrl' => $product->background_music_url,
                         'bgMusicVolume' => $product->bg_music_volume ?? 0.3,
-                        'previewDuration' => $product->preview_duration ?? 30
+                        'previewDuration' => $product->preview_duration ?? 30,
+                        'category' => $product->category ?? null,
+                        'backgroundMusicType' => ($this->background_music_track ?: $product->background_music_type) ?? null,
+                        'backgroundMusicTrack' => $this->background_music_track
+                        ,'enforceTimeline' => true
                     ];
                     
                     // Update the preview_audio_url field for future use (use first URL)
@@ -663,7 +747,14 @@ class TtsProductManager extends AdminComponent
                         'preview_audio_url' => $audioUrls[0]
                     ]);
                     
-                    session()->flash('success', 'Starting audio preview with ' . count($audioUrls) . ' messages and audio settings.');
+                    Log::info('Audio preview dispatch', [
+                        'product_id' => $product->id,
+                        'audio_url_count' => count($audioUrls),
+                        'preview_duration' => $audioConfig['previewDuration']
+                    ]);
+                    // Add marker log for frontend correlation
+                    Log::info('Dispatching playSequentialAudio Livewire event for product '.$product->id);
+                    session()->flash('success', 'Starting audio preview with ' . count($audioUrls) . ' audio clips.');
                     $this->dispatch('playSequentialAudio', config: $audioConfig);
                     return;
                 }

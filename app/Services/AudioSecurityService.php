@@ -341,4 +341,30 @@ class AudioSecurityService
         
         return $path;
     }
+
+    /**
+     * Encrypt a background music original file located under bg-music/original
+     * Returns encrypted path bg-music/encrypted/<name>.enc
+     */
+    public function encryptBgMusicFile($filename)
+    {
+        $filename = ltrim($filename, '/');
+        // Accept either filename.mp3 or sub/dir/filename.mp3
+        $originalFull = 'bg-music/original/' . $filename;
+        if (!Storage::disk('local')->exists($originalFull)) {
+            throw new \Exception("Background music original not found: {$filename}");
+        }
+        $baseName = pathinfo($filename, PATHINFO_FILENAME);
+        $encryptedPath = 'bg-music/encrypted/' . $baseName . '.enc';
+        if (Storage::disk('local')->exists($encryptedPath)) {
+            return $encryptedPath; // already encrypted
+        }
+        $originalContent = Storage::disk('local')->get($originalFull);
+        $key = hash('sha256', config('app.key'), true);
+        $iv = openssl_random_pseudo_bytes(16);
+        $encryptedContent = openssl_encrypt($originalContent, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+        $finalContent = $iv . $encryptedContent;
+        Storage::disk('local')->put($encryptedPath, $finalContent);
+        return $encryptedPath;
+    }
 }

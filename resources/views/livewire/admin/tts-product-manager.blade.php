@@ -127,8 +127,8 @@
                                             <img src="{{ asset('storage/' . $product->cover_image_path) }}" 
                                                  alt="Cover" class="img-thumbnail" style="max-width: 50px;">
                                         @else
-                                            <div class="bg-secondary d-flex align-items-center justify-content-center" 
-                                                 style="width: 50px; height: 50px;">
+                                    <div class="bg-secondary d-flex align-items-center justify-content-center" 
+                                        style="width: 50px; height: 50px;">
                                                 <i class="fas fa-image text-white"></i>
                                             </div>
                                         @endif
@@ -419,14 +419,16 @@
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label for="background_music_type">Background Music Type</label>
-                                                <select wire:model="background_music_type" class="form-control" id="background_music_type">
-                                                    <option value="relaxing">Relaxing</option>
-                                                    <option value="meditation">Meditation</option>
-                                                    <option value="ambient">Ambient</option>
-                                                    <option value="nature">Nature Sounds</option>
-                                                    <option value="instrumental">Instrumental</option>
+                                                <label for="background_music_track">Background Music Track</label>
+                                                <select wire:model="background_music_track" class="form-control" id="background_music_track">
+                                                    @forelse ($bgMusicFiles as $track)
+                                                        <option value="{{ $track }}">{{ $track }}</option>
+                                                    @empty
+                                                        <option value="">No tracks found</option>
+                                                    @endforelse
                                                 </select>
+                                                <small class="form-text text-muted d-block">Files scanned from storage/app/{bg-music|audio/bg-music}/original</small>
+                                                <button type="button" wire:click="refreshBgMusicFiles" class="btn btn-sm btn-outline-secondary mt-1">Refresh Tracks</button>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -504,6 +506,15 @@
                                                         <strong>Message Repeat:</strong> {{ $message_repeat_count }}<br>
                                                         <strong>Total Messages:</strong> {{ $total_messages_count }}
                                                     </small>
+                                                    <div id="bg-music-status" class="mt-1 small text-muted"></div>
+                                                    <div class="mt-2">
+                                                        <div id="tts-progress-wrapper" style="display:none;">
+                                                            <div class="d-flex justify-content-between"><small id="tts-progress-label">Preview Progress</small><small><span id="tts-time-elapsed">0:00</span> / <span id="tts-time-total">0:00</span></small></div>
+                                                            <div class="progress" style="height:8px;">
+                                                                <div id="tts-progress-bar" class="progress-bar bg-info" role="progressbar" style="width:0%"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -650,6 +661,7 @@
             // Advanced sequential audio playback with background music
             Livewire.on('playSequentialAudio', (event) => {
                 stopAllAudio();
+                console.log('[TTS] Received playSequentialAudio event', event);
                 playSequentialAudio(event.config);
             });
             
@@ -671,82 +683,154 @@
                 try {
                     isPlaying = true;
                     console.log('Starting sequential audio playback with config:', config);
-                    
-                    // Start background music if enabled
-                    if (config.hasBackgroundMusic && config.backgroundMusicUrl) {
+                    const urls = Array.isArray(config.audioUrls) ? config.audioUrls.filter(u => !!u) : [];
+                    if (!urls.length) {
+                        console.warn('No audio URLs provided.');
+                        return;
+                    }
+
+                    // Progress elements
+                    const progressWrapper = document.getElementById('tts-progress-wrapper');
+                    const progressBar = document.getElementById('tts-progress-bar');
+                    const timeElapsedEl = document.getElementById('tts-time-elapsed');
+                    const timeTotalEl = document.getElementById('tts-time-total');
+                    const totalPreviewSeconds = parseFloat(config.previewDuration || 0);
+                    const totalPreviewMs = totalPreviewSeconds * 1000;
+                    let startTs = null;
+                    let rafId = null;
+
+                    function fmt(sec){
+                        const m = Math.floor(sec/60); const s = Math.floor(sec%60).toString().padStart(2,'0'); return `${m}:${s}`;
+                    }
+                    function tick(){
+                        if (!isPlaying || !startTs || totalPreviewMs<=0) return;
+                        const elapsed = Date.now() - startTs;
+                        const clamped = Math.min(elapsed, totalPreviewMs);
+                        if (progressBar) progressBar.style.width = (clamped/totalPreviewMs*100)+"%";
+                        if (timeElapsedEl) timeElapsedEl.textContent = fmt(clamped/1000);
+                        if (elapsed < totalPreviewMs && isPlaying) rafId = requestAnimationFrame(tick);
+                    }
+                    if (totalPreviewMs > 0 && progressWrapper) {
+                        progressWrapper.style.display = 'block';
+                        if (timeTotalEl) timeTotalEl.textContent = fmt(totalPreviewSeconds);
+                        if (timeElapsedEl) timeElapsedEl.textContent = '0:00';
+                        if (progressBar) progressBar.style.width = '0%';
+                        startTs = Date.now();
+                        rafId = requestAnimationFrame(tick);
+                    } else if (progressWrapper) {
+                        progressWrapper.style.display = 'none';
+                    }
+
+                    // Background music via secure issue endpoint (encrypted)
+                    if (config.hasBackgroundMusic) {
+                        const statusEl = document.getElementById('bg-music-status');
+                        const typeSlug = (config.backgroundMusicTrack || config.backgroundMusicType || config.category || 'relaxing').toString().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+                        if (statusEl) statusEl.textContent = 'Requesting secure BG music...';
                         try {
-                            backgroundMusic = new Audio(config.backgroundMusicUrl);
-                            backgroundMusic.loop = true;
-                            backgroundMusic.volume = config.bgMusicVolume || 0.3;
-                            await backgroundMusic.play();
-                            console.log('Background music started');
+                            const resp = await fetch(`/bg-music/issue?track=${encodeURIComponent(typeSlug)}`, { credentials: 'include' });
+                            if (!resp.ok) throw new Error('Issue endpoint failed');
+                            const data = await resp.json();
+                            if (data.url) {
+                                const audio = new Audio(data.url);
+                                audio.loop = true;
+                                audio.volume = config.bgMusicVolume ?? 0.3;
+                                await audio.play();
+                                backgroundMusic = audio;
+                                if (statusEl) statusEl.textContent = 'BG music: ' + typeSlug;
+                                console.log('[TTS] Background music playing (secure)', typeSlug);
+                            } else {
+                                throw new Error('No URL in response');
+                            }
                         } catch (e) {
-                            console.warn('Could not play background music:', e);
+                            console.warn('[TTS] Secure BG music failed', e);
+                            if (statusEl) statusEl.textContent = 'BG music unavailable';
                         }
                     }
-                    
-                    // Add initial silence
-                    if (config.silenceStart > 0) {
-                        await sleep(config.silenceStart * 1000);
-                    }
-                    
-                    const startTime = Date.now();
-                    const previewDuration = (config.previewDuration || 30) * 1000;
-                    
-                    // Play messages sequentially
-                    for (let i = 0; i < config.audioUrls.length && isPlaying; i++) {
-                        // Check if we've exceeded preview duration
-                        if (Date.now() - startTime >= previewDuration) {
-                            console.log('Preview duration exceeded, stopping playback');
-                            break;
+
+                    if (config.silenceStart > 0) await sleep(config.silenceStart * 1000);
+
+                    const previewDeadline = Date.now() + (config.previewDuration || 30) * 1000;
+                    const repeatCount = Math.max(1, config.messageRepeatCount || 1);
+
+                    // Overall preview deadline already enforced; we reuse existing totalPreviewMs variable (progress) for timeline.
+
+                    outer: for (let i = 0; i < urls.length && isPlaying; i++) {
+                        for (let r = 0; r < repeatCount && isPlaying; r++) {
+                            if (config.enforceTimeline && Date.now() >= previewDeadline) break outer;
+                            const url = urls[i];
+                            console.log(`[TTS] Preparing clip ${i+1}/${urls.length} (repeat ${r+1}/${repeatCount})`, url);
+                            currentAudio = new Audio();
+                            currentAudio.src = url; // removed crossOrigin for simpler playback (was causing CORS block)
+                            currentAudio.preload = 'auto';
+                            currentAudio.addEventListener('loadeddata', ()=> console.log('[TTS] loadeddata', url));
+                            currentAudio.addEventListener('canplaythrough', ()=> console.log('[TTS] canplaythrough', url));
+                            currentAudio.addEventListener('stalled', ()=> console.warn('[TTS] stalled', url));
+                            currentAudio.addEventListener('suspend', ()=> console.log('[TTS] suspend', url));
+                            currentAudio.addEventListener('error', (e)=> console.error('[TTS] audio element error', url, e));
+                            // Fade in AFTER play starts (Chrome blocks volume=0 with immediate set? we handle) 
+                            const fadeInMs = 0; // disabled
+                            const fadeOutMs = 0; // disabled
+                            let playPromise;
+                            try {
+                                if (fadeInMs > 0) currentAudio.volume = 0;
+                                playPromise = currentAudio.play();
+                                if (playPromise && typeof playPromise.then === 'function') {
+                                    playPromise.then(()=> console.log('[TTS] playing', url))
+                                                .catch(err => {
+                                                    console.warn('[TTS] play() blocked or failed', err.name, err.message);
+                                                    if (err.name === 'NotAllowedError') {
+                                                        showAutoplayPrompt(config);
+                                                    }
+                                                });
+                                }
+                            } catch(e){ console.warn('Play error', e); }
+                            if (fadeInMs > 0) fadeAudio(currentAudio, 0, 1, fadeInMs);
+                            await new Promise((resolve)=>{
+                                currentAudio.onended = resolve;
+                                currentAudio.onerror = resolve; // skip on error
+                            });
+                            if (!isPlaying) break outer;
+                            if (fadeOutMs > 0) await fadeAudio(currentAudio, currentAudio.volume, 0, fadeOutMs);
+                            if (r < repeatCount -1 && config.repeatInterval > 0) await sleep(config.repeatInterval * 1000);
                         }
-                        
-                        const audioUrl = config.audioUrls[i];
-                        console.log(`Playing message ${i + 1}/${config.audioUrls.length}: ${audioUrl}`);
-                        
-                        // Play each message multiple times (repeat count)
-                        for (let repeat = 0; repeat < (config.messageRepeatCount || 1) && isPlaying; repeat++) {
-                            if (Date.now() - startTime >= previewDuration) break;
-                            
-                            // Play the message
-                            currentAudio = new Audio(audioUrl);
-                            
-                            // Apply fade in
-                            if (config.fadeInDuration > 0) {
-                                currentAudio.volume = 0;
-                                await fadeAudio(currentAudio, 0, 1, config.fadeInDuration * 1000);
-                            }
-                            
-                            await playAudio(currentAudio);
-                            
-                            // Apply fade out
-                            if (config.fadeOutDuration > 0 && currentAudio) {
-                                await fadeAudio(currentAudio, 1, 0, config.fadeOutDuration * 1000);
-                            }
-                            
-                            // Pause between repeats (except on last repeat)
-                            if (repeat < config.messageRepeatCount - 1 && config.repeatInterval > 0) {
-                                await sleep(config.repeatInterval * 1000);
-                            }
-                        }
-                        
-                        // Pause between different messages (except on last message)
-                        if (i < config.audioUrls.length - 1 && config.messageInterval > 0) {
-                            await sleep(config.messageInterval * 1000);
-                        }
+                        if (i < urls.length -1 && config.messageInterval > 0) await sleep(config.messageInterval * 1000);
                     }
-                    
-                    // Add final silence
-                    if (config.silenceEnd > 0) {
-                        await sleep(config.silenceEnd * 1000);
-                    }
-                    
-                    console.log('Sequential audio playback completed');
-                    
-                } catch (error) {
-                    console.error('Error in sequential audio playback:', error);
+                    if (config.silenceEnd > 0) await sleep(config.silenceEnd * 1000);
+                } catch(err){
+                    console.error('Sequential playback error', err);
                 } finally {
                     stopAllAudio();
+                    // cleanup progress
+                    const progressWrapper = document.getElementById('tts-progress-wrapper');
+                    if (progressWrapper) {
+                        setTimeout(()=>{ progressWrapper.style.display='none'; }, 400);
+                    }
+                }
+            }
+
+            function showAutoplayPrompt(config) {
+                let prompt = document.getElementById('tts-autoplay-prompt');
+                if (!prompt) {
+                    prompt = document.createElement('div');
+                    prompt.id = 'tts-autoplay-prompt';
+                    prompt.style.position = 'fixed';
+                    prompt.style.bottom = '20px';
+                    prompt.style.right = '20px';
+                    prompt.style.zIndex = 9999;
+                    prompt.innerHTML = `
+                        <div style="background:#222;color:#fff;padding:12px 16px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.3);max-width:260px;font-size:14px;">
+                            Audio playback was blocked by the browser.<br><br>
+                            <button id="tts-autoplay-btn" class="btn btn-sm btn-primary">Start Preview</button>
+                            <button id="tts-autoplay-close" class="btn btn-sm btn-secondary ml-1">X</button>
+                        </div>`;
+                    document.body.appendChild(prompt);
+                    document.getElementById('tts-autoplay-close').onclick = ()=> prompt.remove();
+                    document.getElementById('tts-autoplay-btn').onclick = ()=> {
+                        prompt.remove();
+                        // Retry playback with same config (user gesture now)
+                        stopAllAudio();
+                        playSequentialAudio(config);
+                    };
                 }
             }
             

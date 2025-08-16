@@ -21,7 +21,30 @@ class TtsAudioProduct extends Model
         'sample_messages',
         'total_messages_count',
         'backend_category_id',
-        'is_active'
+    'is_active',
+    // Newly added audio + marketing fields
+    'short_description',
+    'sale_price',
+    'tags',
+    'sort_order',
+    'is_featured',
+    'cover_image_path',
+    'meta_title',
+    'meta_description',
+    'meta_keywords',
+    'bg_music_volume',
+    'message_repeat_count',
+    'repeat_interval',
+    'message_interval',
+    'fade_in_duration',
+    'fade_out_duration',
+    'enable_silence_padding',
+    'silence_start',
+    'silence_end',
+    'has_background_music',
+    'background_music_type',
+    'audio_urls',
+    'preview_audio_url'
     ];
 
     protected $casts = [
@@ -29,7 +52,18 @@ class TtsAudioProduct extends Model
         'price' => 'decimal:2',
         'preview_duration' => 'integer',
         'total_messages_count' => 'integer',
-        'is_active' => 'boolean'
+    'is_active' => 'boolean',
+    'is_featured' => 'boolean',
+    'enable_silence_padding' => 'boolean',
+    'has_background_music' => 'boolean',
+    'bg_music_volume' => 'float',
+    'message_repeat_count' => 'integer',
+    'repeat_interval' => 'float',
+    'message_interval' => 'float',
+    'fade_in_duration' => 'float',
+    'fade_out_duration' => 'float',
+    'silence_start' => 'float',
+    'silence_end' => 'float'
     ];
 
     /**

@@ -27,6 +27,10 @@ Route::get('/audio/signed-stream', [AudioStreamController::class, 'signedStream'
     ->name('audio.signed-stream')
     ->middleware('signed');
 
+// Background music secure issue endpoint (admin only for now)
+Route::middleware(['auth'])->get('/bg-music/issue', [App\Http\Controllers\BgMusicStreamController::class, 'issue'])
+    ->name('bg-music.issue');
+
 // Product preview URLs
 Route::post('/audio/preview-url', [ProductPreviewController::class, 'getPreviewUrl'])
     ->name('audio.preview-url');
