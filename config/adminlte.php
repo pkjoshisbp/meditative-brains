@@ -333,6 +333,11 @@ return [
         ],
         ['header' => 'TTS INTEGRATION'],
         [
+            'text' => 'TTS Products',
+            'url' => 'admin/tts/products',
+            'icon' => 'fas fa-fw fa-box',
+        ],
+        [
             'text' => 'TTS Messages',
             'url' => 'admin/tts/messages',
             'icon' => 'fas fa-fw fa-comments',

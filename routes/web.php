@@ -49,6 +49,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/tts/categories', App\Livewire\Admin\CategoryManagement::class)->name('tts.categories');
     Route::get('/tts/generator', App\Livewire\Admin\AudioGenerator::class)->name('tts.generator');
     Route::get('/tts/test', App\Livewire\Admin\TtsTest::class)->name('tts.test');
+    
+    // TTS Products Management Routes  
+    Route::get('/tts/products', App\Livewire\Admin\TtsProductManager::class)->name('tts.products');
 });
 
 // Authentication routes

@@ -20,6 +20,7 @@ class TtsAudioProduct extends Model
         'cover_image_url',
         'sample_messages',
         'total_messages_count',
+        'backend_category_id',
         'is_active'
     ];
 

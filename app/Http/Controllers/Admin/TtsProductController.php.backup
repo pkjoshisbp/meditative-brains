@@ -1,0 +1,684 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\TtsAudioProduct;
+use App\Models\TtsCategory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+class TtsProductController extends Controller
+{
+    private $ttsBackendUrl = 'https://localhost:3001';
+
+    /**
+     * Display TTS products with backend categories for reference
+     */
+    public function index()
+    {
+        $products = TtsAudioProduct::with('category')->latest()->paginate(15);
+        $backendCategories = $this->getBackendCategories();
+        
+        return view('admin.tts-products.index', compact('products', 'backendCategories'));
+    }
+
+    /**
+     * Show form for creating new TTS product
+     */
+    public function create()
+    {
+        $categories = TtsCategory::all();
+        $backendCategories = $this->getBackendCategories();
+        
+        return view('admin.tts-products.create', compact('categories', 'backendCategories'));
+    }
+
+    /**
+     * Store a newly created TTS product
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|string|exists:tts_categories,name',
+            'language' => 'required|string|default:en-US',
+            'price' => 'required|numeric|min:0',
+            'backend_category_id' => 'nullable|string', // Reference to backend category
+            'is_active' => 'boolean'
+        ]);
+
+        $product = TtsAudioProduct::create($validated);
+
+        return redirect()->route('admin.tts-products.index')
+            ->with('success', 'TTS Product created successfully!');
+    }
+
+    /**
+     * Display the specified TTS product
+     */
+    public function show(TtsAudioProduct $ttsProduct)
+    {
+        return view('admin.tts-products.show', compact('ttsProduct'));
+    }
+
+    /**
+     * Show form for editing TTS product
+     */
+    public function edit(TtsAudioProduct $ttsProduct)
+    {
+        $categories = TtsCategory::all();
+        $backendCategories = $this->getBackendCategories();
+        
+        return view('admin.tts-products.edit', compact('ttsProduct', 'categories', 'backendCategories'));
+    }
+
+    /**
+     * Update the specified TTS product
+     */
+    public function update(Request $request, TtsAudioProduct $ttsProduct)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|string|exists:tts_categories,name',
+            'language' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'backend_category_id' => 'nullable|string',
+            'is_active' => 'boolean'
+        ]);
+
+        $ttsProduct->update($validated);
+
+        return redirect()->route('admin.tts-products.index')
+            ->with('success', 'TTS Product updated successfully!');
+    }
+
+    /**
+     * Remove the specified TTS product
+     */
+    public function destroy(TtsAudioProduct $ttsProduct)
+    {
+        $ttsProduct->delete();
+
+        return redirect()->route('admin.tts-products.index')
+            ->with('success', 'TTS Product deleted successfully!');
+    }
+
+    /**
+     * Get backend categories for reference
+     */
+    private function getBackendCategories()
+    {
+        try {
+            $response = Http::timeout(10)->withoutVerifying()->get($this->ttsBackendUrl . '/api/category');
+            
+            if ($response->successful()) {
+                return $response->json();
+            }
+        } catch (\Exception $e) {
+            Log::warning('Backend categories unavailable: ' . $e->getMessage());
+        }
+        
+        return [];
+    }
+
+    /**
+     * Test backend connection
+     */
+    public function testConnection()
+    {
+        try {
+            $response = Http::timeout(5)->withoutVerifying()->get($this->ttsBackendUrl . '/api/health');
+            
+            return response()->json([
+                'success' => $response->successful(),
+                'data' => $response->successful() ? $response->json() : null,
+                'message' => $response->successful() ? 'Backend connected successfully' : 'Backend connection failed'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Backend connection failed: ' . $e->getMessage()
+            ]);
+        }
+    }
+}
+
+use App\Http\Controllers\Controller;
+use App\Models\TtsAudioProduct;
+use App\Models\TtsCategory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+
+class TtsProductController extends Controller
+{
+    protected $ttsBackendUrl = 'https://meditative-brains.com:3001';
+
+    /**
+     * Display listing of TTS products with backend integration
+     */
+    public function index()
+    {
+        $products = TtsAudioProduct::with('ttsCategory')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        // Get backend categories that are not yet converted to products
+        $backendCategories = $this->getBackendCategories();
+        $availableBackendCategories = $this->getAvailableBackendCategories($backendCategories);
+
+        return view('admin.tts-products.index', compact('products', 'availableBackendCategories'));
+    }
+
+    /**
+     * Show form for creating new TTS product
+     */
+    public function create()
+    {
+        $categories = TtsCategory::all();
+        $voices = $this->getAvailableVoices();
+        
+        return view('admin.tts-products.create', compact('categories', 'voices'));
+    }
+
+    /**
+     * Store a newly created TTS product
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|string|exists:tts_categories,name',
+            'language' => 'required|string|default:en-US',
+            'price' => 'required|numeric|min:0',
+            'preview_duration' => 'required|integer|min:10|max:60',
+            'background_music_url' => 'nullable|url',
+            'cover_image' => 'nullable|image|max:2048',
+            'sample_messages' => 'required|array|min:1',
+            'sample_messages.*' => 'required|string|max:500',
+            'total_messages_count' => 'required|integer|min:1',
+            'is_active' => 'boolean'
+        ]);
+
+        // Handle cover image upload
+        if ($request->hasFile('cover_image')) {
+            $coverImagePath = $request->file('cover_image')->store('tts-products/covers', 'public');
+            $validated['cover_image_url'] = Storage::url($coverImagePath);
+        }
+
+        // Create the product
+        $product = TtsAudioProduct::create($validated);
+
+        // Create TTS product in backend
+        $this->createTtsBackendProduct($product);
+
+        // Generate preview audio
+        $this->generateProductPreview($product);
+
+        return redirect()->route('admin.tts-products.index')
+            ->with('success', 'TTS Product created successfully!');
+    }
+
+    /**
+     * Display the specified TTS product
+     */
+    public function show(TtsAudioProduct $ttsProduct)
+    {
+        return view('admin.tts-products.show', compact('ttsProduct'));
+    }
+
+    /**
+     * Show form for editing TTS product
+     */
+    public function edit(TtsAudioProduct $ttsProduct)
+    {
+        $categories = TtsCategory::all();
+        $voices = $this->getAvailableVoices();
+        
+        return view('admin.tts-products.edit', compact('ttsProduct', 'categories', 'voices'));
+    }
+
+    /**
+     * Update the specified TTS product
+     */
+    public function update(Request $request, TtsAudioProduct $ttsProduct)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'category' => 'required|string|exists:tts_categories,name',
+            'language' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'preview_duration' => 'required|integer|min:10|max:60',
+            'background_music_url' => 'nullable|url',
+            'cover_image' => 'nullable|image|max:2048',
+            'sample_messages' => 'required|array|min:1',
+            'sample_messages.*' => 'required|string|max:500',
+            'total_messages_count' => 'required|integer|min:1',
+            'is_active' => 'boolean'
+        ]);
+
+        // Handle cover image upload
+        if ($request->hasFile('cover_image')) {
+            // Delete old image if exists
+            if ($ttsProduct->cover_image_url) {
+                $oldPath = str_replace('/storage/', '', $ttsProduct->cover_image_url);
+                Storage::disk('public')->delete($oldPath);
+            }
+            
+            $coverImagePath = $request->file('cover_image')->store('tts-products/covers', 'public');
+            $validated['cover_image_url'] = Storage::url($coverImagePath);
+        }
+
+        $ttsProduct->update($validated);
+
+        // Update TTS backend product
+        $this->updateTtsBackendProduct($ttsProduct);
+
+        return redirect()->route('admin.tts-products.index')
+            ->with('success', 'TTS Product updated successfully!');
+    }
+
+    /**
+     * Remove the specified TTS product
+     */
+    public function destroy(TtsAudioProduct $ttsProduct)
+    {
+        // Delete cover image if exists
+        if ($ttsProduct->cover_image_url) {
+            $oldPath = str_replace('/storage/', '', $ttsProduct->cover_image_url);
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        // Delete from TTS backend
+        $this->deleteTtsBackendProduct($ttsProduct);
+
+        $ttsProduct->delete();
+
+        return redirect()->route('admin.tts-products.index')
+            ->with('success', 'TTS Product deleted successfully!');
+    }
+
+    /**
+     * Generate preview audio for product
+     */
+    public function generatePreview(TtsAudioProduct $ttsProduct)
+    {
+        try {
+            $this->generateProductPreview($ttsProduct);
+            
+            return back()->with('success', 'Preview audio generated successfully!');
+        } catch (\Exception $e) {
+            Log::error('Preview generation failed', [
+                'product_id' => $ttsProduct->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return back()->with('error', 'Failed to generate preview audio: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Test TTS backend connection
+     */
+    public function testBackendConnection()
+    {
+        try {
+            $response = Http::timeout(10)->get($this->ttsBackendUrl . '/api/health');
+            
+            if ($response->successful()) {
+                $health = $response->json();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'TTS Backend is healthy',
+                    'health_data' => $health
+                ]);
+            }
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'TTS Backend is not responding properly'
+            ], 503);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot connect to TTS Backend: ' . $e->getMessage()
+            ], 503);
+        }
+    }
+
+    /**
+     * Get available voices from TTS backend
+     */
+    protected function getAvailableVoices()
+    {
+        try {
+            $response = Http::timeout(10)->get($this->ttsBackendUrl . '/api/tts/voices');
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                return $data['voices'] ?? [];
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch voices', ['error' => $e->getMessage()]);
+        }
+        
+        return [];
+    }
+
+    /**
+     * Get categories from TTS backend
+     */
+    protected function getBackendCategories()
+    {
+        try {
+            $response = Http::timeout(10)->get($this->ttsBackendUrl . '/api/category');
+            
+            if ($response->successful()) {
+                $categories = $response->json();
+                
+                // Get message counts for each category
+                $categoriesWithCounts = [];
+                foreach ($categories as $category) {
+                    $messageCount = $this->getBackendCategoryMessageCount($category['_id']);
+                    $categoriesWithCounts[] = [
+                        'id' => $category['_id'],
+                        'category' => $category['category'],
+                        'name' => $category['category'],
+                        'count' => $messageCount
+                    ];
+                }
+                
+                return $categoriesWithCounts;
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch backend categories', ['error' => $e->getMessage()]);
+        }
+        
+        return [];
+    }
+
+    /**
+     * Get message count for a backend category
+     */
+    protected function getBackendCategoryMessageCount($categoryId)
+    {
+        try {
+            $response = Http::timeout(10)->get($this->ttsBackendUrl . '/api/motivationMessage/category/' . $categoryId);
+            
+            if ($response->successful()) {
+                $messages = $response->json();
+                return count($messages);
+            }
+        } catch (\Exception $e) {
+            // Log but don't fail - just return 0
+            Log::debug('Failed to get message count for category', [
+                'categoryId' => $categoryId,
+                'error' => $e->getMessage()
+            ]);
+        }
+        
+        return 0;
+    }
+
+    /**
+     * Get backend categories that don't have corresponding Laravel products
+     */
+    protected function getAvailableBackendCategories($backendCategories)
+    {
+        if (empty($backendCategories)) {
+            return [];
+        }
+
+        // Get existing product categories
+        $existingCategories = TtsAudioProduct::pluck('category')->toArray();
+        
+        // Filter backend categories that don't have products yet and have messages
+        $available = [];
+        foreach ($backendCategories as $category) {
+            $categoryName = $category['category'] ?? $category['name'] ?? '';
+            if (!in_array($categoryName, $existingCategories) && $category['count'] > 0) {
+                $available[] = $category;
+            }
+        }
+        
+        return $available;
+    }
+
+    /**
+     * Get messages for a specific backend category by name
+     */
+    protected function getBackendCategoryMessages($categoryName)
+    {
+        try {
+            // First get all categories to find the ID
+            $categoriesResponse = Http::timeout(10)->get($this->ttsBackendUrl . '/api/category');
+            
+            if (!$categoriesResponse->successful()) {
+                return [];
+            }
+            
+            $categories = $categoriesResponse->json();
+            $categoryId = null;
+            
+            foreach ($categories as $category) {
+                if ($category['category'] === $categoryName) {
+                    $categoryId = $category['_id'];
+                    break;
+                }
+            }
+            
+            if (!$categoryId) {
+                return [];
+            }
+            
+            // Now get messages for this category ID
+            $messagesResponse = Http::timeout(10)->get($this->ttsBackendUrl . '/api/motivationMessage/category/' . $categoryId);
+            
+            if ($messagesResponse->successful()) {
+                $messagesData = $messagesResponse->json();
+                
+                // Extract text messages from the response
+                $messages = [];
+                foreach ($messagesData as $messageRecord) {
+                    if (isset($messageRecord['messages']) && is_array($messageRecord['messages'])) {
+                        $messages = array_merge($messages, $messageRecord['messages']);
+                    }
+                }
+                
+                return array_map(function($text) {
+                    return ['text' => $text];
+                }, $messages);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch category messages', [
+                'category' => $categoryName,
+                'error' => $e->getMessage()
+            ]);
+        }
+        
+        return [];
+    }
+
+    /**
+     * Create product from existing backend category
+     */
+    public function createFromBackend(Request $request)
+    {
+        $request->validate([
+            'backend_category' => 'required|string',
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'preview_duration' => 'required|integer|min:10|max:60',
+        ]);
+
+        $backendCategory = $request->backend_category;
+        
+        // Get messages from backend
+        $messages = $this->getBackendCategoryMessages($backendCategory);
+        
+        if (empty($messages)) {
+            return back()->with('error', 'No messages found for this category in TTS backend.');
+        }
+
+        // Select random messages for samples (limit to 5)
+        $sampleMessages = collect($messages)->random(min(5, count($messages)))->pluck('text')->toArray();
+        
+        $product = TtsAudioProduct::create([
+            'name' => $request->name,
+            'description' => $request->description ?? "Audio content for {$backendCategory} category",
+            'category' => $backendCategory,
+            'language' => $request->language ?? 'en-US',
+            'price' => $request->price,
+            'preview_duration' => $request->preview_duration,
+            'background_music_url' => $request->background_music_url,
+            'sample_messages' => $sampleMessages,
+            'total_messages_count' => count($messages),
+            'is_active' => true
+        ]);
+
+        // Create TTS backend product
+        $this->createTtsBackendProduct($product);
+
+        return redirect()->route('admin.tts-products.index')
+            ->with('success', "TTS Product created from backend category '{$backendCategory}' with {$product->total_messages_count} messages!");
+    }
+
+    /**
+     * Show form to create product from backend category
+     */
+    public function createFromBackendForm($category)
+    {
+        // Get category details from backend
+        $messages = $this->getBackendCategoryMessages($category);
+        
+        if (empty($messages)) {
+            return redirect()->route('admin.tts-products.index')
+                ->with('error', 'Category not found or has no messages in TTS backend.');
+        }
+
+        $categoryData = [
+            'name' => $category,
+            'message_count' => count($messages),
+            'sample_messages' => collect($messages)->take(5)->pluck('text')->toArray()
+        ];
+
+        return view('admin.tts-products.create-from-backend', compact('categoryData', 'category'));
+    }
+
+    /**
+     * Create product in TTS backend
+     */
+    protected function createTtsBackendProduct(TtsAudioProduct $product)
+    {
+        try {
+            $response = Http::timeout(30)->post($this->ttsBackendUrl . '/api/tts/products', [
+                'laravel_product_id' => $product->id,
+                'title' => $product->name,
+                'description' => $product->description,
+                'category' => $product->category,
+                'messages' => $product->sample_messages,
+                'language' => $product->language,
+                'background_music_url' => $product->background_music_url,
+                'preview_duration' => $product->preview_duration
+            ]);
+
+            if (!$response->successful()) {
+                Log::error('Failed to create TTS backend product', [
+                    'product_id' => $product->id,
+                    'response' => $response->body()
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('TTS backend product creation error', [
+                'product_id' => $product->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Update product in TTS backend
+     */
+    protected function updateTtsBackendProduct(TtsAudioProduct $product)
+    {
+        try {
+            $response = Http::timeout(30)->put($this->ttsBackendUrl . '/api/tts/products/' . $product->id, [
+                'title' => $product->name,
+                'description' => $product->description,
+                'category' => $product->category,
+                'messages' => $product->sample_messages,
+                'language' => $product->language,
+                'background_music_url' => $product->background_music_url,
+                'preview_duration' => $product->preview_duration
+            ]);
+
+            if (!$response->successful()) {
+                Log::error('Failed to update TTS backend product', [
+                    'product_id' => $product->id,
+                    'response' => $response->body()
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('TTS backend product update error', [
+                'product_id' => $product->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Delete product from TTS backend
+     */
+    protected function deleteTtsBackendProduct(TtsAudioProduct $product)
+    {
+        try {
+            $response = Http::timeout(30)->delete($this->ttsBackendUrl . '/api/tts/products/' . $product->id);
+
+            if (!$response->successful()) {
+                Log::error('Failed to delete TTS backend product', [
+                    'product_id' => $product->id,
+                    'response' => $response->body()
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('TTS backend product deletion error', [
+                'product_id' => $product->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Generate preview audio for product
+     */
+    protected function generateProductPreview(TtsAudioProduct $product)
+    {
+        if (!$product->hasPreviewSamples()) {
+            throw new \Exception('No sample messages available for preview');
+        }
+
+        $sampleMessage = $product->getRandomSampleMessage();
+
+        $response = Http::timeout(60)->post($this->ttsBackendUrl . '/api/tts/preview', [
+            'text' => $sampleMessage,
+            'voice' => 'en-US-AriaNeural', // Default voice
+            'background_music_url' => $product->background_music_url,
+            'duration' => $product->preview_duration,
+            'product_id' => $product->id
+        ]);
+
+        if (!$response->successful()) {
+            throw new \Exception('Failed to generate preview audio: ' . $response->body());
+        }
+
+        return $response->json();
+    }
+}

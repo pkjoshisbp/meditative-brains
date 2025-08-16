@@ -172,3 +172,25 @@ requests.exceptions.ConnectionError: HTTPSConnectionPool(host='coqui.gateway.sca
 2025-08-14 01:24:42.446 [ERROR]: API endpoint not found: /api/categories
 2025-08-14 01:24:52.374 [ERROR]: API endpoint not found: /api/categories/getAll
 2025-08-14 01:25:17.305 [ERROR]: API endpoint not found: /api/categories
+2025-08-15 01:41:28.441 [ERROR]: API endpoint not found: /api/tts/products
+2025-08-15 15:11:02.635 [ERROR]: API endpoint not found: /api/motivationMessage/categories
+2025-08-15 15:12:02.583 [ERROR]: CastError: Cast to ObjectId failed for value "Positive Attitude" (type string) at path "categoryId" for model "MotivationMessage"
+    at SchemaObjectId.cast (/var/www/clients/client1/web63/web/tts-backend/node_modules/mongoose/lib/schema/objectId.js:250:11)
+    at SchemaObjectId.SchemaType.applySetters (/var/www/clients/client1/web63/web/tts-backend/node_modules/mongoose/lib/schemaType.js:1236:12)
+    at SchemaObjectId.SchemaType.castForQuery (/var/www/clients/client1/web63/web/tts-backend/node_modules/mongoose/lib/schemaType.js:1653:17)
+    at cast (/var/www/clients/client1/web63/web/tts-backend/node_modules/mongoose/lib/cast.js:375:32)
+    at model.Query.Query.cast (/var/www/clients/client1/web63/web/tts-backend/node_modules/mongoose/lib/query.js:4785:12)
+    at model.Query.Query._castConditions (/var/www/clients/client1/web63/web/tts-backend/node_modules/mongoose/lib/query.js:2199:10)
+    at model.Query._find (/var/www/clients/client1/web63/web/tts-backend/node_modules/mongoose/lib/query.js:2226:8)
+    at model.Query.exec (/var/www/clients/client1/web63/web/tts-backend/node_modules/mongoose/lib/query.js:4329:80)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+2025-08-16 02:43:39.231 [ERROR]: API endpoint not found: /api/motivationMessage/66474f43df8dcf495ccb71e4/preview
+2025-08-16 02:47:42.104 [ERROR]: API endpoint not found: /api/motivationMessage/66474f43df8dcf495ccb71e4/preview
+2025-08-16 02:47:46.534 [ERROR]: API endpoint not found: /api/motivationMessage/66474f43df8dcf495ccb71e4/preview
+2025-08-16 03:58:07.926 [ERROR]: API endpoint not found: /api/motivationMessage/66474f43df8dcf495ccb71e4
+2025-08-16 04:06:14.442 [ERROR]: API endpoint not found: /api/motivationMessage/6832e931e77aa02ea48d05e2
+2025-08-16 04:16:51.097 [ERROR]: API endpoint not found: /api/motivationMessage/6832e931e77aa02ea48d05e2
+2025-08-16 19:16:21.767 [ERROR]: API endpoint not found: /api/messages
+2025-08-16 19:23:35.376 [ERROR]: API endpoint not found: /api/messages
+2025-08-16 19:24:37.896 [ERROR]: API endpoint not found: /api/messages
