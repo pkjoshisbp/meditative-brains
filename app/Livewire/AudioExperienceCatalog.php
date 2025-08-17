@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\TtsAudioProduct;
 use App\Models\TtsCategory;
 use Livewire\WithPagination;
+use Illuminate\Support\Str;
 
 class AudioExperienceCatalog extends Component
 {
@@ -30,6 +31,7 @@ class AudioExperienceCatalog extends Component
     ];
 
     public function updatingSearch(){ $this->resetPage(); }
+    public function updatedSearch(){ $this->resetPage(); }
     public function updatingCategory(){ $this->resetPage(); }
     public function updatingSortBy(){ $this->resetPage(); }
     public function updatingTag(){ $this->resetPage(); }
@@ -51,10 +53,17 @@ class AudioExperienceCatalog extends Component
     protected function baseQuery(){
         $q = TtsAudioProduct::query()->active();
         if($this->search){
-            $s = '%'.$this->search.'%';
-            $q->where(function($qq) use($s){
-                $qq->where('name','like',$s)->orWhere('description','like',$s)->orWhere('short_description','like',$s); 
-            });
+            $term = trim($this->search);
+            if(strlen($term) >= 2){
+                $s = '%'.strtolower($term).'%';
+                $q->where(function($qq) use($s){
+                    $qq->whereRaw('LOWER(name) LIKE ?', [$s])
+                       ->orWhereRaw('LOWER(slug) LIKE ?', [$s])
+                       ->orWhereRaw('LOWER(short_description) LIKE ?', [$s])
+                       ->orWhereRaw('LOWER(description) LIKE ?', [$s])
+                       ->orWhereRaw('LOWER(tags) LIKE ?', [$s]);
+                });
+            }
         }
         if($this->category){
             $q->where('category',$this->category); // category stores name
@@ -94,5 +103,20 @@ class AudioExperienceCatalog extends Component
                 'title' => 'Meditative Minds Audio',
                 'description' => 'Curated Meditative Minds audio experiences: affirmations, meditation, sleep, and healing sound. '
             ]);
+    }
+
+    /**
+     * Highlight current search term inside a text snippet (safe HTML returned).
+     */
+    public function highlight($text)
+    {
+        if(!$text){ return ''; }
+        $snippet = Str::limit($text, 100);
+        if(!$this->search || strlen($this->search) < 2){
+            return e($snippet);
+        }
+        $term = preg_quote($this->search, '/');
+        $escaped = e($snippet);
+        return preg_replace("/($term)/i", '<mark>$1</mark>', $escaped);
     }
 }

@@ -13,7 +13,8 @@
                         <h2 class="h6 fw-semibold mb-3">Filters</h2>
                         <div class="mb-3">
                             <label class="form-label small fw-semibold">Search</label>
-                            <input type="text" class="form-control form-control-sm" placeholder="Search..." wire:model.debounce.400ms="search">
+                            <input type="text" class="form-control form-control-sm" placeholder="Search..." wire:model.live="search" autocomplete="off">
+                            <div class="form-text" wire:model.live wire:target="search">Searching...</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-semibold">Category</label>
@@ -26,7 +27,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-semibold">Tag Contains</label>
-                            <input type="text" class="form-control form-control-sm" placeholder="e.g. focus" wire:model.debounce.500ms="tag">
+                            <input type="text" class="form-control form-control-sm" placeholder="e.g. focus" wire:model.live="tag">
                         </div>
                         <div class="row g-2 mb-3">
                             <div class="col-6">
@@ -89,7 +90,7 @@
                                         </div>
                                         <div class="card-body d-flex flex-column">
                                             <h3 class="h6 fw-semibold mb-1">{{ $p->name }}</h3>
-                                            <p class="small text-muted flex-grow-1">{{ $p->short_description ?? Str::limit($p->description, 80) }}</p>
+                                            <p class="small text-muted flex-grow-1">{!! $this->highlight($p->short_description ?? $p->description) !!}</p>
                                             <div class="mt-2 small fw-medium">
                                                 @if($p->sale_price && $p->sale_price < $p->price)
                                                     <span class="text-muted text-decoration-line-through me-1">${{ number_format($p->price,2) }}</span>
@@ -108,7 +109,10 @@
                             </div>
                         @endforelse
                     </div>
-                    <div class="mt-4">{{ $products->links() }}</div>
+                    <div class="mt-4 d-flex align-items-center justify-content-between">
+                        <div>{{ $products->links() }}</div>
+                        <div wire:loading wire:target="search,category,tag,minPrice,maxPrice,sortBy" class="text-muted small">Updating results…</div>
+                    </div>
                 </section>
             </div>
         </div>
