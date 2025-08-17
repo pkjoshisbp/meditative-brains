@@ -103,19 +103,20 @@ Route::prefix('flutter')->name('api.flutter.')->group(function () {
 });
 
 // New unified catalog & entitlement endpoints
-Route::middleware('auth:sanctum')->group(function(){
+Route::middleware(['auth:sanctum','device.limit'])->group(function(){
     Route::get('/entitlements', [EntitlementController::class,'summary']);
     Route::post('/devices/register', [EntitlementController::class,'registerDevice']);
     Route::post('/devices/heartbeat', [EntitlementController::class,'heartbeat']);
     Route::delete('/devices/{uuid}', [EntitlementController::class,'revokeDevice']);
     Route::post('/downloads/request', [EntitlementController::class,'requestDownload']);
     Route::post('/downloads/complete', [EntitlementController::class,'completeDownload']);
+    Route::delete('/downloads/prune', [EntitlementController::class,'pruneDownloads']);
 });
 
 Route::get('/tts-grouped', [TtsGroupedCatalogController::class,'index']);
 
 // Secure signed download route (auth + signature, 10 min expiry)
-Route::middleware('auth:sanctum')->get('/secure/download/{download}', function(\Illuminate\Http\Request $request, App\Models\UserDownload $download){
+Route::middleware(['auth:sanctum','device.limit'])->get('/secure/download/{download}', function(\Illuminate\Http\Request $request, App\Models\UserDownload $download){
     if ($download->user_id !== $request->user()->id) abort(403);
     $path = null; $name = 'audio.mp3';
     if ($download->product_id && $download->product) { $path = $download->product->full_file; $name = $download->product->slug.'.mp3'; }

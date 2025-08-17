@@ -125,4 +125,26 @@ class EntitlementController extends Controller
         ]);
         return response()->json(['ok'=>true]);
     }
+
+    public function pruneDownloads(Request $request)
+    {
+        $request->validate([
+            'older_than_minutes' => 'nullable|integer|min:10',
+            'incomplete_only' => 'nullable|boolean'
+        ]);
+        $user = $request->user();
+        $query = $user->downloads();
+        if($request->boolean('incomplete_only', false)){
+            $query->where('completed', false);
+        }
+        if($minutes = $request->integer('older_than_minutes')){
+            $query->where('created_at','<', now()->subMinutes($minutes));
+        }
+        $ids = $query->pluck('id');
+        $count = 0;
+        if($ids->count()){
+            $count = $user->downloads()->whereIn('id',$ids)->delete();
+        }
+        return response()->json(['deleted'=>$count]);
+    }
 }
