@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\{User, SubscriptionPlan, Subscription};
+use App\Models\TrialEvent;
 
 class GrantTrialSubscriptions extends Command
 {
@@ -42,6 +43,12 @@ class GrantTrialSubscriptions extends Command
                 'ends_at' => $ends,
                 'auto_renew' => false,
                 'is_trial' => true,
+            ]);
+            TrialEvent::create([
+                'user_id' => $user->id,
+                'event_type' => 'started',
+                'plan_type' => $plan->slug,
+                'meta' => ['ends_at' => $ends],
             ]);
             if ($role) {
                 $user->role = $role;

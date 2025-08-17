@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TrialEndingSoon;
+use App\Models\TrialEvent;
 
 class NotifyTrialsEnding extends Command
 {
@@ -29,6 +30,12 @@ class NotifyTrialsEnding extends Command
             $listed++;
             if (!$dry && $sub->user && $sub->user->email) {
                 Mail::to($sub->user->email)->queue(new TrialEndingSoon($sub));
+                TrialEvent::create([
+                    'user_id' => $sub->user_id,
+                    'event_type' => 'ending_notice',
+                    'plan_type' => $sub->plan_type,
+                    'meta' => ['ends_at' => $sub->ends_at],
+                ]);
                 $sent++;
             }
         }

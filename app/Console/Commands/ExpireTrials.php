@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Subscription;
 use App\Events\TrialExpired;
+use App\Models\TrialEvent;
 
 class ExpireTrials extends Command
 {
@@ -31,6 +32,12 @@ class ExpireTrials extends Command
                 if ($clearRole && $sub->user && $sub->user->role === $clearRole) {
                     $sub->user->role = null; $sub->user->save(); $rolesCleared++;
                 }
+                TrialEvent::create([
+                    'user_id' => $sub->user_id,
+                    'event_type' => 'expired',
+                    'plan_type' => $sub->plan_type,
+                    'meta' => ['expired_at' => now()],
+                ]);
             }
         }
         $this->info(($dry?'[Dry Run] ':'')."Trials expired: $count | Roles cleared: $rolesCleared");

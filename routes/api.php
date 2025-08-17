@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\TtsGroupedCatalogController;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Api\DownloadController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TrialAnalyticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -126,3 +127,4 @@ Route::middleware(['auth:sanctum','device.limit'])->get('/secure/download/{downl
 
 // Trial status endpoint (after auth setup)
 Route::middleware('auth:sanctum')->get('/trial/status', [\App\Http\Controllers\Api\TrialController::class,'status']);
+Route::middleware(['auth:sanctum','role:trial,admin'])->get('/trial/analytics', [TrialAnalyticsController::class,'summary']);
