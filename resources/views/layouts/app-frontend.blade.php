@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Meditative Brains - TTS Affirmations & Sleep Aid Music' }}</title>
+    <title>{{ $title ?? 'Meditative Brains - Meditative Minds Audio & Sleep Aid Music' }}</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="{{ $description ?? 'Discover premium TTS affirmations, sleep aid music, meditation tracks, and binaural beats for personal development and wellness.' }}">
+    <meta name="description" content="{{ $description ?? 'Discover premium Meditative Minds audio experiences: affirmations, sleep aid music, meditation tracks, and healing frequencies for personal development and wellness.' }}">
     <meta name="keywords" content="{{ $keywords ?? 'TTS affirmations, sleep music, meditation, binaural beats, solfeggio frequencies, nature sounds' }}">
     
     <!-- Open Graph / Facebook -->
@@ -66,13 +66,18 @@
                             <i class="fas fa-music me-1"></i>Browse Music
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('mind-audio') ? 'active' : '' }}" href="{{ route('audio.catalog') }}">
+                            <i class="fas fa-headphones me-1"></i>Meditative Minds Audio
+                        </a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-list me-1"></i>Categories
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('products', ['categoryId' => 1]) }}">
-                                <i class="fas fa-microphone-alt me-2 text-primary"></i>TTS Affirmations
+                            <li><a class="dropdown-item" href="{{ route('audio.catalog') }}">
+                                <i class="fas fa-microphone-alt me-2 text-primary"></i>Meditative Minds Audio
                             </a></li>
                             <li><a class="dropdown-item" href="{{ route('products', ['categoryId' => 2]) }}">
                                 <i class="fas fa-moon me-2 text-info"></i>Sleep Aid Music

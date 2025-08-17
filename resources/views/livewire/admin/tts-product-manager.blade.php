@@ -449,42 +449,34 @@
                                             </div>
                                             <div class="card-body">
                                                 @if ($editingProduct->preview_audio_url || $editingProduct->audio_urls)
-                                                    <div class="mb-3">
-                                                        @if ($editingProduct->preview_audio_url)
-                                                            @php
-                                                                $audioUrl = $editingProduct->preview_audio_url;
-                                                                if (!str_starts_with($audioUrl, 'http')) {
-                                                                    $audioUrl = 'https://motivation.mywebsolutions.co.in:3000/' . ltrim($audioUrl, '/');
-                                                                }
-                                                            @endphp
-                                                            <audio controls class="w-100">
-                                                                <source src="{{ $audioUrl }}" type="audio/mpeg">
-                                                                Your browser does not support the audio element.
-                                                            </audio>
-                                                        @elseif ($editingProduct->audio_urls)
-                                                            @php
-                                                                $audioUrls = json_decode($editingProduct->audio_urls, true);
-                                                                $firstAudio = !empty($audioUrls) ? $audioUrls[0] : null;
-                                                            @endphp
-                                                            @if ($firstAudio)
-                                                                <audio controls class="w-100">
-                                                                    <source src="{{ $firstAudio }}" type="audio/mpeg">
-                                                                    Your browser does not support the audio element.
-                                                                </audio>
-                                                                <small class="text-muted">Playing first audio from collection</small>
-                                                            @endif
-                                                        @endif
+                                                    <div class="mb-2">
+                                                        <div id="tts-custom-player" class="border rounded p-2" style="background:#181818;color:#eee;">
+                                                            <div class="d-flex align-items-center mb-1">
+                                                                <div class="flex-grow-1" style="position:relative;height:14px;" aria-label="Preview progress">
+                                                                    <div style="position:absolute;left:0;top:0;right:0;bottom:0;background:#333;border-radius:7px;overflow:hidden;">
+                                                                        <div id="tts-progress-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#00aaff,#00dd88);"></div>
+                                                                    </div>
+                                                                    <div id="tts-progress-handle" style="position:absolute;top:50%;left:0%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 0 4px rgba(0,0,0,.6);"></div>
+                                                                </div>
+                                                                <div class="ml-2 small" style="width:70px;text-align:right;">
+                                                                    <span id="tts-time-elapsed-inline">0:00</span>/<span id="tts-time-total-inline">0:00</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="small" id="bg-music-status" style="color:#9ecfff; font-weight:500;"></div>
+                                                        </div>
                                                     </div>
                                                     <button type="button" wire:click="playExistingAudio" class="btn btn-success btn-sm">
-                                                        <i class="fas fa-play"></i> Play Audio Preview
+                                                        <i class="fas fa-play"></i> Start Preview
+                                                    </button>
+                                                    <button type="button" wire:click="generateAudioPreview" class="btn btn-outline-info btn-sm ml-2">
+                                                        <i class="fas fa-sync"></i> Rebuild Preview
                                                     </button>
                                                 @else
                                                     <p class="text-muted">No audio files available yet.</p>
+                                                    <button type="button" wire:click="generateAudioPreview" class="btn btn-info btn-sm">
+                                                        <i class="fas fa-headphones"></i> Build Preview
+                                                    </button>
                                                 @endif
-                                                
-                                                <button type="button" wire:click="generateAudioPreview" class="btn btn-info btn-sm ml-2">
-                                                    <i class="fas fa-headphones"></i> Load Audio Preview
-                                                </button>
                                                 
                                                 <a href="{{ route('admin.tts.messages') }}" target="_blank" class="btn btn-secondary btn-sm ml-2">
                                                     <i class="fas fa-external-link-alt"></i> Open TTS Messages
@@ -664,6 +656,10 @@
                 console.log('[TTS] Received playSequentialAudio event', event);
                 playSequentialAudio(event.config);
             });
+            // Proxy for custom play button (ensures server side picks latest data)
+            Livewire.on('playExistingAudioProxy', () => {
+                Livewire.dispatch('playExistingAudio');
+            });
             
             function stopAllAudio() {
                 if (currentAudio) {
@@ -678,8 +674,10 @@
                 }
                 isPlaying = false;
             }
+                // Expose globally for Stop button
+                window.ttsStopPreview = stopAllAudio;
             
-            async function playSequentialAudio(config) {
+        async function playSequentialAudio(config) {
                 try {
                     isPlaying = true;
                     console.log('Starting sequential audio playback with config:', config);
@@ -688,6 +686,9 @@
                         console.warn('No audio URLs provided.');
                         return;
                     }
+            // Button states
+                    const statusEl = document.getElementById('bg-music-status');
+                    if (statusEl) statusEl.textContent = config.previewTitle ? ('Preview: ' + config.previewTitle) : 'Preview starting...';
 
                     // Progress elements
                     const progressWrapper = document.getElementById('tts-progress-wrapper');
@@ -706,8 +707,17 @@
                         if (!isPlaying || !startTs || totalPreviewMs<=0) return;
                         const elapsed = Date.now() - startTs;
                         const clamped = Math.min(elapsed, totalPreviewMs);
-                        if (progressBar) progressBar.style.width = (clamped/totalPreviewMs*100)+"%";
+                        const pct = (clamped/totalPreviewMs*100);
+                        if (progressBar) progressBar.style.width = pct+"%";
                         if (timeElapsedEl) timeElapsedEl.textContent = fmt(clamped/1000);
+                        const elapsedInline = document.getElementById('tts-time-elapsed-inline');
+                        if (elapsedInline) elapsedInline.textContent = fmt(clamped/1000);
+                        const totalInline = document.getElementById('tts-time-total-inline');
+                        if (totalInline && !totalInline.textContent.includes(':')) totalInline.textContent = fmt(totalPreviewSeconds);
+                        const handle = document.getElementById('tts-progress-handle');
+                        if (handle) handle.style.left = pct+"%";
+                        const fill = document.getElementById('tts-progress-fill');
+                        if (fill) fill.style.width = pct+"%";
                         if (elapsed < totalPreviewMs && isPlaying) rafId = requestAnimationFrame(tick);
                     }
                     if (totalPreviewMs > 0 && progressWrapper) {
@@ -715,6 +725,14 @@
                         if (timeTotalEl) timeTotalEl.textContent = fmt(totalPreviewSeconds);
                         if (timeElapsedEl) timeElapsedEl.textContent = '0:00';
                         if (progressBar) progressBar.style.width = '0%';
+                        const inlineElapsed = document.getElementById('tts-time-elapsed-inline');
+                        if (inlineElapsed) inlineElapsed.textContent = '0:00';
+                        const inlineTotal = document.getElementById('tts-time-total-inline');
+                        if (inlineTotal) inlineTotal.textContent = fmt(totalPreviewSeconds);
+                        const fill = document.getElementById('tts-progress-fill');
+                        if (fill) fill.style.width = '0%';
+                        const handle = document.getElementById('tts-progress-handle');
+                        if (handle) handle.style.left = '0%';
                         startTs = Date.now();
                         rafId = requestAnimationFrame(tick);
                     } else if (progressWrapper) {
@@ -725,7 +743,7 @@
                     if (config.hasBackgroundMusic) {
                         const statusEl = document.getElementById('bg-music-status');
                         const typeSlug = (config.backgroundMusicTrack || config.backgroundMusicType || config.category || 'relaxing').toString();
-                        if (statusEl) statusEl.textContent = 'Requesting secure BG music...';
+                        if (statusEl) statusEl.textContent = (config.previewTitle ? config.previewTitle + ' – ' : '') + 'loading music...';
                         try {
                             const resp = await fetch(`/bg-music/issue?track=${encodeURIComponent(typeSlug)}`, { credentials: 'include' });
                             if (!resp.ok) throw new Error('Issue endpoint failed');
@@ -743,14 +761,14 @@
                                 console.log('[TTS] BG music volume applied', { requested: requestedVolRaw, parsed: requestedVol, elementVolume: audio.volume });
                                 await audio.play();
                                 backgroundMusic = audio;
-                                if (statusEl) statusEl.textContent = 'BG music: ' + typeSlug;
+                                if (statusEl) statusEl.textContent = (config.previewTitle ? config.previewTitle + ' – ' : '') + typeSlug;
                                 console.log('[TTS] Background music playing (secure)', typeSlug);
                             } else {
                                 throw new Error('No URL in response');
                             }
                         } catch (e) {
                             console.warn('[TTS] Secure BG music failed', e);
-                            if (statusEl) statusEl.textContent = 'BG music unavailable';
+                            if (statusEl) statusEl.textContent = (config.previewTitle ? config.previewTitle + ' – ' : '') + 'music unavailable';
                         }
                     }
 
@@ -812,6 +830,8 @@
                     if (progressWrapper) {
                         setTimeout(()=>{ progressWrapper.style.display='none'; }, 400);
                     }
+                    const statusEl2 = document.getElementById('bg-music-status');
+                    if (statusEl2) statusEl2.textContent = 'Preview finished';
                 }
             }
 

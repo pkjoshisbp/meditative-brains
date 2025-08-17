@@ -101,6 +101,7 @@ class TtsProductManager extends AdminComponent
         'silence_end' => 'required|numeric|min:0|max:10',
         'has_background_music' => 'boolean',
         'enable_silence_padding' => 'boolean',
+    'background_music_track' => 'nullable|string|max:150'
     ];
 
     public function mount()
@@ -156,7 +157,12 @@ class TtsProductManager extends AdminComponent
             }
             ksort($tracks);
             $this->bgMusicFiles = array_keys($tracks);
-            if (!$this->background_music_track && $this->bgMusicFiles) {
+            // Preserve already selected or stored track if present
+            if ($this->background_music_track && in_array($this->background_music_track, $this->bgMusicFiles)) {
+                // keep
+            } elseif ($this->editingProduct && $this->editingProduct->background_music_track && in_array($this->editingProduct->background_music_track, $this->bgMusicFiles)) {
+                $this->background_music_track = $this->editingProduct->background_music_track;
+            } elseif ($this->bgMusicFiles) {
                 $this->background_music_track = $this->bgMusicFiles[0];
             }
             Log::info('Loaded bg music tracks', ['count' => count($this->bgMusicFiles)]);
@@ -451,7 +457,6 @@ class TtsProductManager extends AdminComponent
 
     public function create()
     {
-        $this->resetForm();
         $this->showForm = true;
     }
 
@@ -503,6 +508,12 @@ class TtsProductManager extends AdminComponent
         // Audio URLs
         $this->audio_urls = $this->editingProduct->audio_urls ?? '';
         $this->preview_audio_url = $this->editingProduct->preview_audio_url ?? '';
+
+        Log::info('Loaded product audio settings', [
+            'product_id' => $this->editingProduct->id,
+            'bg_music_track_model' => $this->editingProduct->background_music_track,
+            'component_track' => $this->background_music_track,
+        ]);
     }
 
     protected function loadBackendData()
@@ -599,7 +610,6 @@ class TtsProductManager extends AdminComponent
                 Log::info('TTS Product Save - Created product ID: ' . $product->id);
             }
 
-            $this->resetForm();
             $this->showForm = false;
             
         } catch (\Exception $e) {
@@ -675,7 +685,11 @@ class TtsProductManager extends AdminComponent
             }
             ksort($tracks);
             $this->bgMusicFiles = array_keys($tracks);
-            if (!$this->background_music_track && $this->bgMusicFiles) {
+            if ($this->background_music_track && in_array($this->background_music_track, $this->bgMusicFiles)) {
+                // keep
+            } elseif ($this->editingProduct && $this->editingProduct->background_music_track && in_array($this->editingProduct->background_music_track, $this->bgMusicFiles)) {
+                $this->background_music_track = $this->editingProduct->background_music_track;
+            } elseif ($this->bgMusicFiles) {
                 $this->background_music_track = $this->bgMusicFiles[0];
             }
             $this->bgMusicDebug = 'scanned='.count($items).' valid='.count($this->bgMusicFiles).' '.implode(' | ',$debug);
@@ -766,7 +780,8 @@ class TtsProductManager extends AdminComponent
                         'previewDuration' => $product->preview_duration ?? 30,
                         'category' => $product->category ?? null,
                         'backgroundMusicType' => $product->background_music_type ?? null,
-                        'backgroundMusicTrack' => $this->background_music_track ?: ($product->background_music_track ?? null)
+                        'backgroundMusicTrack' => $this->background_music_track ?: ($product->background_music_track ?? null),
+                        'previewTitle' => $product->name ?? 'Preview'
                         ,'enforceTimeline' => true
                     ];
                     

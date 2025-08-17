@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class TtsAudioProduct extends Model
 {
@@ -43,8 +44,10 @@ class TtsAudioProduct extends Model
     'silence_end',
     'has_background_music',
     'background_music_type',
+    'background_music_track',
     'audio_urls',
-    'preview_audio_url'
+    'preview_audio_url',
+    'slug'
     ];
 
     protected $casts = [
@@ -160,5 +163,22 @@ class TtsAudioProduct extends Model
         }
 
         return $this->sample_messages[array_rand($this->sample_messages)];
+    }
+
+    // Ensure slug present when saving (basic auto-generation if missing)
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            if (empty($model->slug) && !empty($model->name)) {
+                $base = Str::slug($model->name);
+                $slug = $base;
+                $i = 1;
+                while (static::where('slug', $slug)->where('id', '!=', $model->id)->exists()) {
+                    $slug = $base.'-'.$model->id.'-'.$i;
+                    $i++;
+                }
+                $model->slug = $slug;
+            }
+        });
     }
 }

@@ -5,7 +5,7 @@
         <div class="row align-items-center min-vh-50">
             <div class="col-lg-6">
                 <h1 class="display-4 fw-bold mb-4">Transform Your Mind with Premium Audio</h1>
-                <p class="lead mb-4">Discover our collection of TTS affirmations, sleep aid music, meditation tracks, and healing frequencies designed to enhance your wellness journey.</p>
+                <p class="lead mb-4">Discover our collection of Meditative Minds audio experiences: affirmations, sleep aid music, meditation tracks, and healing frequencies designed to enhance your wellness journey.</p>
                 <div class="d-flex gap-3 flex-wrap">
                     <a href="{{ route('products') }}" class="btn btn-light btn-lg">
                         <i class="fas fa-music me-2"></i>Browse Music
@@ -60,11 +60,11 @@
                                         <i class="fas fa-music fa-3x text-primary"></i>
                                 @endswitch
                             </div>
-                            <h5 class="card-title">{{ $category->name }}</h5>
+                            <h5 class="card-title">{{ $category->name === 'TTS Affirmations' ? 'Meditative Minds Audio' : $category->name }}</h5>
                             <p class="card-text text-muted">{{ $category->description }}</p>
                             <p class="small text-success">{{ $category->active_products_count }} tracks available</p>
-                            <a href="{{ route('products', ['categoryId' => $category->id]) }}" class="btn btn-outline-primary">
-                                Explore {{ $category->name }}
+                            <a href="{{ $category->name === 'TTS Affirmations' ? (Route::has('audio.catalog') ? route('audio.catalog') : url('/mind-audio')) : route('products', ['categoryId' => $category->id]) }}" class="btn btn-outline-primary">
+                                Explore {{ $category->name === 'TTS Affirmations' ? 'Meditative Minds Audio' : $category->name }}
                             </a>
                         </div>
                     </div>

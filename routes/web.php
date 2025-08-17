@@ -28,6 +28,10 @@ Route::get('/audio/signed-stream', [AudioStreamController::class, 'signedStream'
     ->name('audio.signed-stream')
     ->middleware('signed');
 
+// Public Audio Experiences (Meditative Minds Audio) - avoid /audio directory conflict
+Route::get('/mind-audio', App\Livewire\AudioExperienceCatalog::class)->name('audio.catalog');
+Route::get('/mind-audio/{slug}', App\Livewire\AudioExperienceDetail::class)->name('audio.detail');
+
 // Background music secure issue endpoint (admin only for now)
 Route::middleware(['auth'])->get('/bg-music/issue', [App\Http\Controllers\BgMusicStreamController::class, 'issue'])
     ->name('bg-music.issue');
