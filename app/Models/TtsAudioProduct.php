@@ -52,6 +52,7 @@ class TtsAudioProduct extends Model
 
     protected $casts = [
         'sample_messages' => 'array',
+    'audio_urls' => 'array',
         'price' => 'decimal:2',
         'preview_duration' => 'integer',
         'total_messages_count' => 'integer',

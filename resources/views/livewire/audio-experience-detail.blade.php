@@ -72,15 +72,77 @@
 </div>
 
 <script>
+// Frontend audio preview replicating admin sequential playback with background music support
 function audioPreview(){
-    return {
-        playing:false, progress:0, status:'', controller:null, clips: @json(array_slice($p->sample_messages ?? [],0,3)),
-        toggle(){ if(this.playing){ this.stop(); } else { this.play(); } },
-        play(){ if(!this.clips.length){ this.status='No samples available'; return;} this.playing=true; this.status='Loading...'; this.progress=0; this.playSequential(0); },
-        stop(){ this.playing=false; if(this.controller){ this.controller.abort(); } this.status='Stopped'; },
-        async playSequential(i){ if(!this.playing) return; if(i>=this.clips.length){ this.status='Preview finished'; this.playing=false; this.progress=100; return;} const msg=this.clips[i]; try{ const url= await this.fetchClipUrl(msg); await this.playAudio(url, i); this.playSequential(i+1);}catch(e){ this.status='Error: '+e.message; this.playing=false;} },
-        async fetchClipUrl(message){ const res = await fetch('/audio/preview-url',{method:'POST', headers:{'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content}, body: JSON.stringify({ message })}); if(!res.ok) throw new Error('preview failed'); const data= await res.json(); return data.url; },
-        playAudio(url, index){ return new Promise((resolve,reject)=>{ const audio=new Audio(url); audio.volume=1.0; audio.onloadedmetadata=()=>{ audio.play(); this.status='Playing sample '+(index+1)+' of '+this.clips.length;}; audio.ontimeupdate=()=>{ const base = (index/this.clips.length)*100; const seg = (audio.currentTime / audio.duration)*(100/this.clips.length); this.progress = Math.min(100, base+seg); }; audio.onended=()=> resolve(); audio.onerror=()=> reject(new Error('audio error')); }); }
+    const config = {
+        audioUrls: @json(($p->audio_urls ?? []) ?: (($p->preview_audio_url ?? null)? [$p->preview_audio_url]: [])),
+        messageRepeatCount: @json($p->message_repeat_count ?? 1),
+        repeatInterval: @json($p->repeat_interval ?? 0),
+        messageInterval: @json($p->message_interval ?? 0),
+        silenceStart: @json($p->silence_start ?? 0),
+        silenceEnd: @json($p->silence_end ?? 0),
+        hasBackgroundMusic: @json($p->has_background_music ?? false),
+        backgroundMusicTrack: @json($p->background_music_track ?? null),
+        backgroundMusicType: @json($p->background_music_type ?? null),
+        bgMusicVolume: @json($p->bg_music_volume ?? 0.3),
+        previewDuration: @json($p->preview_duration ?? 30),
+        enforceTimeline: true,
+        previewTitle: @json($p->name)
     };
+    return {
+        playing:false, progress:0, status:'Idle',
+        _bg:null,_current:null,_start:null,_raf:null,
+        toggle(){ this.playing? this.stop(): this.play(); },
+        async play(){
+            if(!config.audioUrls.length){ this.status='No preview available'; return; }
+            this.stop(true);
+            this.playing=true; this.status='Starting preview...'; this.progress=0; this._start=Date.now();
+            if(config.hasBackgroundMusic){ await this.startBackground(config); }
+            if(config.silenceStart>0) await this.sleep(config.silenceStart*1000);
+            const deadline = Date.now()+ (config.previewDuration*1000);
+            outer: for(let i=0;i<config.audioUrls.length && this.playing;i++){
+                for(let r=0;r<Math.max(1,config.messageRepeatCount||1) && this.playing;r++){
+                    if(config.enforceTimeline && Date.now()>=deadline) break outer;
+                    await this.playClip(config.audioUrls[i], i, config.audioUrls.length);
+                    if(r < (config.messageRepeatCount-1) && config.repeatInterval>0) await this.sleep(config.repeatInterval*1000);
+                }
+                if(i < config.audioUrls.length-1 && config.messageInterval>0) await this.sleep(config.messageInterval*1000);
+            }
+            if(config.silenceEnd>0) await this.sleep(config.silenceEnd*1000);
+            this.finish();
+        },
+        stop(internal=false){
+            this.playing=false; if(this._raf) cancelAnimationFrame(this._raf);
+            if(this._current){ this._current.pause(); this._current=null; }
+            if(this._bg){ this._bg.pause(); this._bg=null; }
+            if(!internal) this.status='Stopped';
+        },
+        finish(){ this.stop(true); this.progress=100; this.status='Preview finished'; },
+        async startBackground(cfg){
+            try{
+                this.status='Loading music...';
+                const track = cfg.backgroundMusicTrack || cfg.backgroundMusicType || cfg.category || 'relaxing';
+                const resp = await fetch(`/bg-music/issue?track=${encodeURIComponent(track)}`, {credentials:'include'});
+                if(!resp.ok) throw new Error('bg music issue');
+                const data = await resp.json();
+                if(!data.url) throw new Error('no music url');
+                const v = Math.min(1, Math.max(0, parseFloat(cfg.bgMusicVolume ?? 0.3)));
+                const bg = new Audio(data.url); bg.loop=true; bg.volume=v; await bg.play(); this._bg=bg; this.status='Music ready';
+            }catch(e){ console.warn('BG music failed', e); this.status='Music unavailable'; }
+        },
+        playClip(url, index, total){
+            return new Promise(res=>{
+                const a = new Audio(url); this._current=a;
+                a.onloadeddata=()=>{ a.play().catch(err=>console.warn('play blocked',err)); this.status=`Playing ${index+1}/${total}`; this.loopProgress(); };
+                a.onended=()=> res(); a.onerror=()=> res();
+            });
+        },
+        loopProgress(){
+            if(!this.playing) return;
+            const elapsed = (Date.now()-this._start)/1000; const pct = Math.min(100, (elapsed/(config.previewDuration||30))*100);
+            this.progress=pct; this._raf=requestAnimationFrame(()=>this.loopProgress());
+        },
+        sleep(ms){ return new Promise(r=> setTimeout(()=>r(), ms)); }
+    }
 }
 </script>

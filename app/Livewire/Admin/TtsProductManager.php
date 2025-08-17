@@ -725,32 +725,29 @@ class TtsProductManager extends AdminComponent
         }
 
         try {
-            // First priority: Check if we have audio_urls array (these are already complete URLs)
+            // First priority: Check if we have audio_urls (now cast to array in model)
             if ($product->audio_urls) {
-                $raw = json_decode($product->audio_urls, true);
+                $raw = $product->audio_urls; // already array via cast or maybe JSON string legacy
+                if (is_string($raw)) {
+                    $decoded = json_decode($raw, true);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $raw = $decoded;
+                    } else {
+                        $raw = [];
+                    }
+                }
                 $audioUrls = [];
                 if (is_array($raw)) {
                     foreach ($raw as $item) {
-                        // Accept direct string
-                        if (is_string($item)) {
-                            $audioUrls[] = $item;
-                            continue;
+                        if (is_string($item)) { // direct URL
+                            $audioUrls[] = $item; continue;
                         }
-                        // Accept object/assoc array with possible keys
                         if (is_array($item)) {
-                            $candidate = $item['url']
-                                ?? $item['audio_url']
-                                ?? $item['src']
-                                ?? $item['path']
-                                ?? null;
-                            if (is_string($candidate)) {
-                                $audioUrls[] = $candidate;
-                                continue;
-                            }
+                            $candidate = $item['url'] ?? $item['audio_url'] ?? $item['src'] ?? $item['path'] ?? null;
+                            if (is_string($candidate)) { $audioUrls[] = $candidate; continue; }
                         }
                     }
                 }
-                // De-duplicate & filter empties
                 $audioUrls = array_values(array_unique(array_filter($audioUrls)));
                 
                 if (!empty($audioUrls)) {
