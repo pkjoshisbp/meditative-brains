@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\TtsBackendController;
 use App\Http\Controllers\Api\EntitlementController;
 use App\Http\Controllers\Api\TtsGroupedCatalogController;
 use Illuminate\Support\Facades\URL;
+use App\Http\Controllers\Api\DownloadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,14 +117,4 @@ Route::middleware(['auth:sanctum','device.limit'])->group(function(){
 Route::get('/tts-grouped', [TtsGroupedCatalogController::class,'index']);
 
 // Secure signed download route (auth + signature, 10 min expiry)
-Route::middleware(['auth:sanctum','device.limit'])->get('/secure/download/{download}', function(\Illuminate\Http\Request $request, App\Models\UserDownload $download){
-    if ($download->user_id !== $request->user()->id) abort(403);
-    $path = null; $name = 'audio.mp3';
-    if ($download->product_id && $download->product) { $path = $download->product->full_file; $name = $download->product->slug.'.mp3'; }
-    if ($download->tts_audio_product_id && $download->ttsProduct) { $path = $download->ttsProduct->audio_urls[0] ?? null; $name = $download->ttsProduct->slug.'.mp3'; }
-    if (!$path) abort(404);
-    $abs = storage_path('app/'.$path);
-    if (!is_file($abs)) abort(404);
-    if (! $request->hasValidSignature()) abort(401);
-    return response()->download($abs, $name);
-})->name('secure.download');
+Route::middleware(['auth:sanctum','device.limit'])->get('/secure/download/{download}', [DownloadController::class,'serve'])->name('secure.download');
