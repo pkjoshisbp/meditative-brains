@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\EntitlementController;
 use App\Http\Controllers\Api\TtsGroupedCatalogController;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Api\DownloadController;
+use App\Http\Controllers\Api\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,10 @@ use App\Http\Controllers\Api\DownloadController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Basic auth endpoints (Sanctum token issuance)
+Route::post('/login', [AuthController::class,'login']);
+Route::middleware('auth:sanctum')->get('/me', [AuthController::class,'user']);
 
 // Music Library API Routes for Flutter
 Route::prefix('music-library')->group(function () {
