@@ -27,5 +27,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\BackfillTtsGroupKeys::class,
         \App\Console\Commands\ImportNodeUsers::class,
+        \App\Console\Commands\GrantTrialSubscriptions::class,
+        \App\Console\Commands\RevokeTrialSubscriptions::class,
     ];
 }

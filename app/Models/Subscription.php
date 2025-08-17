@@ -20,7 +20,8 @@ class Subscription extends Model
         'cancelled_at',
         'payment_method',
         'stripe_subscription_id',
-        'auto_renew'
+    'auto_renew',
+    'is_trial'
     ];
 
     protected $casts = [
@@ -29,6 +30,7 @@ class Subscription extends Model
         'ends_at' => 'datetime',
         'cancelled_at' => 'datetime',
         'auto_renew' => 'boolean',
+    'is_trial' => 'boolean',
     ];
 
     public function user()
