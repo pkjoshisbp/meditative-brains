@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+    // $schedule->command('inspire')->hourly();
+    $schedule->command('trials:expire')->dailyAt('00:10');
     }
 
     /**
@@ -29,5 +30,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ImportNodeUsers::class,
         \App\Console\Commands\GrantTrialSubscriptions::class,
         \App\Console\Commands\RevokeTrialSubscriptions::class,
+        \App\Console\Commands\ExtendTrials::class,
+    \App\Console\Commands\ExpireTrials::class,
     ];
 }

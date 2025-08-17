@@ -123,3 +123,6 @@ Route::get('/tts-grouped', [TtsGroupedCatalogController::class,'index']);
 
 // Secure signed download route (auth + signature, 10 min expiry)
 Route::middleware(['auth:sanctum','device.limit'])->get('/secure/download/{download}', [DownloadController::class,'serve'])->name('secure.download');
+
+// Trial status endpoint (after auth setup)
+Route::middleware('auth:sanctum')->get('/trial/status', [\App\Http\Controllers\Api\TrialController::class,'status']);
