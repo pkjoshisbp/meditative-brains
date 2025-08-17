@@ -6,6 +6,7 @@
         </div>
     </div>
     <div class="container pb-5">
+    @include('partials.app_only_notice')
         <div class="row g-4">
             <div class="col-lg-3">
                 <div class="card border-0 shadow-sm mb-4">

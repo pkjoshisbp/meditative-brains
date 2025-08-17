@@ -9,6 +9,7 @@
         </div>
     </div>
     <div class="container pb-5">
+    @include('partials.app_only_notice')
         <div class="row g-5">
         <div class="col-lg-8">
             <div class="ratio ratio-16x9 rounded shadow-sm mb-4 bg-light overflow-hidden">

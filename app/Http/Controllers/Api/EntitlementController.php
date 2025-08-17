@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TtsAudioProduct;
 use App\Models\Product;
+use Illuminate\Support\Facades\URL;
 
 class EntitlementController extends Controller
 {
@@ -95,8 +96,15 @@ class EntitlementController extends Controller
             'sha256' => $sha256,
             'completed' => false
         ]);
-        $temporaryUrl = route('secure.download', ['id' => $download->id, 'token' => sha1($download->id.config('app.key').now()->format('YmdHi'))]);
-        return response()->json(['download_id' => $download->id,'url'=>$temporaryUrl,'bytes'=>$size,'sha256'=>$sha256]);
+        $expires = now()->addMinutes(10);
+        $signedUrl = URL::temporarySignedRoute('secure.download', $expires, ['download'=>$download->id]);
+        return response()->json([
+            'download_id' => $download->id,
+            'url' => $signedUrl,
+            'expires_at' => $expires->toIso8601String(),
+            'bytes' => $size,
+            'sha256' => $sha256
+        ]);
     }
 
     public function completeDownload(Request $request)
