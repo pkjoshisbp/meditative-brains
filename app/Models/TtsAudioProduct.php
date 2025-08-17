@@ -47,7 +47,8 @@ class TtsAudioProduct extends Model
     'background_music_track',
     'audio_urls',
     'preview_audio_url',
-    'slug'
+    'slug',
+    'group_key'
     ];
 
     protected $casts = [
@@ -179,6 +180,15 @@ class TtsAudioProduct extends Model
                     $i++;
                 }
                 $model->slug = $slug;
+            }
+            // derive group_key if not set: base name without locale suffix or hash of first sample
+            if (empty($model->group_key)) {
+                $baseName = preg_replace('/-(en|hi|es|fr|de|it|pt|ja|ko|zh)(_[A-Z]{2})?(-[a-z0-9]+)?$/i','',$model->slug ?? '');
+                $candidate = $baseName ?: ($model->name ? Str::slug($model->name) : null);
+                if (!$candidate && is_array($model->sample_messages) && count($model->sample_messages)) {
+                    $candidate = substr(sha1($model->sample_messages[0]),0,16);
+                }
+                $model->group_key = $candidate;
             }
         });
     }

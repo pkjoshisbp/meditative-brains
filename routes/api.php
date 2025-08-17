@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\FlutterApiController;
 use App\Http\Controllers\Api\MusicLibraryController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\TtsBackendController;
+use App\Http\Controllers\Api\EntitlementController;
+use App\Http\Controllers\Api\TtsGroupedCatalogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,3 +100,31 @@ Route::prefix('flutter')->name('api.flutter.')->group(function () {
     // TTS Generation
     Route::post('/tts/generate', [FlutterApiController::class, 'generateTTS'])->name('tts.generate');
 });
+
+// New unified catalog & entitlement endpoints
+Route::middleware('auth:sanctum')->group(function(){
+    Route::get('/entitlements', [EntitlementController::class,'summary']);
+    Route::post('/devices/register', [EntitlementController::class,'registerDevice']);
+    Route::post('/devices/heartbeat', [EntitlementController::class,'heartbeat']);
+    Route::delete('/devices/{uuid}', [EntitlementController::class,'revokeDevice']);
+    Route::post('/downloads/request', [EntitlementController::class,'requestDownload']);
+    Route::post('/downloads/complete', [EntitlementController::class,'completeDownload']);
+});
+
+Route::get('/tts-grouped', [TtsGroupedCatalogController::class,'index']);
+
+// Temporary secure download route (simple token) - consider signed route later
+Route::get('/secure/download', function(\Illuminate\Http\Request $request){
+    $id = $request->query('id'); $token = $request->query('token');
+    if (!$id || !$token) abort(403);
+    $expected = sha1($id.config('app.key').now()->format('YmdHi'));
+    if (!hash_equals($expected,$token)) abort(403);
+    $download = App\Models\UserDownload::findOrFail($id);
+    $path = null; $name = 'audio.mp3';
+    if ($download->product_id && $download->product) { $path = $download->product->full_file; $name = $download->product->slug.'.mp3'; }
+    if ($download->tts_audio_product_id && $download->ttsProduct) { $path = $download->ttsProduct->audio_urls[0] ?? null; $name = $download->ttsProduct->slug.'.mp3'; }
+    if (!$path) abort(404);
+    $abs = storage_path('app/'.$path);
+    if (!is_file($abs)) abort(404);
+    return response()->download($abs, $name);
+})->name('secure.download');

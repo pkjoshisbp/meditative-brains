@@ -68,6 +68,27 @@ class User extends Authenticatable
     }
 
     /**
+     * Registered devices
+     */
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    public function downloads()
+    {
+        return $this->hasMany(UserDownload::class);
+    }
+
+    public function withinDeviceLimit($deviceUuid = null)
+    {
+        $limit = $this->device_limit ?? 2;
+        $count = $this->devices()->count();
+        if ($deviceUuid && $this->devices()->where('device_uuid',$deviceUuid)->exists()) return true; // already registered
+        return $count < $limit;
+    }
+
+    /**
      * Check if user has active subscription
      */
     public function hasActiveSubscription()
