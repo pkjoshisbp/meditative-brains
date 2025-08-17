@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
     // $schedule->command('inspire')->hourly();
     $schedule->command('trials:expire')->dailyAt('00:10');
+    $schedule->command('trials:notify-ending')->dailyAt('08:00');
     }
 
     /**
@@ -32,5 +33,6 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\RevokeTrialSubscriptions::class,
         \App\Console\Commands\ExtendTrials::class,
     \App\Console\Commands\ExpireTrials::class,
+    \App\Console\Commands\NotifyTrialsEnding::class,
     ];
 }
