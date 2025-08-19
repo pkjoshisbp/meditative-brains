@@ -1,3 +1,30 @@
 2025-08-14 14:51:41.477 [INFO]: checkDevice middleware - Request received
 2025-08-14 14:51:41.477 [DEBUG]: checkDevice middleware - Searching for user
 2025-08-14 14:51:41.479 [WARN]: checkDevice middleware - User not found
+2025-08-18 17:06:18.236 [INFO]: checkDevice middleware - Request received
+2025-08-18 17:06:18.236 [DEBUG]: checkDevice middleware - Searching for user
+2025-08-18 17:06:18.238 [WARN]: checkDevice middleware - User not found
+2025-08-18 17:13:11.369 [INFO]: checkDevice middleware - Request received
+2025-08-18 17:13:11.369 [DEBUG]: checkDevice middleware - Searching for user
+2025-08-18 17:13:11.370 [WARN]: checkDevice middleware - User not found
+2025-08-18 17:26:40.570 [INFO]: checkDevice middleware - Request received
+2025-08-18 17:26:40.571 [DEBUG]: checkDevice middleware - Searching for user
+2025-08-18 17:26:40.572 [WARN]: checkDevice middleware - User not found
+2025-08-18 17:32:49.489 [INFO]: checkDevice middleware - Request received
+2025-08-18 17:32:49.490 [DEBUG]: checkDevice middleware - Searching for user
+2025-08-18 17:32:49.491 [WARN]: checkDevice middleware - User not found
+2025-08-18 18:18:10.232 [INFO]: checkDevice middleware - Request received
+2025-08-18 18:18:10.232 [DEBUG]: checkDevice middleware - Searching for user
+2025-08-18 18:18:10.233 [WARN]: checkDevice middleware - User not found
+2025-08-18 18:23:50.604 [INFO]: checkDevice middleware - Request received
+2025-08-18 18:23:50.604 [DEBUG]: checkDevice middleware - Searching for user
+2025-08-18 18:23:50.606 [WARN]: checkDevice middleware - User not found
+2025-08-18 23:22:47.871 [INFO]: checkDevice middleware - Request received
+2025-08-18 23:22:47.871 [DEBUG]: checkDevice middleware - Searching for user
+2025-08-18 23:22:47.872 [WARN]: checkDevice middleware - User not found
+2025-08-19 00:26:35.401 [INFO]: checkDevice middleware - Request received
+2025-08-19 00:26:35.401 [DEBUG]: checkDevice middleware - Searching for user
+2025-08-19 00:26:35.402 [WARN]: checkDevice middleware - User not found
+2025-08-19 15:13:56.363 [INFO]: checkDevice middleware - Request received
+2025-08-19 15:13:56.363 [DEBUG]: checkDevice middleware - Searching for user
+2025-08-19 15:13:56.364 [WARN]: checkDevice middleware - User not found

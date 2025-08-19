@@ -18,7 +18,9 @@ class ImportNodeUsers extends Command
         {--file= : Path to JSON or CSV export of Node users} 
         {--hash-type=auto : auto|bcrypt|argon2|plaintext (plaintext means provided value is raw password)} 
         {--email-field=email : Field name for email in source} 
-        {--name-field=name : Field name for name} 
+        {--name-field= : Single field for full name (optional if first/last provided)} 
+        {--first-name-field= : Field containing first name (optional)} 
+        {--last-name-field= : Field containing last name (optional)} 
         {--password-field=password : Field name for password/hash in source} 
         {--limit=0 : Limit number of records imported (0 = all)} 
         {--dry-run : Do not persist, just report}' ;
@@ -39,7 +41,9 @@ class ImportNodeUsers extends Command
 
         $hashType = strtolower($this->option('hash-type') ?? 'auto');
         $emailField = $this->option('email-field');
-        $nameField = $this->option('name-field');
+    $nameField = $this->option('name-field');
+    $firstNameField = $this->option('first-name-field');
+    $lastNameField = $this->option('last-name-field');
         $passwordField = $this->option('password-field');
         $limit = (int)$this->option('limit');
         $dry = (bool)$this->option('dry-run');
@@ -70,7 +74,17 @@ class ImportNodeUsers extends Command
             $count++;
             if ($limit && $created >= $limit) break;
             $email = $row[$emailField] ?? null;
-            $name = $row[$nameField] ?? ($email ? strstr($email,'@', true) : null);
+            $name = null;
+            if ($nameField) {
+                $name = $row[$nameField] ?? null;
+            } elseif ($firstNameField || $lastNameField) {
+                $first = $firstNameField ? ($row[$firstNameField] ?? '') : '';
+                $last = $lastNameField ? ($row[$lastNameField] ?? '') : '';
+                $name = trim($first.' '.$last);
+            }
+            if (!$name) { // fallback to email prefix
+                $name = $email ? strstr($email,'@', true) : null;
+            }
             $pwRaw = $row[$passwordField] ?? null;
             if (!$email || !$pwRaw) { $skipped++; continue; }
 

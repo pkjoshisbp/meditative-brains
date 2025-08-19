@@ -191,12 +191,21 @@ class PaymentController extends Controller
     {
         $planId = $request->get('plan_id');
         $plan = SubscriptionPlan::findOrFail($planId);
-
-        return $this->paypalService->processSubscriptionPurchase(
+        $result = $this->paypalService->processSubscriptionPurchase(
             $request->paypal_order_id,
             $user,
             $plan
         );
+        // If user previously on trial, record conversion event
+        if (($result['success'] ?? false) && $user->subscriptions()->where('is_trial',true)->where('status','active')->exists()) {
+            \App\Models\TrialEvent::create([
+                'user_id' => $user->id,
+                'event_type' => 'converted',
+                'plan_type' => $plan->slug ?? $plan->id,
+                'meta' => ['paypal_order_id' => $request->paypal_order_id]
+            ]);
+        }
+        return $result;
     }
 
     /**

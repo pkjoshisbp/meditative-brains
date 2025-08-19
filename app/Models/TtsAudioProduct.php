@@ -71,6 +71,9 @@ class TtsAudioProduct extends Model
     'silence_end' => 'float'
     ];
 
+    // Dynamically expose display_name when serialized (used by Flutter UI)
+    protected $appends = ['display_name'];
+
     /**
      * Get the category this product belongs to
      */
@@ -145,6 +148,23 @@ class TtsAudioProduct extends Model
     public function getFormattedPriceAttribute()
     {
         return '$' . number_format($this->price, 2);
+    }
+
+    /**
+     * Accessor for combined language + product name for frontend display
+     */
+    public function getDisplayNameAttribute()
+    {
+        // Avoid duplicating language if already prefixed
+        $prefix = $this->language;
+        if (!$prefix) {
+            return $this->name;
+        }
+        $normalized = strtolower($this->name ?? '');
+        if (str_starts_with($normalized, strtolower($prefix).' -') || str_starts_with($normalized, strtolower($prefix).':')) {
+            return $this->name; // already contains language
+        }
+        return trim($prefix.' - '.$this->name);
     }
 
     /**

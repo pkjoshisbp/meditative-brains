@@ -67,7 +67,7 @@ class TtsApiService {
 
   Future<BackgroundMusicCatalog> fetchBackgroundMusic() async {
     final token = await tokenProvider();
-  final uri = Uri.parse('${_apiRoot()}/tts/background-music');
+    final uri = Uri.parse('${_apiRoot()}/tts/background-music');
     final resp = await http.get(uri, headers: _headers(token));
     if (resp.statusCode == 200) {
       return BackgroundMusicCatalog.fromJson(jsonDecode(resp.body));
@@ -75,7 +75,15 @@ class TtsApiService {
     throw Exception('Failed to load background music: ${resp.statusCode} ${resp.body}');
   }
 
-  Future<GeneratedAudioResult> generateMessageAudio({
+  Future<EncryptionKeyDto> fetchEncryptionKey() async {
+    final token = await tokenProvider();
+    final uri = Uri.parse('${_apiRoot()}/tts/encryption-key');
+    final resp = await http.get(uri, headers: _headers(token));
+    if (resp.statusCode == 200) {
+      return EncryptionKeyDto.fromJson(jsonDecode(resp.body));
+    }
+    throw Exception('Failed to load encryption key: ${resp.statusCode} ${resp.body}');
+  }  Future<GeneratedAudioResult> generateMessageAudio({
     required String messageId,
     required String category,
     String? voice,
@@ -233,6 +241,27 @@ class BackgroundMusicTrack {
   
   @override
   String toString() => file;
+}
+
+class EncryptionKeyDto {
+  final String encryptionKey; // base64 encoded key
+  final String algorithm;
+  final int ivLength;
+  final String format;
+
+  EncryptionKeyDto({
+    required this.encryptionKey,
+    required this.algorithm,
+    required this.ivLength,
+    required this.format,
+  });
+
+  factory EncryptionKeyDto.fromJson(Map<String,dynamic> json) => EncryptionKeyDto(
+    encryptionKey: json['encryption_key'] as String,
+    algorithm: json['algorithm'] as String,
+    ivLength: json['iv_length'] as int,
+    format: json['format'] as String,
+  );
 }
 
 class GeneratedAudioResult {

@@ -885,4 +885,28 @@ class TtsBackendController extends Controller
             'Content-Disposition' => 'attachment; filename="'.$file.'"'
         ]);
     }
+
+    /**
+     * Get encryption key for Flutter to decrypt background music files.
+     * Returns the SHA256 hash of APP_KEY used for AES-256-CBC decryption.
+     */
+    public function getEncryptionKey(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Authentication required'], 401);
+        }
+
+        // Return the same key derivation used in AudioSecurityService
+        $key = hash('sha256', config('app.key'), true);
+        $keyBase64 = base64_encode($key);
+
+        return response()->json([
+            'success' => true,
+            'encryption_key' => $keyBase64,
+            'algorithm' => 'AES-256-CBC',
+            'iv_length' => 16,
+            'format' => 'First 16 bytes are IV, remainder is encrypted content'
+        ]);
+    }
 }
