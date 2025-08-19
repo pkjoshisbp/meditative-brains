@@ -661,4 +661,228 @@ class TtsBackendController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * List distinct active product languages user can actually access (purchased or via subscription/category access)
+     */
+    public function getAvailableLanguages(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Authentication required'],401);
+        }
+
+        // Distinct languages among active products
+        $allLanguages = TtsAudioProduct::active()
+            ->whereNotNull('language')
+            ->pluck('language')
+            ->unique()
+            ->values();
+
+        // Filter to languages where user has at least one accessible product (purchase or category access)
+        $accessible = [];
+        foreach ($allLanguages as $lang) {
+            $products = TtsAudioProduct::active()->where('language',$lang)->get();
+            $accessibleProducts = $products->filter(function($p) use ($user){
+                $catAccess = $user->hasTtsCategoryAccessExtended($p->category);
+                return $user->hasTtsProductAccess($p->id) || $catAccess['has_access'];
+            });
+            if ($accessibleProducts->count()) {
+                $accessible[] = $lang;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'languages' => array_values($accessible),
+            'total' => count($accessible)
+        ]);
+    }
+
+    /**
+     * Products for a specific language filtered by user access (only return accessible products unless preview=1)
+     */
+    public function getProductsByLanguage(Request $request, $language)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Authentication required'],401);
+        }
+
+        $preview = (bool)$request->get('preview', false); // allow listing for marketing with preview=1
+
+        $query = TtsAudioProduct::active()->where('language',$language);
+        $products = $query->orderBy('sort_order')->orderBy('name')->get();
+
+        $payload = [];
+        foreach ($products as $product) {
+            $catAccess = $user->hasTtsCategoryAccessExtended($product->category);
+            $hasProduct = $user->hasTtsProductAccess($product->id);
+            if (!$preview && !$hasProduct && !$catAccess['has_access']) {
+                continue; // skip inaccessible unless preview mode
+            }
+            $payload[] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'display_name' => $product->display_name,
+                'category' => $product->category,
+                'language' => $product->language,
+                'price' => $product->price,
+                'formatted_price' => $product->formatted_price,
+                'has_access' => $hasProduct || $catAccess['has_access'],
+                'access_type' => $hasProduct ? 'product_purchase' : ($catAccess['has_access'] ? $catAccess['access_type'] : 'none'),
+                'preview_available' => $product->hasPreviewSamples(),
+                'sample_messages' => $product->hasPreviewSamples() ? $product->sample_messages : [],
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'language' => $language,
+            'products' => $payload,
+            'count' => count($payload),
+            'preview_mode' => $preview
+        ]);
+    }
+
+    /**
+     * Detailed product info including pre-generated audio track URLs (requires access)
+     */
+    public function getTtsProductDetail(Request $request, $productId)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Authentication required'], 401);
+        }
+
+        $product = TtsAudioProduct::active()->findOrFail($productId);
+
+        $catAccess = $user->hasTtsCategoryAccessExtended($product->category);
+        $hasProduct = $user->hasTtsProductAccess($product->id);
+        if (!$hasProduct && !$catAccess['has_access']) {
+            return response()->json([
+                'error' => 'Access denied',
+                'reason' => 'No entitlement for this product or category',
+                'product_id' => $product->id,
+                'category' => $product->category,
+                'available_for_purchase' => true
+            ], 403);
+        }
+
+        // Normalize audio_urls similar to admin manager logic
+        $raw = $product->audio_urls;
+        if (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            if (json_last_error() === JSON_ERROR_NONE) { $raw = $decoded; } else { $raw = []; }
+        }
+        $audioUrls = [];
+        if (is_array($raw)) {
+            foreach ($raw as $item) {
+                if (is_string($item)) { $audioUrls[] = $item; continue; }
+                if (is_array($item)) {
+                    $candidate = $item['url'] ?? $item['audio_url'] ?? $item['src'] ?? $item['path'] ?? null;
+                    if (is_string($candidate)) { $audioUrls[] = $candidate; }
+                }
+            }
+        }
+        $audioUrls = array_values(array_unique(array_filter($audioUrls)));
+
+        // Map to tracks payload (no per-track text currently; placeholder uses product name + index)
+        $tracks = [];
+        foreach ($audioUrls as $i => $url) {
+            $tracks[] = [
+                'index' => $i,
+                'url' => $url,
+                'title' => $product->name . ' #' . ($i+1),
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'display_name' => $product->display_name,
+                'category' => $product->category,
+                'language' => $product->language,
+                'total_tracks' => count($tracks),
+                'has_background_music' => $product->has_background_music,
+                'background_music_track' => $product->background_music_track,
+            ],
+            'tracks' => $tracks,
+            'access' => [
+                'has_access' => true,
+                'access_type' => $hasProduct ? 'product_purchase' : $catAccess['access_type']
+            ]
+        ]);
+    }
+
+    /**
+     * List available background music tracks (original + encrypted variants) for selection.
+     * Returns logical name, relative storage path, variant type.
+     */
+    public function listBackgroundMusic(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Authentication required'], 401);
+        }
+
+        // Return only encrypted files for Flutter to decrypt
+        $encryptedDir = storage_path('app/bg-music/encrypted');
+        $tracks = [];
+        
+        if (is_dir($encryptedDir)) {
+            $files = collect(scandir($encryptedDir))
+                ->reject(fn($f) => in_array($f, ['.', '..']))
+                ->filter(fn($f) => str_ends_with($f, '.enc'))
+                ->values()
+                ->map(function ($f) {
+                    // Remove .enc extension for display name
+                    $displayName = preg_replace('/\.enc$/', '', $f);
+                    $relative = 'bg-music/encrypted/' . $f;
+                    return [
+                        'file' => $displayName, // without .enc for UI
+                        'encrypted_file' => $f, // actual file with .enc
+                        'variant' => 'encrypted',
+                        'path' => $relative,
+                        'url' => route('bg.music.stream', ['variant' => 'encrypted', 'file' => $f], false)
+                    ];
+                });
+            $tracks = $files->toArray();
+        }
+
+        return response()->json([
+            'success' => true,
+            'variants' => [
+                'encrypted' => $tracks
+            ],
+            'total' => count($tracks)
+        ]);
+    }
+
+    /**
+     * Stream a background music file (auth required). Returns encrypted files for Flutter to decrypt.
+     */
+    public function streamBackgroundMusic(Request $request, $variant, $file)
+    {
+        $user = Auth::user();
+        if (!$user) return response()->json(['error' => 'Authentication required'], 401);
+        
+        if (!in_array($variant, ['encrypted'])) {
+            return response()->json(['error'=>'Only encrypted variant supported'],422);
+        }
+        
+        $path = storage_path('app/bg-music/encrypted/'.$file);
+        if (!is_file($path)) {
+            return response()->json(['error'=>'File not found'],404);
+        }
+        
+        // Return encrypted file - Flutter will decrypt
+        return response()->file($path, [
+            'Content-Type' => 'application/octet-stream',
+            'Cache-Control' => 'public, max-age=3600',
+            'Content-Disposition' => 'attachment; filename="'.$file.'"'
+        ]);
+    }
 }
