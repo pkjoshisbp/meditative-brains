@@ -24,7 +24,37 @@ def generate_voice(text, output_path, speaker_id='p225', language='en', length_s
     print(f"Using model: {model_name_or_path}")
     print(f"Speaker: {speaker_id}, Language: {language}")
     
-    tts = TTS(model_name=model_name_or_path, progress_bar=False, gpu=False)
+    # Check if it's a local model path or a model name
+    if os.path.exists(model_name_or_path):
+        # Local model file - need to find config
+        model_dir = os.path.dirname(model_name_or_path)
+        config_path = os.path.join(model_dir, 'config.json')
+        
+        if not os.path.exists(config_path):
+            # Try looking for any .json config file
+            json_files = [f for f in os.listdir(model_dir) if f.endswith('.json')]
+            if json_files:
+                config_path = os.path.join(model_dir, json_files[0])
+            else:
+                # Fallback to default VITS model if no config found
+                print(f"Warning: No config found for local model, falling back to default")
+                tts = TTS(model_name="tts_models/en/ljspeech/vits", progress_bar=False, gpu=False)
+                tts.tts_to_file(
+                    text=text,
+                    file_path=output_path,
+                    length_scale=length_scale,
+                    noise_scale=noise_scale,
+                    noise_scale_w=noise_scale_w
+                )
+                return
+        
+        print(f"Loading local model: {model_name_or_path}")
+        print(f"Config: {config_path}")
+        tts = TTS(model_path=model_name_or_path, config_path=config_path, progress_bar=False, gpu=False)
+    else:
+        # Standard model name
+        tts = TTS(model_name=model_name_or_path, progress_bar=False, gpu=False)
+    
     tts.tts_to_file(
         text=text,
         file_path=output_path,

@@ -7,7 +7,6 @@ class TtsRepository {
   final Map<String, List<TtsProductDto>> _productsCache = {};
   final Map<int, ProductDetailDto> _productDetailCache = {};
   BackgroundMusicCatalog? _bgCatalog;
-  EncryptionKeyDto? _encryptionKeyCache;
   List<String>? _languagesCache;
   DateTime? _languagesFetchedAt;
 
@@ -41,13 +40,6 @@ class TtsRepository {
     final cat = await api.fetchBackgroundMusic();
     _bgCatalog = cat;
     return cat;
-  }
-
-  Future<EncryptionKeyDto> getEncryptionKey({bool forceRefresh = false}) async {
-    if (!forceRefresh && _encryptionKeyCache != null) return _encryptionKeyCache!;
-    final key = await api.fetchEncryptionKey();
-    _encryptionKeyCache = key;
-    return key;
   }
 
   Future<List<TtsProductDto>> getProductsForLanguage(String language,

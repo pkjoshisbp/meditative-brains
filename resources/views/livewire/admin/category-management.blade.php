@@ -1,11 +1,9 @@
-<div>
-@section('title', 'Category Management')
+@section('title', 'TTS Category Management')
 
 @section('content_header')
     <h1>TTS Category Management</h1>
 @stop
 
-@section('content')
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -34,7 +32,7 @@
                         <i class="fas fa-tags"></i> TTS Category Management
                     </h3>
                     <div class="card-tools">
-                        <button class="btn btn-outline-info btn-sm" wire:click="testConnection">
+                        <button class="btn btn-outline-info btn-sm" wire:click.prevent="testConnection">
                             <i class="fas fa-wifi"></i> Test API Connection
                         </button>
                     </div>
@@ -44,11 +42,18 @@
                     <div class="row mb-4">
                         <div class="col-md-8">
                             <div class="input-group">
-                                <input type="text" wire:model="categoryName" class="form-control" 
-                                       placeholder="Enter new category name">
+                                <input type="text" wire:model.defer="categoryName" class="form-control" 
+                                       placeholder="Enter new category name"
+                                       wire:keydown.enter="addCategory">
                                 <div class="input-group-append">
-                                    <button class="btn btn-primary" wire:click="addCategory" type="button">
-                                        <i class="fas fa-plus"></i> Add Category
+                                    <button class="btn btn-primary" wire:click.prevent="addCategory" type="button"
+                                            wire:loading.attr="disabled" wire:target="addCategory">
+                                        <span wire:loading.remove wire:target="addCategory">
+                                            <i class="fas fa-plus"></i> Add Category
+                                        </span>
+                                        <span wire:loading wire:target="addCategory">
+                                            <i class="fas fa-spinner fa-spin"></i> Adding...
+                                        </span>
                                     </button>
                                 </div>
                             </div>
@@ -57,7 +62,7 @@
                             @enderror
                         </div>
                         <div class="col-md-4">
-                            <button class="btn btn-secondary" wire:click="loadCategories" type="button">
+                            <button class="btn btn-secondary" wire:click.prevent="loadCategories" type="button">
                                 <i class="fas fa-sync"></i> Refresh List
                             </button>
                         </div>
@@ -85,15 +90,15 @@
                                             <td>
                                                 @if($editingCategoryId === $category['_id'])
                                                     <div class="input-group input-group-sm">
-                                                        <input type="text" wire:model="editingCategoryName" 
+                                                        <input type="text" wire:model.defer="editingCategoryName" 
                                                                class="form-control">
                                                         <div class="input-group-append">
                                                             <button class="btn btn-success btn-sm" 
-                                                                    wire:click="updateCategory">
+                                                                    wire:click.prevent="updateCategory">
                                                                 <i class="fas fa-check"></i>
                                                             </button>
                                                             <button class="btn btn-secondary btn-sm" 
-                                                                    wire:click="cancelEdit">
+                                                                    wire:click.prevent="cancelEdit">
                                                                 <i class="fas fa-times"></i>
                                                             </button>
                                                         </div>
@@ -120,11 +125,11 @@
                                             <td>
                                                 @if($editingCategoryId !== $category['_id'])
                                                     <div class="btn-group btn-group-sm" role="group">
-                                                        <button wire:click="editCategory('{{ $category['_id'] }}')" 
+                                                        <button wire:click.prevent="editCategory('{{ $category['_id'] }}')" 
                                                                 class="btn btn-warning btn-sm" title="Edit">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
-                                                        <button wire:click="deleteCategory('{{ $category['_id'] }}')" 
+                                                        <button wire:click.prevent="deleteCategory('{{ $category['_id'] }}')" 
                                                                 class="btn btn-danger btn-sm" 
                                                                 onclick="return confirm('Are you sure you want to delete this category? This action cannot be undone.')"
                                                                 title="Delete">
@@ -157,6 +162,4 @@
             </div>
         </div>
     </div>
-</div>
-@stop
 </div>

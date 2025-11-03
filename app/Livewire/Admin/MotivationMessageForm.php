@@ -251,13 +251,12 @@ class MotivationMessageForm extends Component
             'engine' => $this->engine
         ]);
         
-        // Only update speakers if using Azure engine
-        // For VITS, speakers don't change based on language
         if ($this->engine === 'azure') {
             $this->updateSpeakersFromJson();
         } else {
-            \Log::info('DEBUG: Skipping speaker update for non-Azure engine', [
-                'engine' => $this->engine
+            \Log::info('DEBUG: Skipping speaker update for VITS engine - uses standard speakers', [
+                'engine' => $this->engine,
+                'language' => $this->language
             ]);
         }
         
@@ -280,7 +279,8 @@ class MotivationMessageForm extends Component
         
         if ($this->engine === 'vits') {
             // VITS supports limited languages compared to Azure
-            $this->languages = ['en-US', 'en-GB', 'de-DE', 'es-ES', 'fr-FR', 'it-IT', 'pt-BR', 'ru-RU', 'zh-CN', 'ja-JP'];
+            // Note: Hindi models are incomplete, use Azure for hi-IN and en-IN
+            $this->languages = ['en-US', 'de-DE', 'es-ES', 'fr-FR', 'it-IT', 'pt-BR', 'ru-RU', 'zh-CN', 'ja-JP'];
             $this->language = 'en-US';
             $this->speaker = 'p225';
             // Proper VITS speaker IDs - not the labels that were showing before
@@ -427,47 +427,94 @@ class MotivationMessageForm extends Component
             'speaker' => $this->speaker
         ]);
         
-        // For new records, use the category-based audio generation API
+        // For new records, we need to SAVE first, then generate audio
         if (!$this->categoryId) {
             session()->flash('error', 'Please select a category first');
             return;
         }
 
-        try {
-            \Log::info('DEBUG: Using category-based audio generation API', [
-                'url' => 'https://meditative-brains.com:3001/api/generate-category-audio',
-                'payload' => [
-                    'categoryId' => $this->categoryId,
-                    'language' => $this->language,
-                    'speaker' => $this->speaker,
-                    'engine' => $this->engine
-                ]
-            ]);
+        // Validate messages
+        if (empty($this->messages) || strlen($this->messages) < 10) {
+            session()->flash('error', 'Messages field is required and must be at least 10 characters');
+            return;
+        }
 
-            $response = Http::post('https://meditative-brains.com:3001/api/generate-category-audio', [
+        try {
+            // Step 1: Save the record first
+            \Log::info('DEBUG: Step 1 - Saving new record to database');
+            
+            // Convert messages to array like the working component
+            $messagesArray = array_filter(explode("\n", $this->messages));
+            $ssmlArray = !empty($this->ssmlMessages) ? array_filter(explode("\n", $this->ssmlMessages)) : $messagesArray;
+
+            $savePayload = [
                 'categoryId' => $this->categoryId,
+                'messages' => $messagesArray,  // Send as array
+                'ssmlMessages' => $ssmlArray,  // Send as array
+                'engine' => $this->engine,
                 'language' => $this->language,
                 'speaker' => $this->speaker,
-                'engine' => $this->engine
+                'speakerStyle' => $this->speakerStyle,
+                'speakerPersonality' => $this->speakerPersonality,
+                'prosodyRate' => $this->prosodyRate,
+                'prosodyPitch' => $this->prosodyPitch,
+                'prosodyVolume' => $this->prosodyVolume,
+                'expressionStyle' => $this->expressionStyle ?? '',
+            ];
+
+            \Log::info('DEBUG: Saving record with payload', [
+                'url' => 'https://meditative-brains.com:3001/api/motivationMessage',
+                'payload_keys' => array_keys($savePayload),
+                'messages_count' => count($messagesArray)
             ]);
 
-            \Log::info('DEBUG: generateAudio API Response', [
-                'status_code' => $response->status(),
-                'successful' => $response->successful(),
-                'response_body' => $response->body(),
-                'response_headers' => $response->headers()
-            ]);
+            $saveResponse = Http::timeout(120)->post('https://meditative-brains.com:3001/api/motivationMessage', $savePayload);
 
-            if ($response->successful()) {
-                $result = $response->json();
-                $message = isset($result['filesGenerated']) 
-                    ? "Audio generation started: {$result['filesGenerated']} files queued" 
-                    : 'Audio generation started';
-                session()->flash('success', $message);
-            } else {
-                session()->flash('error', 'Audio generation failed: ' . $response->body());
-                \Log::error('Audio generation API failed:', ['response' => $response->json()]);
+            if (!$saveResponse->successful()) {
+                session()->flash('error', 'Failed to save record: ' . $saveResponse->body());
+                \Log::error('Failed to save record', ['response' => $saveResponse->body()]);
+                return;
             }
+
+            $savedRecord = $saveResponse->json();
+            $newRecordId = $savedRecord['_id'] ?? null;
+
+            \Log::info('DEBUG: Record saved successfully', [
+                'newRecordId' => $newRecordId,
+                'response' => $savedRecord
+            ]);
+
+            // Step 2: Now generate audio for the saved record
+            if ($newRecordId) {
+                \Log::info('DEBUG: Step 2 - Generating audio for saved record', [
+                    'recordId' => $newRecordId
+                ]);
+
+                $audioResponse = Http::get("https://meditative-brains.com:3001/api/generate-category-audio/{$newRecordId}");
+
+                \Log::info('DEBUG: generateAudio API Response', [
+                    'status_code' => $audioResponse->status(),
+                    'successful' => $audioResponse->successful(),
+                    'response_body' => $audioResponse->body(),
+                ]);
+
+                if ($audioResponse->successful()) {
+                    $result = $audioResponse->json();
+                    $message = isset($result['filesGenerated']) 
+                        ? "Record saved! Audio generation started: {$result['filesGenerated']} files queued" 
+                        : 'Record saved! Audio generation started';
+                    session()->flash('success', $message);
+                    
+                    // Refresh the records list and clear the form
+                    $this->fetchAdminMessages();
+                    $this->cancelEdit();
+                } else {
+                    session()->flash('warning', 'Record saved, but audio generation failed: ' . $audioResponse->body());
+                }
+            } else {
+                session()->flash('warning', 'Record saved, but could not trigger audio generation (no ID returned)');
+            }
+
         } catch (\Exception $e) {
             \Log::error('DEBUG: generateAudio exception', [
                 'error' => $e->getMessage(),

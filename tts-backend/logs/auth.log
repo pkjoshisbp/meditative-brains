@@ -28,3 +28,6 @@
 2025-08-19 15:13:56.363 [INFO]: checkDevice middleware - Request received
 2025-08-19 15:13:56.363 [DEBUG]: checkDevice middleware - Searching for user
 2025-08-19 15:13:56.364 [WARN]: checkDevice middleware - User not found
+2025-08-20 15:25:11.360 [INFO]: checkDevice middleware - Request received
+2025-08-20 15:25:11.360 [DEBUG]: checkDevice middleware - Searching for user
+2025-08-20 15:25:11.361 [WARN]: checkDevice middleware - User not found

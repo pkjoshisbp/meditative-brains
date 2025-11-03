@@ -828,85 +828,52 @@ class TtsBackendController extends Controller
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
-        // Return only encrypted files for Flutter to decrypt
-        $encryptedDir = storage_path('app/bg-music/encrypted');
-        $tracks = [];
-        
-        if (is_dir($encryptedDir)) {
-            $files = collect(scandir($encryptedDir))
+        // Optional: restrict to admin or trial roles later.
+        $base = storage_path('app/audio/bg-music');
+        $collections = [];
+        $scanDirs = [
+            'original' => $base . '/original',
+            'encrypted' => $base . '/encrypted'
+        ];
+        foreach ($scanDirs as $variant => $dir) {
+            if (!is_dir($dir)) continue;
+            $files = collect(scandir($dir))
                 ->reject(fn($f) => in_array($f, ['.', '..']))
-                ->filter(fn($f) => str_ends_with($f, '.enc'))
+                ->filter(fn($f) => preg_match('/\.(mp3|wav|m4a)$/i', $f))
                 ->values()
-                ->map(function ($f) {
-                    // Remove .enc extension for display name
-                    $displayName = preg_replace('/\.enc$/', '', $f);
-                    $relative = 'bg-music/encrypted/' . $f;
+                ->map(function ($f) use ($variant) {
+                    $relative = 'audio/bg-music/' . $variant . '/' . $f; // storage relative
                     return [
-                        'file' => $displayName, // without .enc for UI
-                        'encrypted_file' => $f, // actual file with .enc
-                        'variant' => 'encrypted',
+                        'file' => $f,
+                        'variant' => $variant,
                         'path' => $relative,
-                        'url' => route('bg.music.stream', ['variant' => 'encrypted', 'file' => $f], false)
+                        'url' => route('bg.music.stream', ['variant' => $variant, 'file' => $f], false)
                     ];
                 });
-            $tracks = $files->toArray();
+            $collections[$variant] = $files->toArray();
         }
 
         return response()->json([
             'success' => true,
-            'variants' => [
-                'encrypted' => $tracks
-            ],
-            'total' => count($tracks)
+            'variants' => $collections,
+            'total' => array_sum(array_map('count', $collections))
         ]);
     }
 
     /**
-     * Stream a background music file (auth required). Returns encrypted files for Flutter to decrypt.
+     * Stream a background music file (auth required). Not signed because asset list is gated.
      */
     public function streamBackgroundMusic(Request $request, $variant, $file)
     {
         $user = Auth::user();
         if (!$user) return response()->json(['error' => 'Authentication required'], 401);
-        
-        if (!in_array($variant, ['encrypted'])) {
-            return response()->json(['error'=>'Only encrypted variant supported'],422);
-        }
-        
-        $path = storage_path('app/bg-music/encrypted/'.$file);
-        if (!is_file($path)) {
-            return response()->json(['error'=>'File not found'],404);
-        }
-        
-        // Return encrypted file - Flutter will decrypt
+        if (!in_array($variant, ['original','encrypted'])) return response()->json(['error'=>'invalid_variant'],422);
+        $path = storage_path('app/audio/bg-music/'.$variant.'/'.$file);
+        if (!is_file($path)) return response()->json(['error'=>'not_found'],404);
+        $mime = mime_content_type($path) ?: 'audio/mpeg';
         return response()->file($path, [
-            'Content-Type' => 'application/octet-stream',
-            'Cache-Control' => 'public, max-age=3600',
-            'Content-Disposition' => 'attachment; filename="'.$file.'"'
-        ]);
-    }
-
-    /**
-     * Get encryption key for Flutter to decrypt background music files.
-     * Returns the SHA256 hash of APP_KEY used for AES-256-CBC decryption.
-     */
-    public function getEncryptionKey(Request $request)
-    {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json(['error' => 'Authentication required'], 401);
-        }
-
-        // Return the same key derivation used in AudioSecurityService
-        $key = hash('sha256', config('app.key'), true);
-        $keyBase64 = base64_encode($key);
-
-        return response()->json([
-            'success' => true,
-            'encryption_key' => $keyBase64,
-            'algorithm' => 'AES-256-CBC',
-            'iv_length' => 16,
-            'format' => 'First 16 bytes are IV, remainder is encrypted content'
+            'Content-Type' => $mime,
+            'Cache-Control' => 'public, max-age=3600'
         ]);
     }
 }

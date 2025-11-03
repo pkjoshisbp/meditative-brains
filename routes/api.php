@@ -65,7 +65,6 @@ Route::prefix('tts')->group(function () {
     Route::get('/products/{product}/detail', [TtsBackendController::class, 'getTtsProductDetail']);
     Route::get('/background-music', [TtsBackendController::class, 'listBackgroundMusic']);
     Route::get('/background-music/stream/{variant}/{file}', [TtsBackendController::class, 'streamBackgroundMusic'])->name('bg.music.stream');
-    Route::get('/encryption-key', [TtsBackendController::class, 'getEncryptionKey']);
         
         // TTS Product Management
         Route::get('/products/catalog', [TtsBackendController::class, 'getTtsProductsCatalog']);

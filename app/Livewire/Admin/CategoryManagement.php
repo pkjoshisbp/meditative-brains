@@ -49,14 +49,32 @@ class CategoryManagement extends Component
 
     public function addCategory()
     {
+        \Log::info('addCategory method called', [
+            'categoryName' => $this->categoryName
+        ]);
+
         $this->validate([
             'categoryName' => 'required|string|min:2|max:100'
         ]);
 
         try {
+            \Log::info('Sending request to TTS API', [
+                'url' => 'https://meditative-brains.com:3001/api/category',
+                'data' => [
+                    'category' => $this->categoryName,
+                    'language' => 'en-US'
+                ]
+            ]);
+
             $response = Http::post('https://meditative-brains.com:3001/api/category', [
                 'category' => $this->categoryName,
                 'language' => 'en-US' // Default language
+            ]);
+
+            \Log::info('TTS API response', [
+                'status' => $response->status(),
+                'successful' => $response->successful(),
+                'body' => $response->body()
             ]);
 
             if ($response->successful()) {
@@ -66,12 +84,15 @@ class CategoryManagement extends Component
             } else {
                 \Log::error('Failed to add category', [
                     'name' => $this->categoryName,
+                    'status' => $response->status(),
                     'response' => $response->body()
                 ]);
                 session()->flash('error', 'Failed to add category: ' . $response->body());
             }
         } catch (\Exception $e) {
-            \Log::error('Exception adding category: ' . $e->getMessage());
+            \Log::error('Exception adding category: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             session()->flash('error', 'Error adding category: ' . $e->getMessage());
         }
     }
