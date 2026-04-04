@@ -11268,3 +11268,7 @@ ImportError: cannot import name 'is_arabic' from 'charset_normalizer.utils' (/va
 2026-04-04 14:00:40.259 [ERROR]: API endpoint not found: /api/messages
 2026-04-04 14:01:06.296 [ERROR]: API endpoint not found: /api/messages
 2026-04-04 14:01:06.687 [ERROR]: API endpoint not found: /api/messages
+2026-04-04 18:24:53.004 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-04-04 18:24:53.006 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-04-04 18:45:05.612 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-04-04 18:45:05.616 [ERROR]: API endpoint not found: /api/v2/static/not.found

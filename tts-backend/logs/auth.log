@@ -67,3 +67,6 @@
 2026-04-03 01:11:05.971 [INFO]: checkDevice middleware - Request received
 2026-04-03 01:11:05.972 [DEBUG]: checkDevice middleware - Searching for user
 2026-04-03 01:11:05.973 [WARN]: checkDevice middleware - User not found
+2026-04-04 18:14:09.484 [INFO]: checkDevice middleware - Request received
+2026-04-04 18:14:09.484 [DEBUG]: checkDevice middleware - Searching for user
+2026-04-04 18:14:09.486 [WARN]: checkDevice middleware - User not found
