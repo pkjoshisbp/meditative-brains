@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'Meditative Brains Admin',
+    'title' => 'Mental Fitness Store Admin',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>Meditative</b> Brains',
+    'logo' => '<b>Mental</b>Fitness',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -352,6 +352,11 @@ return [
             'url' => 'admin/tts/generator',
             'icon' => 'fas fa-fw fa-volume-up',
         ],
+        [
+            'text' => 'Audiobook Generator',
+            'url' => 'admin/tts/audiobook',
+            'icon' => 'fas fa-fw fa-book-open',
+        ],
         ['header' => 'STORE MANAGEMENT'],
         [
             'text' => 'Orders',
@@ -363,7 +368,23 @@ return [
             'url' => 'admin/customers',
             'icon' => 'fas fa-fw fa-users',
         ],
+        ['header' => 'SUBSCRIPTIONS'],
+        [
+            'text'    => 'User Subscriptions',
+            'url'     => 'admin/subscriptions',
+            'icon'    => 'fas fa-fw fa-id-card-alt',
+        ],
+        [
+            'text'    => 'Subscription Plans',
+            'url'     => 'admin/subscriptions/plans',
+            'icon'    => 'fas fa-fw fa-layer-group',
+        ],
         ['header' => 'SETTINGS'],
+        [
+            'text' => 'Payment Settings',
+            'url'  => 'admin/settings/payments',
+            'icon' => 'fas fa-fw fa-credit-card',
+        ],
         [
             'text' => 'View Frontend',
             'url' => '/',

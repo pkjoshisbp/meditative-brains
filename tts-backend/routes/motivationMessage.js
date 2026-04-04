@@ -34,17 +34,24 @@ motivationMessageRouter.post('/', async (req, res) => {
     // Normalize language code
     const formattedLanguage = language === 'hn-IN' ? 'hi-IN' : language.replace('_', '-');
     
-    // Set speaker based on engine
+    // Use the speaker provided from frontend, or fallback to defaults
     let selectedSpeaker;
     if (engine === 'vits') {
       // For VITS engine, use VITS speaker names
       selectedSpeaker = speaker || 'p225'; // Default VITS speaker
     } else {
-      // For Azure TTS, use AvaMultilingualNeural for supported languages
-      selectedSpeaker = ['en-IN', 'en-US', 'hi-IN', 'hn-IN'].includes(formattedLanguage) 
-        ? 'en-US-AvaMultilingualNeural'
-        : (speaker || 'en-US-AriaNeural'); // Default Azure speaker
+      // For Azure TTS, use the speaker sent from frontend, or default
+      selectedSpeaker = speaker || 'en-US-AriaNeural'; // Default Azure speaker
     }
+    
+    logger.info('POST /api/motivationMessage - Speaker selection', {
+      engine,
+      language: formattedLanguage,
+      speakerFromRequest: speaker,
+      selectedSpeaker,
+      speakerStyle,
+      speakerPersonality
+    });
 
     const recordData = {
       categoryId,
@@ -65,9 +72,20 @@ motivationMessageRouter.post('/', async (req, res) => {
     if (userId) recordData.userId = userId;
     const record = new MotivationMessage(recordData);
     await record.save();
-    logger.info('Motivation message saved successfully', { userId, categoryId });
-    console.log('Motivation message saved successfully', { userId, categoryId });
-    res.status(200).json({ success: true, message: "Saved successfully" });
+    logger.info('Motivation message saved successfully', { 
+      savedId: record._id,
+      userId, 
+      categoryId,
+      speaker: record.speaker,
+      language: record.language
+    });
+    console.log('Motivation message saved successfully', { 
+      savedId: record._id,
+      userId, 
+      categoryId,
+      speaker: record.speaker
+    });
+    res.status(200).json({ success: true, message: "Saved successfully", _id: record._id });
   } catch (err) {
     logger.error('Error saving motivation message', { error: err.message, stack: err.stack });
     console.log('Error saving motivation message', { error: err.message, stack: err.stack });

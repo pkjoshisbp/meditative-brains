@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Meditative Brains - Admin</title>
+    <title>Mental Fitness Store - Admin</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -43,7 +43,7 @@
         <!-- Brand Logo -->
         <a href="{{ route('admin.dashboard') }}" class="brand-link">
             <img src="{{ asset('vendor/adminlte/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-            <span class="brand-text font-weight-light">Meditative Brains</span>
+            <span class="brand-text font-weight-light">Mental Fitness Store</span>
         </a>
 
         <!-- Sidebar -->
@@ -68,6 +68,38 @@
                             <i class="nav-icon fas fa-music"></i>
                             <p>Products</p>
                         </a>
+                    </li>
+                    <li class="nav-item nav-item has-treeview {{ request()->routeIs('admin.tts.*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ request()->routeIs('admin.tts.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-microphone-alt"></i>
+                            <p>TTS &amp; Audiobook <i class="right fas fa-angle-left"></i></p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.tts.messages') }}" class="nav-link {{ request()->routeIs('admin.tts.messages') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-comment-alt"></i>
+                                    <p>TTS Messages</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.tts.generator') }}" class="nav-link {{ request()->routeIs('admin.tts.generator') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-volume-up"></i>
+                                    <p>Audio Generator</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.tts.products') }}" class="nav-link {{ request()->routeIs('admin.tts.products') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-box"></i>
+                                    <p>TTS Products</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.tts.audiobook') }}" class="nav-link {{ request()->routeIs('admin.tts.audiobook') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-book-open"></i>
+                                    <p>Audiobook Generator</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </nav>
@@ -97,7 +129,7 @@
 
     <!-- Footer -->
     <footer class="main-footer">
-        <strong>Copyright &copy; 2025 Meditative Brains.</strong> All rights reserved.
+        <strong>Copyright &copy; 2025 Mental Fitness Store.</strong> All rights reserved.
     </footer>
 </div>
 

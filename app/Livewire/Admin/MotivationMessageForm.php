@@ -10,8 +10,8 @@ class MotivationMessageForm extends Component
     public $categoryId = '';
     public $messages = '';
     public $engine = 'azure';
-    public $language = 'en-US';
-    public $speaker = 'en-US-AriaNeural';
+    public $language = 'en-IN';  // Changed from en-US to en-IN as default
+    public $speaker = 'en-GB-AdaMultilingualNeural';  // Changed from AriaNeural to AdaMultilingualNeural as default
     public $speakerStyle = '';
 
     // Prosody controls
@@ -64,7 +64,7 @@ class MotivationMessageForm extends Component
             
             // Load categories - try API first, fallback to test data
             try {
-                $response = Http::timeout(5)->get('https://meditative-brains.com:3001/api/category');
+                $response = Http::timeout(5)->get('https://mentalfitness.store:3001/api/category');
                 if ($response->successful()) {
                     $this->categories = $response->json();
                     \Log::info('Real categories loaded', ['count' => count($this->categories)]);
@@ -81,7 +81,7 @@ class MotivationMessageForm extends Component
             
             // Load existing records - try API first, fallback to test data
             try {
-                $response = Http::timeout(5)->get('https://meditative-brains.com:3001/api/motivationMessage/admin-only');
+                $response = Http::timeout(5)->get('https://mentalfitness.store:3001/api/motivationMessage/admin-only');
                 if ($response->successful()) {
                     $this->existingRecords = $response->json();
                     \Log::info('Real existing records loaded', ['count' => count($this->existingRecords)]);
@@ -165,10 +165,18 @@ class MotivationMessageForm extends Component
             if ($this->azureVoices->isNotEmpty()) {
                 // Get unique languages from the voices
                 $this->languages = $this->azureVoices->pluck('Locale')->unique()->sort()->values()->all();
-                $this->language = $this->languages[0] ?? 'en-US';
+                // Set default to en-IN if available, otherwise first language
+                $this->language = in_array('en-IN', $this->languages) ? 'en-IN' : ($this->languages[0] ?? 'en-US');
                 
                 // Update speakers for the default language
                 $this->updateSpeakersFromJson();
+                
+                // Set default speaker to Ada Multilingual if available for this language
+                if (in_array('en-GB-AdaMultilingualNeural', $this->speakers)) {
+                    $this->speaker = 'en-GB-AdaMultilingualNeural';
+                } elseif (!empty($this->speakers)) {
+                    $this->speaker = $this->speakers[0];
+                }
                 
                 \Log::info('Languages and speakers initialized', [
                     'languages_count' => count($this->languages),
@@ -178,25 +186,25 @@ class MotivationMessageForm extends Component
                 ]);
             } else {
                 // Fallback if no voices loaded
-                $this->languages = ['en-US'];
-                $this->language = 'en-US';
-                $this->speakers = ['en-US-AriaNeural'];
-                $this->speaker = 'en-US-AriaNeural';
+                $this->languages = ['en-IN', 'en-US'];
+                $this->language = 'en-IN';
+                $this->speakers = ['en-GB-AdaMultilingualNeural'];
+                $this->speaker = 'en-GB-AdaMultilingualNeural';
                 \Log::warning('Using fallback language/speaker settings');
             }
         } catch (\Exception $e) {
             \Log::error('Failed to initialize languages and speakers', ['error' => $e->getMessage()]);
             // Use fallback
-            $this->languages = ['en-US'];
-            $this->language = 'en-US';
-            $this->speakers = ['en-US-AriaNeural'];
-            $this->speaker = 'en-US-AriaNeural';
+            $this->languages = ['en-IN', 'en-US'];
+            $this->language = 'en-IN';
+            $this->speakers = ['en-GB-AdaMultilingualNeural'];
+            $this->speaker = 'en-GB-AdaMultilingualNeural';
         }
     }
 
     private function fetchMessagesForCategory($categoryId)
     {
-        $response = Http::get("https://meditative-brains.com:3001/api/motivationMessage/category/{$categoryId}");
+        $response = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/category/{$categoryId}");
         $this->existingRecords = $response->successful() ? $response->json() : [];
     }
 
@@ -205,7 +213,7 @@ class MotivationMessageForm extends Component
         \Log::info('DEBUG: Fetching admin messages from API');
         
         try {
-            $response = Http::timeout(30)->get("https://meditative-brains.com:3001/api/motivationMessage/admin-only");
+            $response = Http::timeout(30)->get(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/admin-only");
             
             \Log::info('DEBUG: fetchAdminMessages response', [
                 'status' => $response->status(),
@@ -420,11 +428,13 @@ class MotivationMessageForm extends Component
     {
         \Log::info('DEBUG: generateAudio called (new record)', [
             'categoryId' => $this->categoryId,
-            'messages_raw' => $this->messages,
+            'messages_raw' => substr($this->messages, 0, 100),
             'messages_length' => strlen($this->messages),
             'engine' => $this->engine,
             'language' => $this->language,
-            'speaker' => $this->speaker
+            'speaker' => $this->speaker,
+            'speakerStyle' => $this->speakerStyle,
+            'speakerPersonality' => $this->speakerPersonality
         ]);
         
         // For new records, we need to SAVE first, then generate audio
@@ -463,12 +473,14 @@ class MotivationMessageForm extends Component
             ];
 
             \Log::info('DEBUG: Saving record with payload', [
-                'url' => 'https://meditative-brains.com:3001/api/motivationMessage',
+                'url' => 'https://mentalfitness.store:3001/api/motivationMessage',
                 'payload_keys' => array_keys($savePayload),
-                'messages_count' => count($messagesArray)
+                'messages_count' => count($messagesArray),
+                'speaker_value' => $this->speaker,
+                'full_payload' => $savePayload
             ]);
 
-            $saveResponse = Http::timeout(120)->post('https://meditative-brains.com:3001/api/motivationMessage', $savePayload);
+            $saveResponse = Http::timeout(120)->post('https://mentalfitness.store:3001/api/motivationMessage', $savePayload);
 
             if (!$saveResponse->successful()) {
                 session()->flash('error', 'Failed to save record: ' . $saveResponse->body());
@@ -490,7 +502,7 @@ class MotivationMessageForm extends Component
                     'recordId' => $newRecordId
                 ]);
 
-                $audioResponse = Http::get("https://meditative-brains.com:3001/api/generate-category-audio/{$newRecordId}");
+                $audioResponse = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/generate-category-audio/{$newRecordId}");
 
                 \Log::info('DEBUG: generateAudio API Response', [
                     'status_code' => $audioResponse->status(),
@@ -534,13 +546,13 @@ class MotivationMessageForm extends Component
         
         try {
             \Log::info('DEBUG: Using record-based audio generation API (like working component)', [
-                'url' => "https://meditative-brains.com:3001/api/generate-category-audio/{$recordId}",
+                'url' => rtrim(config("services.tts.base_url"), "/api") . "/api/generate-category-audio/{$recordId}",
                 'method' => 'GET',
                 'recordId' => $recordId
             ]);
 
             // Use the correct API endpoint from working component
-            $response = Http::get("https://meditative-brains.com:3001/api/generate-category-audio/{$recordId}");
+            $response = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/generate-category-audio/{$recordId}");
 
             \Log::info('DEBUG: generateAudioForRecord API Response', [
                 'status_code' => $response->status(),
@@ -726,7 +738,7 @@ class MotivationMessageForm extends Component
                 'prosodyVolume' => $this->prosodyVolume,
             ];
 
-            $response = Http::timeout(120)->put("https://meditative-brains.com:3001/api/motivationMessage/{$this->editingRecordId}", $payload);
+            $response = Http::timeout(120)->put(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/{$this->editingRecordId}", $payload);
 
             if ($response->successful()) {
                 session()->flash('success', 'Record updated successfully!');
@@ -759,13 +771,13 @@ class MotivationMessageForm extends Component
                 'timestamp' => now()
             ]);
 
-            $response = Http::delete("https://meditative-brains.com:3001/api/motivationMessage/{$recordId}");
+            $response = Http::delete(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/{$recordId}");
             
             \Log::info('DEBUG: deleteRecord API Response', [
                 'status_code' => $response->status(),
                 'successful' => $response->successful(),
                 'response_body' => $response->body(),
-                'url' => "https://meditative-brains.com:3001/api/motivationMessage/{$recordId}"
+                'url' => rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/{$recordId}"
             ]);
             
             if ($response->successful()) {
@@ -798,7 +810,7 @@ class MotivationMessageForm extends Component
                 'timestamp' => now()
             ]);
 
-            $url = "https://meditative-brains.com:3001/api/category/{$categoryId}/message/{$messageId}";
+            $url = rtrim(config("services.tts.base_url"), "/api") . "/api/category/{$categoryId}/message/{$messageId}";
             
             \Log::info('DEBUG: deleteMessage API call', [
                 'url' => $url,
@@ -1021,7 +1033,7 @@ class MotivationMessageForm extends Component
                 $this->translateAndFill();
             }
 
-            $response = Http::timeout(120)->post('https://meditative-brains.com:3001/api/motivationMessage', $payload);
+            $response = Http::timeout(120)->post('https://mentalfitness.store:3001/api/motivationMessage', $payload);
 
             if ($response->successful()) {
                 session()->flash('success', 'New record saved successfully!');

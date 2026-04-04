@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practicing Happiness — Table of Contents</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fdf8f2; color: #2c2c2c; margin: 0; padding: 0; line-height: 1.8; }
+  .page-wrapper { max-width: 860px; margin: 0 auto; padding: 40px 30px 80px; }
+
+  /* ---- Book Cover Header ---- */
+  .book-cover { text-align: center; padding: 60px 30px 50px; border-bottom: 2px solid #c8a96e; margin-bottom: 56px; position: relative; }
+  .cover-label { font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: #a07840; margin-bottom: 16px; }
+  .cover-title { font-size: 46px; font-weight: bold; color: #1a1a2e; line-height: 1.15; margin-bottom: 12px; }
+  .cover-subtitle { font-size: 18px; color: #6b6b6b; font-style: italic; margin-bottom: 32px; }
+  .cover-ornament { width: 60px; height: 3px; background: #c8a96e; margin: 0 auto 28px; }
+  .cover-description { max-width: 580px; margin: 0 auto; font-size: 18px; color: #4a4a4a; line-height: 1.9; }
+
+  /* ---- Author ---- */
+  .author-section { display: flex; gap: 36px; align-items: flex-start; background: #fff; border: 1px solid #e8ddd0; border-radius: 10px; padding: 36px 40px; margin: 50px 0; }
+  .author-avatar { width: 90px; height: 90px; background: linear-gradient(135deg, #1a1a2e, #3a3a5c); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #c8a96e; font-size: 32px; font-weight: bold; flex-shrink: 0; }
+  .author-body h3 { margin: 0 0 6px; font-size: 20px; color: #1a1a2e; }
+  .author-body .author-role { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #c8a96e; margin-bottom: 14px; display: block; }
+  .author-body p { font-size: 15.5px; color: #4a4a4a; margin-bottom: 10px; }
+  .author-body p:last-child { margin-bottom: 0; }
+  /* ---- Copyright ---- */
+  .copyright-section { background: #f5ede0; border: 1px solid #d4a96a; border-radius: 8px; padding: 28px 32px; margin: 40px 0; font-size: 14.5px; color: #5a4a35; line-height: 1.8; }
+  .copyright-section h4 { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #a07840; margin: 0 0 14px; }
+  .copyright-section p { margin-bottom: 12px; }
+  .copyright-section p:last-child { margin-bottom: 0; }
+  /* ---- Preface ---- */
+  .preface { background: #f5ede0; border: 1px solid #d4a96a; border-radius: 8px; padding: 32px 36px; margin: 50px 0; }
+  .preface h2 { color: #a07840; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; margin-top: 0; margin-bottom: 16px; }
+  .preface p { font-size: 18px; color: #3a2f22; margin-bottom: 14px; }
+  .preface p:last-child { margin-bottom: 0; }
+
+  /* ---- How to Use ---- */
+  .how-to { margin: 50px 0; }
+  .how-to h2 { font-size: 20px; color: #1a1a2e; border-left: 4px solid #c8a96e; padding-left: 14px; margin-bottom: 20px; }
+  .how-to ul { padding-left: 22px; }
+  .how-to li { margin-bottom: 10px; font-size: 18px; }
+
+  /* ---- Chapter Cards ---- */
+  .chapters-section h2 { font-size: 20px; color: #1a1a2e; border-left: 4px solid #c8a96e; padding-left: 14px; margin-bottom: 30px; margin-top: 50px; }
+  .chapter-card { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 20px; background: #fff; border: 1px solid #e8ddd0; border-radius: 10px; padding: 22px 24px; text-decoration: none; color: inherit; transition: box-shadow 0.2s, border-color 0.2s; }
+  .chapter-card:hover { box-shadow: 0 4px 16px rgba(200, 169, 110, 0.25); border-color: #c8a96e; }
+  .chapter-card:visited { color: inherit; }
+  .ch-number-badge { min-width: 52px; height: 52px; background: #1a1a2e; color: #c8a96e; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; font-family: Georgia, serif; flex-shrink: 0; }
+  .ch-content { flex: 1; }
+  .ch-title { font-size: 17px; font-weight: bold; color: #1a1a2e; margin-bottom: 4px; }
+  .ch-subtitle { font-size: 14px; color: #888; font-style: italic; margin-bottom: 6px; }
+  .ch-teaser { font-size: 14.5px; color: #555; line-height: 1.7; }
+  .ch-arrow { font-size: 18px; color: #c8a96e; align-self: center; flex-shrink: 0; }
+
+  /* ---- Quote Block ---- */
+  blockquote { border-left: 5px solid #c8a96e; margin: 40px 0; padding: 18px 26px; background: #fffbf4; font-size: 18px; font-style: italic; color: #3a3a3a; }
+  blockquote cite { display: block; margin-top: 8px; font-size: 13px; font-style: normal; color: #999; }
+
+  /* ---- Final Invitation ---- */
+  .invitation { background: #1a1a2e; color: #f5e6c8; padding: 40px 38px; border-radius: 10px; margin: 54px 0 40px; text-align: center; }
+  .invitation h2 { color: #c8a96e; margin-top: 0; font-size: 22px; letter-spacing: 1px; }
+  .invitation p { font-size: 18.5px; color: #d4c4a8; line-height: 2; max-width: 560px; margin: 0 auto 14px; }
+  .invitation .begin-cta { display: inline-block; margin-top: 20px; background: #c8a96e; color: #1a1a2e; padding: 14px 36px; border-radius: 4px; text-decoration: none; font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+  .invitation .begin-cta:hover { background: #d4b87e; }
+
+  /* ---- Footer ---- */
+  .footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid #e0d4c0; font-size: 13px; color: #aaa; }
+</style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- Book Cover -->
+  <div class="book-cover">
+    <div class="cover-label">A Complete Course in Inner Transformation</div>
+    <div class="cover-title">Practicing Happiness</div>
+    <div class="cover-subtitle">Rewiring Your Mind for a Life of Genuine, Lasting Joy</div>
+    <div class="cover-ornament"></div>
+    <div class="cover-description">
+      Happiness is not a circumstance. It is a skill — built through deliberate, consistent practice, grounded in neuroscience, and available to every human being who is willing to begin. This book is the guide to that building.
+    </div>
+  </div>
+
+  <!-- Preface -->
+  <div class="preface">
+    <h2>A Note Before You Begin</h2>
+    <p>Most of us were taught — explicitly or implicitly — that happiness is something that happens to you when life goes right. You achieve the goal, resolve the problem, find the person, get the result — and then happiness arrives as the reward. Or you are unlucky, and it doesn't arrive, or arrives briefly and leaves. In either case, you are essentially a passenger. Happiness is the country; you are waiting at the border, hoping to be admitted.</p>
+    <p>This book presents a different understanding — one supported by decades of neuroscience and psychological research, and by the experience of every practitioner who has taken it seriously: happiness is a skill. The inner life that feels genuinely positive, resilient, and full of resources is not bestowed by favorable circumstances. It is built, deliberately and patiently, through practice. Like any skill, it begins with effort and imperfection. With consistent practice, it becomes natural. Eventually, it becomes who you are.</p>
+    <p>The fifteen chapters that follow are the complete course. Each one is a building block. Read them in order. Return to individual chapters when specific challenges arise. But above all: practice. The reading and the understanding, however valuable, are the map. The daily practice is the journey. Begin the journey, and the map will guide you well.</p>
+  </div>
+
+  <!-- How to Use -->
+  <div class="how-to">
+    <h2>How to Use This Book</h2>
+    <ul>
+      <li><strong>Read sequentially first:</strong> The chapters build on each other. The first five establish the foundation. Chapters 6–10 develop the tools and address common obstacles. Chapters 11–15 integrate and deepen the practice.</li>
+      <li><strong>Engage with the conditioning statements:</strong> Each chapter ends with a set of italic conditioning statements on a dark background. Read them slowly, aloud when possible. They are designed to be repeated — not as rote affirmation but as deliberate neurological conditioning.</li>
+      <li><strong>Do the practice boxes:</strong> The practical applications in each chapter are not suggestions for later. They are the actual work of the book. Start the simplest practice in each chapter before moving to the next.</li>
+      <li><strong>Return to chapters as needed:</strong> When you face a specific challenge — difficulty recovering from setbacks, the pull of perfectionism, the trap of conditional happiness — return to the relevant chapter. The chapters serve as reference as much as narrative.</li>
+      <li><strong>Be patient:</strong> The timeline of real change is weeks and months. What you are building takes time. Know this in advance, and commit to showing up for the practice across that timeline. The results are reliable for those who continue.</li>
+    </ul>
+  </div>
+
+  <blockquote>
+    "We are what we repeatedly do. Excellence, then, is not an act, but a habit."
+    <cite>— Aristotle</cite>
+  </blockquote>
+
+  <!-- Chapters List -->
+  <div class="chapters-section">
+    <h2>All Fifteen Chapters</h2>
+
+    <a class="chapter-card" href="chapter-01-keep-smiling.html">
+      <div class="ch-number-badge">1</div>
+      <div class="ch-content">
+        <div class="ch-title">Keep Smiling</div>
+        <div class="ch-subtitle">The Simplest Practice That Starts Everything</div>
+        <div class="ch-teaser">The body leads the mind. A deliberate physical gesture of positivity alters brain chemistry — not as metaphor, but as measurable biological fact. The practice begins right here, with the simplest possible act.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-02-happiness-and-circumstances.html">
+      <div class="ch-number-badge">2</div>
+      <div class="ch-content">
+        <div class="ch-title">Happiness and Circumstances</div>
+        <div class="ch-subtitle">Why the Outer World Cannot Deliver Inner Peace</div>
+        <div class="ch-teaser">Every major achievement culture is built on this assumption: get the right circumstances and happiness follows. Decades of research, and the experience of millions of high achievers, tell a different story. This chapter dismantles the assumption and replaces it with something more useful.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-03-conscious-vs-subconscious.html">
+      <div class="ch-number-badge">3</div>
+      <div class="ch-content">
+        <div class="ch-title">The Conscious and the Subconscious</div>
+        <div class="ch-subtitle">Understanding the Two Levels of Mind That Shape Your Life</div>
+        <div class="ch-teaser">95% of your behavior, emotional response, and interpretive habits operate below conscious awareness — from a subconscious program installed by repetition and experience. Understanding this is the prerequisite for changing it.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-04-breaking-negative-autopilot.html">
+      <div class="ch-number-badge">4</div>
+      <div class="ch-content">
+        <div class="ch-title">Breaking the Negative Autopilot</div>
+        <div class="ch-subtitle">Interrupting the Patterns You Never Chose</div>
+        <div class="ch-teaser">The negative automatic patterns that run your inner life are not permanent. They can be interrupted. The interruption skill — simple, practical, learnable — is the foundation on which all positive reprogramming is built.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-05-rewiring-subconscious.html">
+      <div class="ch-number-badge">5</div>
+      <div class="ch-content">
+        <div class="ch-title">Rewiring the Subconscious</div>
+        <div class="ch-subtitle">The Science of Installing New Default Patterns</div>
+        <div class="ch-teaser">Once the negative autopilot is interrupted, what do you put in its place? This chapter covers the neuroscience of intentional reprogramming — how new neural pathways are installed, strengthened, and eventually become the new default.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-06-doing-over-perfection.html">
+      <div class="ch-number-badge">6</div>
+      <div class="ch-content">
+        <div class="ch-title">Doing Over Perfection</div>
+        <div class="ch-subtitle">Why Imperfect Consistency Beats Perfect Infrequency</div>
+        <div class="ch-teaser">The perfectionism trap is one of the most common reasons that genuine practices fail. A hundred imperfect practice sessions will always produce more change than ten perfect ones. This chapter shows you why, and how to permanently stop waiting until you can do it right.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-07-physiology-of-positivity.html">
+      <div class="ch-number-badge">7</div>
+      <div class="ch-content">
+        <div class="ch-title">The Physiology of Positivity</div>
+        <div class="ch-subtitle">Your Body Is Part of the Practice</div>
+        <div class="ch-teaser">A thought is not just a thought. It is a cascade of neurochemical and physiological events that reshape the body in real time. Understanding this makes the body an ally in the practice — and unlocks interventions that work faster than purely mental approaches.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-08-happiness-as-skill.html">
+      <div class="ch-number-badge">8</div>
+      <div class="ch-content">
+        <div class="ch-title">Happiness as a Skill</div>
+        <div class="ch-subtitle">From Something That Happens to You to Something You Build</div>
+        <div class="ch-teaser">The most important single reframe in this book: happiness is a skill. Like all skills, it is built through practice, improves with deliberate effort, and eventually becomes natural. This chapter makes that reframe fully concrete and shows exactly what skill-building looks like in this domain.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-09-trap-of-conditional-happiness.html">
+      <div class="ch-number-badge">9</div>
+      <div class="ch-content">
+        <div class="ch-title">The Trap of Conditional Happiness</div>
+        <div class="ch-subtitle">Escaping the "When-Then" Loop That Keeps Joy Perpetually Out of Reach</div>
+        <div class="ch-teaser">The most sophisticated trap the mind sets: "I'll be happy when..." This loop is self-perpetuating, neurologically predictable, and entirely solvable. This chapter exposes the mechanics of the trap and presents the only reliable exit.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-10-strength-through-positivity.html">
+      <div class="ch-number-badge">10</div>
+      <div class="ch-content">
+        <div class="ch-title">Strength Through Positivity</div>
+        <div class="ch-subtitle">Why Happiness Is the Toughest Position, Not the Softest</div>
+        <div class="ch-teaser">The cultural myth that positivity is naïve, weak, or incompatible with serious life engagement must be permanently retired. This chapter demonstrates, through concrete research and clear argument, why the positive inner state is the origin of strength — not its absence.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-11-emotional-resilience.html">
+      <div class="ch-number-badge">11</div>
+      <div class="ch-content">
+        <div class="ch-title">Emotional Resilience</div>
+        <div class="ch-subtitle">The Practice of Moving Through Pain Without Extending Suffering</div>
+        <div class="ch-teaser">Pain is part of life. Extended suffering is optional — not in the sense of a simple choice, but in the sense of a learnable skill. This chapter covers the difference between pain and suffering, and the practice that addresses the optional part.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-12-building-daily-practice.html">
+      <div class="ch-number-badge">12</div>
+      <div class="ch-content">
+        <div class="ch-title">Building a Daily Practice</div>
+        <div class="ch-subtitle">The Concrete Structure That Makes Transformation Inevitable</div>
+        <div class="ch-teaser">Understanding why the practice matters is not enough. Building the daily structure that makes the practice happen regardless of motivation is the bridge between knowing and becoming. This chapter provides that structure in full practical detail.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-13-power-of-repetition.html">
+      <div class="ch-number-badge">13</div>
+      <div class="ch-content">
+        <div class="ch-title">The Power of Repetition</div>
+        <div class="ch-subtitle">How Repetition Transforms a Practice Into a Person</div>
+        <div class="ch-teaser">The same mechanism that built the patterns you are working to change is the mechanism that builds the new ones: consistent repetition over meaningful time. This chapter explains the full arc of that process — from effortful and artificial to automatic, natural, and identity-level deep.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-14-happiness-and-success.html">
+      <div class="ch-number-badge">14</div>
+      <div class="ch-content">
+        <div class="ch-title">Happiness and Success</div>
+        <div class="ch-subtitle">Why Inner State Is the X-Factor in Outer Achievement</div>
+        <div class="ch-teaser">Success culture underweights the contribution of inner state to outer achievement. The research is unambiguous: positive affect produces measurable, substantial advantages in exactly the domains that determine success. This chapter makes the case in full.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+    <a class="chapter-card" href="chapter-15-final-truth.html">
+      <div class="ch-number-badge">15</div>
+      <div class="ch-content">
+        <div class="ch-title">The Final Truth</div>
+        <div class="ch-subtitle">You Were Never Waiting for Permission — Only Practice</div>
+        <div class="ch-teaser">The synthesis of everything — a full-circle return to the beginning, with all fifteen insights integrated. The final chapter is both a conclusion and an invitation: you now have the understanding, the tools, and the science. The practice, and the life it builds, begins from exactly where you are right now.</div>
+      </div>
+      <div class="ch-arrow">→</div>
+    </a>
+
+  </div>
+
+  <!-- Final Invitation -->
+  <div class="invitation">
+    <h2>Your Journey Starts Here</h2>
+    <p>You don't need different circumstances. You don't need to wait for motivation to arrive. You don't need to feel ready. The practice begins with a single step — a smile, a breath, a deliberate moment of presence. That step is available to you right now.</p>
+    <p>Begin with Chapter 1. Return when life brings you back to any chapter. Trust the process enough to keep showing up for it, one ordinary day at a time.</p>
+    <a class="begin-cta" href="chapter-01-keep-smiling.html">Begin With Chapter 1 →</a>
+  </div>
+
+  <div class="author-section">
+    <div class="author-avatar">PJ</div>
+    <div class="author-body">
+      <h3>Pawan Joshi</h3>
+      <span class="author-role">Author &amp; Independent Creator</span>
+      <p>Pawan Joshi is a developer and independent creator with a deep interest in practical self-improvement, mental clarity, and habit-based transformation. Rather than approaching happiness as a concept, he focuses on making it a repeatable daily practice.</p>
+      <p>Through observation, experimentation, and consistent application, he developed a simple framework for improving mental state using small, actionable changes. This book reflects that approach — grounded, practical, and designed for real-life use.</p>
+    </div>
+  </div>
+
+  <div class="copyright-section">
+    <h4>Copyright</h4>
+    <p>© 2026 Pawan Joshi. All rights reserved.</p>
+    <p>No part of this book may be reproduced, distributed, or transmitted in any form or by any means — including photocopying, recording, or other electronic or mechanical methods — without the prior written permission of the author, except in the case of brief quotations used in reviews or critical articles.</p>
+    <p>This book is intended for informational and educational purposes only. It is not a substitute for professional medical, psychological, or therapeutic advice. Always consult a qualified professional for guidance specific to your situation.</p>
+  </div>
+
+  <div class="footer">
+    <p>Practicing Happiness &mdash; A complete guide to the skill of inner transformation<br>
+    Read at your own pace. Practice every day. Return as many times as you need.<br>
+    <span style="font-size:12px;color:#bbb;">© 2026 Pawan Joshi. All rights reserved.</span></p>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,8 +1,8 @@
 <div>
-    <div class="py-5 bg-light border-bottom mb-4">
+    <div class="py-5 border-bottom mb-4" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 35%, #0c4a6e 100%);">
         <div class="container">
-            <h1 class="display-5 fw-bold mb-2">Meditative Minds Audio</h1>
-            <p class="lead text-muted mb-0">Curated audio experiences for motivation, calm, focus, and transformation.</p>
+            <h1 class="display-5 fw-bold mb-2 text-white">Mental Wellness Audio</h1>
+            <p class="lead mb-0" style="color:#a7f3d0;">Curated audio experiences for motivation, calm, focus, and transformation.</p>
         </div>
     </div>
     <div class="container pb-5">
@@ -81,23 +81,50 @@
                                 <div class="card h-100 border-0 shadow-sm">
                                     <a href="{{ route('audio.detail', $p->slug) }}" class="text-decoration-none text-dark">
                                         <div class="ratio ratio-16x9 bg-light">
-                                            @if($p->cover_image_url || $p->cover_image_path)
-                                                <img src="{{ $p->cover_image_url ?? asset($p->cover_image_path) }}" alt="{{ $p->name }}" class="w-100 h-100 object-fit-cover rounded-top">
-                                            @else
-                                                <div class="d-flex align-items-center justify-content-center w-100 h-100 bg-secondary-subtle">
-                                                    <i class="fas fa-headphones fa-2x text-secondary"></i>
-                                                </div>
-                                            @endif
+                                            @php
+                                                $cs = strtolower($p->category->name ?? $p->category ?? '');
+                                                if (str_contains($cs, 'confidence') || str_contains($cs, 'hypnosis')) {
+                                                    $c_img = 'confidence.jpg';
+                                                } elseif (str_contains($cs, 'relax') || str_contains($cs, 'bliss') || str_contains($cs, 'sleep')) {
+                                                    $c_img = 'relaxation.jpg';
+                                                } elseif (str_contains($cs, 'motivat') || str_contains($cs, 'inspir') || str_contains($cs, 'quot')) {
+                                                    $c_img = 'motivation.jpg';
+                                                } elseif (str_contains($cs, 'happin') || str_contains($cs, 'positive') || str_contains($cs, 'attitude')) {
+                                                    $c_img = 'happiness.jpg';
+                                                } elseif (str_contains($cs, 'goal') || str_contains($cs, 'achiev') || str_contains($cs, 'time') || str_contains($cs, 'manage')) {
+                                                    $c_img = 'goals.jpg';
+                                                } elseif (str_contains($cs, 'resilien') || str_contains($cs, 'failure')) {
+                                                    $c_img = 'resilience.jpg';
+                                                } elseif (str_contains($cs, 'smok') || str_contains($cs, 'quit')) {
+                                                    $c_img = 'quit-smoking.jpg';
+                                                } elseif (str_contains($cs, 'meditat')) {
+                                                    $c_img = 'meditation.jpg';
+                                                } else {
+                                                    $c_img = 'wellness.jpg';
+                                                }
+                                                $c_img_src = $p->cover_image_url ?? ($p->cover_image_path ? asset($p->cover_image_path) : asset('images/categories/' . $c_img));
+                                            @endphp
+                                            <img src="{{ $c_img_src }}" alt="{{ $p->name }}" class="w-100 h-100 object-fit-cover rounded-top">
                                         </div>
                                         <div class="card-body d-flex flex-column">
                                             <h3 class="h6 fw-semibold mb-1">{{ $p->name }}</h3>
                                             <p class="small text-muted flex-grow-1">{!! $this->highlight($p->short_description ?? $p->description) !!}</p>
                                             <div class="mt-2 small fw-medium">
-                                                @if($p->sale_price && $p->sale_price < $p->price)
-                                                    <span class="text-muted text-decoration-line-through me-1">${{ number_format($p->price,2) }}</span>
-                                                    <span class="text-success fw-semibold">${{ number_format($p->sale_price,2) }}</span>
+                                                @php $isIndia = session('user_currency') === 'INR'; @endphp
+                                                @if($isIndia)
+                                                    @if($p->sale_price && $p->sale_price < $p->price && $p->inr_sale_price)
+                                                        <span class="text-muted text-decoration-line-through me-1">&#8377;{{ number_format($p->inr_price ?: $p->price * 100, 0) }}</span>
+                                                        <span class="text-success fw-semibold">&#8377;{{ number_format($p->inr_sale_price, 0) }}</span>
+                                                    @else
+                                                        <span class="fw-semibold">&#8377;{{ number_format($p->inr_price ?: $p->price * 100, 0) }}</span>
+                                                    @endif
                                                 @else
-                                                    <span class="fw-semibold">${{ number_format($p->price,2) }}</span>
+                                                    @if($p->sale_price && $p->sale_price < $p->price)
+                                                        <span class="text-muted text-decoration-line-through me-1">${{ number_format($p->price,2) }}</span>
+                                                        <span class="text-success fw-semibold">${{ number_format($p->sale_price,2) }}</span>
+                                                    @else
+                                                        <span class="fw-semibold">${{ number_format($p->price,2) }}</span>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </div>

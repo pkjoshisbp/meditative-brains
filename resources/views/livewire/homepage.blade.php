@@ -1,11 +1,11 @@
 <div>
 <!-- Hero Section -->
-<section class="hero-section bg-gradient-to-r from-purple-900 to-blue-900 text-white py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+<section class="hero-section text-white py-5" style="background: linear-gradient(135deg, #064e3b 0%, #065f46 35%, #0c4a6e 100%); min-height: 420px;">
     <div class="container">
         <div class="row align-items-center min-vh-50">
             <div class="col-lg-6">
                 <h1 class="display-4 fw-bold mb-4">Transform Your Mind with Premium Audio</h1>
-                <p class="lead mb-4">Discover our collection of Meditative Minds audio experiences: affirmations, sleep aid music, meditation tracks, and healing frequencies designed to enhance your wellness journey.</p>
+                <p class="lead mb-4">Discover our premium mental wellness audio: affirmations, sleep music, meditation tracks, and healing frequencies designed to train your mind and transform your life.</p>
                 <div class="d-flex gap-3 flex-wrap">
                     <a href="{{ route('products') }}" class="btn btn-light btn-lg">
                         <i class="fas fa-music me-2"></i>Browse Music
@@ -17,7 +17,10 @@
             </div>
             <div class="col-lg-6 text-center">
                 <div class="hero-image mt-4 mt-lg-0">
-                    <i class="fas fa-brain fa-10x text-white opacity-75"></i>
+                    <div class="position-relative d-inline-block">
+                        <i class="fas fa-brain fa-8x text-white" style="opacity:0.15;"></i>
+                        <i class="fas fa-bolt position-absolute" style="top:44%;left:50%;transform:translate(-50%,-50%);font-size:3.5rem;color:#34d399;filter:drop-shadow(0 0 18px rgba(52,211,153,0.55));"></i>
+                    </div>
                 </div>
             </div>
         </div>
@@ -60,11 +63,11 @@
                                         <i class="fas fa-music fa-3x text-primary"></i>
                                 @endswitch
                             </div>
-                            <h5 class="card-title">{{ $category->name === 'TTS Affirmations' ? 'Meditative Minds Audio' : $category->name }}</h5>
+                            <h5 class="card-title">{{ $category->name === 'TTS Affirmations' ? 'Mental Wellness Audio' : $category->name }}</h5>
                             <p class="card-text text-muted">{{ $category->description }}</p>
                             <p class="small text-success">{{ $category->active_products_count }} tracks available</p>
                             <a href="{{ $category->name === 'TTS Affirmations' ? (Route::has('audio.catalog') ? route('audio.catalog') : url('/mind-audio')) : route('products', ['categoryId' => $category->id]) }}" class="btn btn-outline-primary">
-                                Explore {{ $category->name === 'TTS Affirmations' ? 'Meditative Minds Audio' : $category->name }}
+                                Explore {{ $category->name === 'TTS Affirmations' ? 'Mental Wellness Audio' : $category->name }}
                             </a>
                         </div>
                     </div>
@@ -90,9 +93,19 @@
                             @if($product->getFirstMediaUrl('images'))
                                 <img src="{{ $product->getFirstMediaUrl('images', 'cover') }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
                             @else
-                                <div class="card-img-top bg-gradient d-flex align-items-center justify-content-center" style="height: 200px; background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);">
-                                    <i class="fas fa-music fa-3x text-white"></i>
-                                </div>
+                                @php
+                                    $catSlug = strtolower($product->category->name ?? $product->category ?? '');
+                                    if (str_contains($catSlug, 'confidence') || str_contains($catSlug, 'hypnosis')) { $h_img = 'confidence.jpg'; }
+                                    elseif (str_contains($catSlug, 'relax') || str_contains($catSlug, 'bliss') || str_contains($catSlug, 'sleep')) { $h_img = 'relaxation.jpg'; }
+                                    elseif (str_contains($catSlug, 'motivat') || str_contains($catSlug, 'inspir') || str_contains($catSlug, 'quot')) { $h_img = 'motivation.jpg'; }
+                                    elseif (str_contains($catSlug, 'happin') || str_contains($catSlug, 'positive') || str_contains($catSlug, 'attitude')) { $h_img = 'happiness.jpg'; }
+                                    elseif (str_contains($catSlug, 'goal') || str_contains($catSlug, 'achiev') || str_contains($catSlug, 'time') || str_contains($catSlug, 'manage')) { $h_img = 'goals.jpg'; }
+                                    elseif (str_contains($catSlug, 'resilien') || str_contains($catSlug, 'failure')) { $h_img = 'resilience.jpg'; }
+                                    elseif (str_contains($catSlug, 'smok') || str_contains($catSlug, 'quit')) { $h_img = 'quit-smoking.jpg'; }
+                                    elseif (str_contains($catSlug, 'meditat')) { $h_img = 'meditation.jpg'; }
+                                    else { $h_img = 'wellness.jpg'; }
+                                @endphp
+                                <img src="{{ asset('images/categories/' . $h_img) }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
                             @endif
                             
                             <span class="badge bg-warning position-absolute top-0 start-0 m-2">
@@ -116,11 +129,21 @@
 
                             <div class="mt-auto">
                                 <div class="mb-2">
-                                    @if($product->hasDiscount())
-                                        <span class="h6 text-primary">${{ number_format($product->sale_price, 2) }}</span>
-                                        <span class="text-muted text-decoration-line-through ms-1">${{ number_format($product->price, 2) }}</span>
+                                    @php $isIndia = session('user_currency') === 'INR'; @endphp
+                                    @if($isIndia)
+                                        @if($product->hasDiscount() && $product->inr_sale_price)
+                                            <span class="h6 text-primary">&#8377;{{ number_format($product->inr_sale_price, 0) }}</span>
+                                            <span class="text-muted text-decoration-line-through ms-1">&#8377;{{ number_format($product->inr_price ?: $product->price * 100, 0) }}</span>
+                                        @else
+                                            <span class="h6 text-primary">&#8377;{{ number_format($product->inr_price ?: $product->price * 100, 0) }}</span>
+                                        @endif
                                     @else
-                                        <span class="h6 text-primary">${{ number_format($product->price, 2) }}</span>
+                                        @if($product->hasDiscount())
+                                            <span class="h6 text-primary">${{ number_format($product->sale_price, 2) }}</span>
+                                            <span class="text-muted text-decoration-line-through ms-1">${{ number_format($product->price, 2) }}</span>
+                                        @else
+                                            <span class="h6 text-primary">${{ number_format($product->price, 2) }}</span>
+                                        @endif
                                     @endif
                                 </div>
 
@@ -161,9 +184,19 @@
                             @if($product->getFirstMediaUrl('images'))
                                 <img src="{{ $product->getFirstMediaUrl('images', 'cover') }}" class="card-img-top" alt="{{ $product->name }}" style="height: 180px; object-fit: cover;">
                             @else
-                                <div class="card-img-top bg-gradient d-flex align-items-center justify-content-center" style="height: 180px; background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%);">
-                                    <i class="fas fa-music fa-2x text-dark"></i>
-                                </div>
+                                @php
+                                    $catSlugN = strtolower($product->category->name ?? $product->category ?? '');
+                                    if (str_contains($catSlugN, 'confidence') || str_contains($catSlugN, 'hypnosis')) { $n_img = 'confidence.jpg'; }
+                                    elseif (str_contains($catSlugN, 'relax') || str_contains($catSlugN, 'bliss') || str_contains($catSlugN, 'sleep')) { $n_img = 'relaxation.jpg'; }
+                                    elseif (str_contains($catSlugN, 'motivat') || str_contains($catSlugN, 'inspir') || str_contains($catSlugN, 'quot')) { $n_img = 'motivation.jpg'; }
+                                    elseif (str_contains($catSlugN, 'happin') || str_contains($catSlugN, 'positive') || str_contains($catSlugN, 'attitude')) { $n_img = 'happiness.jpg'; }
+                                    elseif (str_contains($catSlugN, 'goal') || str_contains($catSlugN, 'achiev') || str_contains($catSlugN, 'time') || str_contains($catSlugN, 'manage')) { $n_img = 'goals.jpg'; }
+                                    elseif (str_contains($catSlugN, 'resilien') || str_contains($catSlugN, 'failure')) { $n_img = 'resilience.jpg'; }
+                                    elseif (str_contains($catSlugN, 'smok') || str_contains($catSlugN, 'quit')) { $n_img = 'quit-smoking.jpg'; }
+                                    elseif (str_contains($catSlugN, 'meditat')) { $n_img = 'meditation.jpg'; }
+                                    else { $n_img = 'wellness.jpg'; }
+                                @endphp
+                                <img src="{{ asset('images/categories/' . $n_img) }}" class="card-img-top" alt="{{ $product->name }}" style="height: 180px; object-fit: cover;">
                             @endif
                             
                             <span class="badge bg-success position-absolute top-0 start-0 m-2">
@@ -175,7 +208,12 @@
                             <h6 class="card-title">{{ $product->name }}</h6>
                             <p class="card-text text-muted small">{{ $product->category->name }}</p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="h6 text-primary mb-0">${{ number_format($product->getCurrentPrice(), 2) }}</span>
+                                @php $isIndia = session('user_currency') === 'INR'; @endphp
+                                @if($isIndia)
+                                    <span class="h6 text-primary mb-0">&#8377;{{ number_format($product->inr_price ?: $product->getCurrentPrice() * 100, 0) }}</span>
+                                @else
+                                    <span class="h6 text-primary mb-0">${{ number_format($product->getCurrentPrice(), 2) }}</span>
+                                @endif
                                 <button class="btn btn-outline-primary btn-sm" onclick="playPreview({{ $product->id }})">
                                     <i class="fas fa-play"></i>
                                 </button>
@@ -190,35 +228,104 @@
 @endif
 
 <!-- Subscription CTA Section -->
-<section id="subscription" class="py-5 bg-primary text-white">
+<section id="subscription" class="py-5" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h2 class="display-5 fw-bold mb-3">Unlimited Access to Everything</h2>
-                <p class="lead mb-4">Get unlimited access to our entire catalog with a monthly or yearly subscription. Cancel anytime.</p>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><i class="fas fa-check me-2"></i>Access to all premium tracks</li>
-                    <li class="mb-2"><i class="fas fa-check me-2"></i>New releases added weekly</li>
-                    <li class="mb-2"><i class="fas fa-check me-2"></i>High-quality audio downloads</li>
-                    <li class="mb-2"><i class="fas fa-check me-2"></i>Cancel anytime</li>
-                </ul>
+        <div class="text-center text-white mb-5">
+            <span class="badge bg-primary mb-3 px-3 py-2">SUBSCRIPTION PLANS</span>
+            <h2 class="display-5 fw-bold mb-3">Unlock Your Full Mental Potential</h2>
+            <p class="lead text-light opacity-75 mb-0">Choose the plan that fits your journey. Cancel any time, no questions asked.</p>
+        </div>
+
+        @php $isIndia = session('user_currency') === 'INR'; @endphp
+        <div class="row g-4 justify-content-center">
+
+            {{-- Free / Limited Plan --}}
+            <div class="col-sm-6 col-lg-3">
+                <div class="card h-100 border-0 shadow text-center p-4" style="background:#1e293b;border:1px solid rgba(255,255,255,0.08)!important;">
+                    <div class="mb-3"><span class="badge bg-secondary px-3 py-2">FREE</span></div>
+                    <h5 class="text-white fw-bold">Trial</h5>
+                    <div class="display-5 fw-bold text-white my-3">₹0<small class="fs-6 fw-normal" style="color:#94a3b8;">/forever</small></div>
+                    <ul class="list-unstyled text-start text-light small mb-4 flex-grow-1">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>3 free audio tracks</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>30-second previews</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Mobile app access</li>
+                        <li class="mb-2" style="color:#64748b;"><i class="fas fa-times text-danger me-2"></i>Downloads</li>
+                        <li class="mb-2" style="color:#64748b;"><i class="fas fa-times text-danger me-2"></i>Unlimited access</li>
+                    </ul>
+                    <a href="{{ route('register') }}" class="btn btn-outline-light w-100">Start Free</a>
+                </div>
             </div>
-            <div class="col-lg-4 text-center">
-                <div class="subscription-pricing">
-                    <div class="pricing-card bg-white text-dark rounded p-4 mb-3">
-                        <h4>Monthly Plan</h4>
-                        <div class="h2 text-primary">$19.99<small class="text-muted">/month</small></div>
-                        <button class="btn btn-primary">Start Free Trial</button>
+
+            {{-- Starter Plan --}}
+            <div class="col-sm-6 col-lg-3">
+                <div class="card h-100 border-0 shadow text-center p-4" style="background:#1e293b;border:1px solid rgba(255,255,255,0.08)!important;">
+                    <div class="mb-3"><span class="badge bg-info px-3 py-2">STARTER</span></div>
+                    <h5 class="text-white fw-bold">Essential</h5>
+                    <div class="display-5 fw-bold text-info my-3">
+                        @if($isIndia) ₹490 @else $4.90 @endif
+                        <small class="fs-6 fw-normal" style="color:#94a3b8;">/month</small>
                     </div>
-                    <div class="pricing-card bg-white text-dark rounded p-4">
-                        <h4>Yearly Plan</h4>
-                        <div class="h2 text-success">$199.99<small class="text-muted">/year</small></div>
-                        <small class="text-success">Save $39.89!</small><br>
-                        <button class="btn btn-success">Get Yearly Plan</button>
+                    <ul class="list-unstyled text-start text-light small mb-4 flex-grow-1">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>5 products of your choice</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Stream &amp; download</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Mobile app access</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Email support</li>
+                        <li class="mb-2" style="color:#64748b;"><i class="fas fa-times text-danger me-2"></i>Unlimited products</li>
+                    </ul>
+                    <a href="{{ route('subscription') }}" class="btn btn-info w-100">Get Started</a>
+                </div>
+            </div>
+
+            {{-- Monthly All-Access --}}
+            <div class="col-sm-6 col-lg-3 position-relative">
+                <div class="position-absolute top-0 start-50 translate-middle" style="z-index:2;">
+                    <span class="badge bg-warning text-dark px-3 py-2 shadow fw-bold">MOST POPULAR</span>
+                </div>
+                <div class="card h-100 border-0 shadow-lg text-center p-4" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);border:2px solid #3b82f6!important;transform:scale(1.04);">
+                    <div class="mb-3 mt-2"><span class="badge bg-primary px-3 py-2">ALL ACCESS</span></div>
+                    <h5 class="text-white fw-bold">Monthly</h5>
+                    <div class="display-5 fw-bold text-white my-3">
+                        @if($isIndia) ₹1,999 @else $19.99 @endif
+                        <small class="fs-6 fw-normal text-white opacity-75">/month</small>
                     </div>
+                    <ul class="list-unstyled text-start text-light small mb-4 flex-grow-1">
+                        <li class="mb-2"><i class="fas fa-check text-warning me-2"></i>Unlimited product access</li>
+                        <li class="mb-2"><i class="fas fa-check text-warning me-2"></i>Stream &amp; download all</li>
+                        <li class="mb-2"><i class="fas fa-check text-warning me-2"></i>New releases first access</li>
+                        <li class="mb-2"><i class="fas fa-check text-warning me-2"></i>Mobile app + offline</li>
+                        <li class="mb-2"><i class="fas fa-check text-warning me-2"></i>Priority support</li>
+                    </ul>
+                    <a href="{{ route('subscription') }}" class="btn btn-warning text-dark fw-bold w-100">Start Free Trial</a>
+                </div>
+            </div>
+
+            {{-- Yearly Plan --}}
+            <div class="col-sm-6 col-lg-3">
+                <div class="card h-100 border-0 shadow text-center p-4" style="background:#1e293b;border:1px solid rgba(52,211,153,0.3)!important;">
+                    <div class="mb-3"><span class="badge bg-success px-3 py-2">YEARLY</span></div>
+                    <h5 class="text-white fw-bold">Annual</h5>
+                    <div class="display-5 fw-bold text-success my-3">
+                        @if($isIndia) ₹19,999 @else $199.99 @endif
+                        <small class="fs-6 fw-normal" style="color:#94a3b8;">/year</small>
+                    </div>
+                    @if($isIndia)
+                        <p class="text-success small fw-bold mb-3"><i class="fas fa-tag me-1"></i>Save ₹4,000 vs monthly!</p>
+                    @else
+                        <p class="text-success small fw-bold mb-3"><i class="fas fa-tag me-1"></i>Save $39.89 vs monthly!</p>
+                    @endif
+                    <ul class="list-unstyled text-start text-light small mb-4 flex-grow-1">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Everything in Monthly</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>2 months free</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Exclusive yearly content</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Dedicated support</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Early feature access</li>
+                    </ul>
+                    <a href="{{ route('subscription') }}" class="btn btn-success w-100">Get Yearly Plan</a>
                 </div>
             </div>
         </div>
+
+        <p class="text-center mt-4 small" style="color:#94a3b8;">All plans include our mobile app for Android &amp; iOS. Secure payments via Razorpay &amp; PayPal.</p>
     </div>
 </section>
 
@@ -227,9 +334,9 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h2 class="display-5 fw-bold mb-4">About Meditative Brains</h2>
-                <p class="lead">We're dedicated to creating premium audio content that enhances your mental wellness and personal development journey.</p>
-                <p>Our expertly crafted TTS affirmations, sleep aid music, and healing frequencies are designed using the latest research in neuroscience and sound therapy. Each track is carefully produced to provide maximum therapeutic benefit.</p>
+                <h2 class="display-5 fw-bold mb-4">About Mental Fitness Store</h2>
+                <p class="lead">We're dedicated to creating premium audio content that supports your mental fitness and personal development journey.</p>
+                <p>Our expertly crafted affirmations, sleep aid music, and healing frequencies are designed using the latest research in neuroscience and sound therapy. Each track is carefully produced to train your mind and deliver real transformation.</p>
                 <div class="row mt-4">
                     <div class="col-sm-6">
                         <div class="d-flex align-items-center mb-3">
@@ -317,28 +424,39 @@ function playPreview(productId) {
 }
 
 function addToCart(productId) {
-    // Implementation for add to cart
     fetch('/cart/add', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        body: JSON.stringify({
-            product_id: productId
-        })
+        body: JSON.stringify({ product_id: productId })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Show success message
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification';
-            toast.innerHTML = 'Product added to cart!';
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            showCartToast(data.message || 'Product added to cart!');
+        } else {
+            showCartToast(data.message || 'Please log in to add items to cart.', true);
         }
-    });
+    })
+    .catch(() => showCartToast('Please log in to add items to cart.', true));
+}
+
+function showCartToast(message, isError = false) {
+    const existing = document.getElementById('cartToastBar');
+    if (existing) existing.remove();
+    const bar = document.createElement('div');
+    bar.id = 'cartToastBar';
+    bar.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;min-width:280px;';
+    bar.innerHTML = `<div class="alert ${isError ? 'alert-warning' : 'alert-success'} shadow d-flex align-items-center gap-3 mb-0">
+        <i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'} fa-lg"></i>
+        <div class="flex-grow-1">${message}</div>
+        ${!isError ? '<a href="/cart" class="btn btn-sm btn-success">View Cart &rarr;</a>' : '<a href="/login" class="btn btn-sm btn-primary">Login</a>'}
+    </div>`;
+    document.body.appendChild(bar);
+    setTimeout(() => { if (bar.parentNode) bar.remove(); }, 5000);
+}
 }
 </script>
 @endpush

@@ -14,7 +14,7 @@ const OUTPUT_FILE = './test-output.mp3';
 // Change these to test different voices/languages/text
 const language = 'en-IN';
 const speaker = 'en-US-AvaMultilingualNeural';
-const text = 'This is a test of Azure TTS with Indian English accent.';
+const text = 'Most of us were taught — in ways we never quite chose — that happiness is something that arrives';
 const style = ''; // e.g. 'cheerful'
 const personality = ''; // e.g. 'Pleasant'
 

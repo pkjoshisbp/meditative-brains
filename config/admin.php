@@ -16,7 +16,7 @@ return [
         'default' => 'components.layouts.admin',
         
         // Default page title
-        'default_title' => 'Admin Panel - Meditative Brains',
+        'default_title' => 'Admin Panel - Mental Fitness Store',
         
         // Default page header
         'default_header' => 'Admin Panel',

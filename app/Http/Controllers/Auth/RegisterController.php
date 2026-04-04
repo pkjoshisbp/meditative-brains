@@ -28,7 +28,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/my-account';
 
     /**
      * Create a new controller instance.
@@ -49,9 +49,18 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'name'        => ['required', 'string', 'max:255'],
+            'email'       => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password'    => ['required', 'string', 'min:8', 'confirmed'],
+            'website'     => ['max:0'],
+            'math_answer' => ['required', 'numeric', function ($attribute, $value, $fail) {
+                if ((int) $value !== (int) session('register_math_ans')) {
+                    $fail('Incorrect answer to the math question.');
+                }
+                session()->forget('register_math_ans');
+            }],
+        ], [
+            'website.max' => 'Spam detected.',
         ]);
     }
 

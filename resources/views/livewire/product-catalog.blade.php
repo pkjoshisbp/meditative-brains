@@ -1,8 +1,12 @@
 <div class="container py-4" style="max-width: 1440px;">
     @if (session()->has('message'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('message') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-3" role="alert">
+            <i class="fas fa-check-circle fa-lg"></i>
+            <span class="flex-grow-1">{{ session('message') }}</span>
+            <a href="{{ route('cart') }}" class="btn btn-sm btn-success">
+                <i class="fas fa-shopping-cart me-1"></i>View Cart &rarr;
+            </a>
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
@@ -79,9 +83,29 @@
                                 @if($product->getFirstMediaUrl('images'))
                                     <img src="{{ $product->getFirstMediaUrl('images', 'cover') }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
                                 @else
-                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                        <i class="fas fa-music fa-3x text-muted"></i>
-                                    </div>
+                                    @php
+                                        $cn = strtolower($product->category->name ?? $product->category ?? '');
+                                        if (str_contains($cn, 'confidence') || str_contains($cn, 'hypnosis')) {
+                                            $p_img = 'confidence.jpg';
+                                        } elseif (str_contains($cn, 'relax') || str_contains($cn, 'bliss') || str_contains($cn, 'sleep')) {
+                                            $p_img = 'relaxation.jpg';
+                                        } elseif (str_contains($cn, 'motivat') || str_contains($cn, 'inspir') || str_contains($cn, 'quot')) {
+                                            $p_img = 'motivation.jpg';
+                                        } elseif (str_contains($cn, 'happin') || str_contains($cn, 'positive') || str_contains($cn, 'attitude')) {
+                                            $p_img = 'happiness.jpg';
+                                        } elseif (str_contains($cn, 'goal') || str_contains($cn, 'achiev') || str_contains($cn, 'time') || str_contains($cn, 'manage')) {
+                                            $p_img = 'goals.jpg';
+                                        } elseif (str_contains($cn, 'resilien') || str_contains($cn, 'failure')) {
+                                            $p_img = 'resilience.jpg';
+                                        } elseif (str_contains($cn, 'smok') || str_contains($cn, 'quit')) {
+                                            $p_img = 'quit-smoking.jpg';
+                                        } elseif (str_contains($cn, 'meditat')) {
+                                            $p_img = 'meditation.jpg';
+                                        } else {
+                                            $p_img = 'wellness.jpg';
+                                        }
+                                    @endphp
+                                    <img src="{{ asset('images/categories/' . $p_img) }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
                                 @endif
                                 
                                 @if($product->hasDiscount())
@@ -117,11 +141,24 @@
                                 <div class="mt-auto">
                                     <!-- Price -->
                                     <div class="mb-2">
-                                        @if($product->hasDiscount())
-                                            <span class="h6 text-primary">${{ number_format($product->sale_price, 2) }}</span>
-                                            <span class="text-muted text-decoration-line-through ms-1">${{ number_format($product->price, 2) }}</span>
+                                        @php
+                                            $isIndia = session('user_currency') === 'INR';
+                                            $hasDiscount = $product->hasDiscount();
+                                        @endphp
+                                        @if($isIndia)
+                                            @if($hasDiscount && $product->inr_sale_price)
+                                                <span class="h6 text-primary">&#8377;{{ number_format($product->inr_sale_price, 0) }}</span>
+                                                <span class="text-muted text-decoration-line-through ms-1">&#8377;{{ number_format($product->inr_price ?: $product->price * 100, 0) }}</span>
+                                            @else
+                                                <span class="h6 text-primary">&#8377;{{ number_format($product->inr_price ?: $product->price * 100, 0) }}</span>
+                                            @endif
                                         @else
-                                            <span class="h6 text-primary">${{ number_format($product->price, 2) }}</span>
+                                            @if($hasDiscount)
+                                                <span class="h6 text-primary">${{ number_format($product->sale_price, 2) }}</span>
+                                                <span class="text-muted text-decoration-line-through ms-1">${{ number_format($product->price, 2) }}</span>
+                                            @else
+                                                <span class="h6 text-primary">${{ number_format($product->price, 2) }}</span>
+                                            @endif
                                         @endif
                                     </div>
 

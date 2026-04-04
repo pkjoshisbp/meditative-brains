@@ -15,60 +15,79 @@ class TtsAudioProduct extends Model
         'description',
         'category',
         'language',
+        'accent',
         'price',
+        'sale_price',
+        'inr_price',
+        'inr_sale_price',
+        'product_type',
+        'pdf_price',
+        'bundle_price',
+        'audio_only_price',
+        'pdf_price_inr',
+        'bundle_price_inr',
+        'pdf_file_path',
+        'pdf_file_url',
+        'parent_product_id',
         'preview_duration',
         'background_music_url',
         'cover_image_url',
         'sample_messages',
         'total_messages_count',
         'backend_category_id',
-    'is_active',
-    // Newly added audio + marketing fields
-    'short_description',
-    'sale_price',
-    'tags',
-    'sort_order',
-    'is_featured',
-    'cover_image_path',
-    'meta_title',
-    'meta_description',
-    'meta_keywords',
-    'bg_music_volume',
-    'message_repeat_count',
-    'repeat_interval',
-    'message_interval',
-    'fade_in_duration',
-    'fade_out_duration',
-    'enable_silence_padding',
-    'silence_start',
-    'silence_end',
-    'has_background_music',
-    'background_music_type',
-    'background_music_track',
-    'audio_urls',
-    'preview_audio_url',
-    'slug',
-    'group_key'
+        'is_active',
+        'short_description',
+        'tags',
+        'sort_order',
+        'is_featured',
+        'cover_image_path',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
+        'bg_music_volume',
+        'message_repeat_count',
+        'repeat_interval',
+        'message_interval',
+        'fade_in_duration',
+        'fade_out_duration',
+        'enable_silence_padding',
+        'silence_start',
+        'silence_end',
+        'has_background_music',
+        'background_music_type',
+        'background_music_track',
+        'audio_urls',
+        'preview_audio_url',
+        'slug',
+        'group_key'
     ];
 
     protected $casts = [
         'sample_messages' => 'array',
-    'audio_urls' => 'array',
+        'audio_urls' => 'array',
         'price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
+        'inr_price' => 'decimal:2',
+        'inr_sale_price' => 'decimal:2',
+        'pdf_price' => 'decimal:2',
+        'bundle_price' => 'decimal:2',
+        'audio_only_price' => 'decimal:2',
+        'pdf_price_inr' => 'decimal:2',
+        'bundle_price_inr' => 'decimal:2',
         'preview_duration' => 'integer',
         'total_messages_count' => 'integer',
-    'is_active' => 'boolean',
-    'is_featured' => 'boolean',
-    'enable_silence_padding' => 'boolean',
-    'has_background_music' => 'boolean',
-    'bg_music_volume' => 'float',
-    'message_repeat_count' => 'integer',
-    'repeat_interval' => 'float',
-    'message_interval' => 'float',
-    'fade_in_duration' => 'float',
-    'fade_out_duration' => 'float',
-    'silence_start' => 'float',
-    'silence_end' => 'float'
+        'is_active' => 'boolean',
+        'is_featured' => 'boolean',
+        'enable_silence_padding' => 'boolean',
+        'has_background_music' => 'boolean',
+        'bg_music_volume' => 'float',
+        'message_repeat_count' => 'integer',
+        'repeat_interval' => 'float',
+        'message_interval' => 'float',
+        'fade_in_duration' => 'float',
+        'fade_out_duration' => 'float',
+        'silence_start' => 'float',
+        'silence_end' => 'float'
     ];
 
     // Dynamically expose display_name when serialized (used by Flutter UI)
@@ -88,6 +107,14 @@ class TtsAudioProduct extends Model
     public function purchases()
     {
         return $this->hasMany(TtsProductPurchase::class);
+    }
+
+    /**
+     * Get all versions of this product
+     */
+    public function versions()
+    {
+        return $this->hasMany(\App\Models\ProductVersion::class, 'product_id');
     }
 
     /**

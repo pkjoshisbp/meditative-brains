@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 90" fill="none">
+  <defs>
+    <linearGradient id="iconGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon background -->
+  <rect x="2" y="2" width="86" height="86" rx="22" fill="url(#iconGrad)"/>
+  <rect x="2" y="2" width="86" height="43" rx="22" fill="url(#glowGrad)"/>
+
+  <!-- EKG / pulse line (represents mental activity + fitness) -->
+  <polyline
+    points="10,45 20,45 27,22 34,66 41,30 48,54 55,45 80,45"
+    stroke="white" stroke-width="3.5" fill="none"
+    stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Brain hemisphere dots (top) -->
+  <circle cx="27" cy="16" r="5.5" fill="white" opacity="0.35"/>
+  <circle cx="63" cy="16" r="5.5" fill="white" opacity="0.35"/>
+  <line x1="32" y1="18" x2="58" y2="18" stroke="white" stroke-width="1.5" opacity="0.2"/>
+
+  <!-- Wordmark: MENTAL -->
+  <text
+    x="104" y="40"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-weight="900" font-size="28" fill="#1e293b" letter-spacing="-0.5">MENTAL</text>
+
+  <!-- Wordmark: FITNESS in brand green -->
+  <text
+    x="104" y="70"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-weight="900" font-size="28" fill="#059669" letter-spacing="-0.5">FITNESS</text>
+
+  <!-- STORE subtext -->
+  <text
+    x="107" y="84"
+    font-family="Arial, sans-serif" font-size="9.5" fill="#64748b"
+    letter-spacing="5" text-anchor="start">STORE</text>
+
+  <!-- Dot accent after STORE -->
+  <circle cx="310" cy="80" r="3.5" fill="#059669"/>
+</svg>

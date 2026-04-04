@@ -1,11 +1,4 @@
 <div>
-    {{-- DEBUG: Component is rendering --}}
-    <div class="alert alert-info">
-        <strong>Debug:</strong> TTS Product Manager component is loading... 
-        Products count: {{ $products->count() ?? 'N/A' }}
-        Backend connected: {{ $backendConnected ? 'Yes' : 'No' }}
-    </div>
-    
     {{-- Flash Messages --}}
     @if (session()->has('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -47,6 +40,143 @@
         </div>
     @endif
 
+    {{-- ══════════════════════════════════════════════════════════
+         HOW IT WORKS — collapsible flow reference
+    ══════════════════════════════════════════════════════════ --}}
+    @if (!$showForm)
+    <div class="card card-secondary card-outline mb-3">
+        <div class="card-header" style="cursor:pointer;" data-toggle="collapse" data-target="#tts-how-it-works">
+            <h3 class="card-title">
+                <i class="fas fa-info-circle mr-2 text-info"></i>
+                How TTS Audio Products Work
+            </h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-toggle="collapse" data-target="#tts-how-it-works">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="collapse" id="tts-how-it-works">
+            <div class="card-body pb-2">
+                <div class="row">
+                    {{-- Flow steps --}}
+                    <div class="col-lg-7">
+                        <h6 class="fw-bold text-secondary mb-3"><i class="fas fa-route mr-1"></i> Full Flow (Backend → Customer)</h6>
+                        <div class="d-flex flex-column gap-2">
+
+                            <div class="d-flex align-items-start">
+                                <span class="badge badge-primary mr-3 mt-1" style="min-width:26px;font-size:13px;">1</span>
+                                <div>
+                                    <strong>Node.js TTS Backend (mentalfitness.store:3001)</strong><br>
+                                    <small class="text-muted">
+                                        Stores <em>categories</em> (e.g. "Positive Attitude") and <em>motivation messages</em> per category in MongoDB.
+                                        Each message object has many text lines + speaker/SSML settings.
+                                        Accessed via <code>/api/category</code> and <code>/api/motivationMessage</code>.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-start mt-2">
+                                <span class="badge badge-info mr-3 mt-1" style="min-width:26px;font-size:13px;">2</span>
+                                <div>
+                                    <strong>TTS Products Page (here) — Sync + Link</strong><br>
+                                    <small class="text-muted">
+                                        On page load (when backend is connected) categories are auto-synced into the <code>tts_audio_products</code> table.
+                                        Each product is linked to a backend category via <code>backend_category_id</code>.
+                                        The <em>Message Count</em> column shows how many motivation messages that category has.
+                                        <br>Press <strong>Refresh Counts</strong> to re-fetch counts, or <strong>Manual Sync</strong> to sync new categories.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-start mt-2">
+                                <span class="badge badge-warning mr-3 mt-1" style="min-width:26px;font-size:13px;">3</span>
+                                <div>
+                                    <strong>Audio Generation (TTS Messages page)</strong><br>
+                                    <small class="text-muted">
+                                        Go to <a href="{{ route('admin.tts.messages') }}" target="_blank">TTS Messages</a> to write/edit motivation messages for each category.
+                                        The backend synthesises each message line into speech using Azure/Neural voices.
+                                        The generated audio files are streamed from <code>mentalfitness.store:3001/api/tts/audio/&lt;id&gt;.mp3</code>.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-start mt-2">
+                                <span class="badge badge-success mr-3 mt-1" style="min-width:26px;font-size:13px;">4</span>
+                                <div>
+                                    <strong>Storage: original/ &amp; encrypted/</strong><br>
+                                    <small class="text-muted">
+                                        <code>storage/app/audio/original/</code> — Raw generated <code>.mp3</code> files per category (used for admin preview &amp; as the source for encryption).<br>
+                                        <code>storage/app/audio/encrypted/</code> — AES-256 <code>.enc</code> files served to paying customers via signed streaming URLs.
+                                        The <strong>Audio Stream Controller</strong> decrypts on-the-fly; the key never hits the browser.
+                                        Only users with a valid subscription/purchase can request a signed stream URL.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-start mt-2">
+                                <span class="badge badge-secondary mr-3 mt-1" style="min-width:26px;font-size:13px;">5</span>
+                                <div>
+                                    <strong>Customer Listening</strong><br>
+                                    <small class="text-muted">
+                                        When a customer opens a product on the frontend, the player calls <code>/audio/signed-stream</code> with a short-lived signed token.
+                                        The server checks their subscription/purchase, then decrypts the <code>.enc</code> file and streams the audio.
+                                        Background music is layered in the browser via the JS player (not baked into the file).
+                                    </small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    {{-- Quick-action guide --}}
+                    <div class="col-lg-5 mt-3 mt-lg-0">
+                        <h6 class="fw-bold text-secondary mb-3"><i class="fas fa-tasks mr-1"></i> Quick Reference</h6>
+                        <table class="table table-sm table-bordered">
+                            <thead class="thead-light"><tr><th>Goal</th><th>Action</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td>Sync new backend categories</td>
+                                    <td><span class="badge badge-primary">Manual Sync</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Fix "0 messages" count</td>
+                                    <td><span class="badge badge-secondary">Refresh Counts</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Add/edit motivation messages</td>
+                                    <td><a href="{{ route('admin.tts.messages') }}" target="_blank">TTS Messages →</a></td>
+                                </tr>
+                                <tr>
+                                    <td>Generate audio from messages</td>
+                                    <td>Edit product → Generate Audio tab</td>
+                                </tr>
+                                <tr>
+                                    <td>Encrypt generated audio</td>
+                                    <td>Generated .mp3 in <code>original/</code> → <code>encrypted/</code> via Encrypt button</td>
+                                </tr>
+                                <tr>
+                                    <td>Sell / give access to product</td>
+                                    <td><a href="{{ route('admin.subscriptions') }}">User Subscriptions →</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="callout callout-warning mt-2">
+                            <h6><i class="fas fa-exclamation-triangle mr-1"></i> Message count shows 0?</h6>
+                            <ol class="mb-0 pl-3 small">
+                                <li>Confirm Backend Status is <strong>Connected</strong> above.</li>
+                                <li>Click <strong>Refresh Counts</strong>.</li>
+                                <li>If still 0 — go to <a href="{{ route('admin.tts.messages') }}" target="_blank">TTS Messages</a> and add messages to the linked category.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Backend Connection Status --}}
     <div class="row mb-3">
         <div class="col-md-12">
@@ -63,15 +193,20 @@
                         <button wire:click="refreshMessageCounts" class="btn btn-sm btn-secondary ml-1">
                             <i class="fas fa-redo"></i> Refresh Counts
                         </button>
+                        <button wire:click="fixLanguageCodes" class="btn btn-sm btn-warning ml-1"
+                                onclick="return confirm('This will update language fields for \'en\' products based on available audio in the Node.js backend. Continue?')"
+                                title="Fix language codes for products stored as 'en' by detecting the actual voice locale from the backend">
+                            <i class="fas fa-language"></i> Fix Language Codes
+                        </button>
                     </div>
                 </div>
                 @if ($backendConnected)
                     <div class="card-body">
-                        <p class="text-success">Successfully connected to TTS backend on meditative-brains.com:3001</p>
+                        <p class="text-success">Successfully connected to TTS backend on mentalfitness.store:3001</p>
                     </div>
                 @else
                     <div class="card-body">
-                        <p class="text-danger">Cannot connect to TTS backend. Please ensure the backend server is running on meditative-brains.com:3001.</p>
+                        <p class="text-danger">Cannot connect to TTS backend. Please ensure the backend server is running on mentalfitness.store:3001.</p>
                     </div>
                 @endif
             </div>
@@ -112,6 +247,7 @@
                             <tr>
                                 <th>Cover</th>
                                 <th>Name</th>
+                                <th>Language</th>
                                 <th>Price</th>
                                 <th>Messages</th>
                                 <th>Status</th>
@@ -140,6 +276,9 @@
                                         @endif
                                     </td>
                                     <td>
+                                        <span class="badge badge-secondary">{{ $product->language ?: 'N/A' }}</span>
+                                    </td>
+                                    <td>
                                         <strong>${{ number_format($product->price, 2) }}</strong>
                                         @if ($product->sale_price)
                                             <br><small class="text-success">${{ number_format($product->sale_price, 2) }}</small>
@@ -161,12 +300,23 @@
                                     <td>
                                         @if ($product->backend_category_id)
                                             <span class="badge badge-primary">Linked</span>
+                                            @php $urlCount = is_array($product->audio_urls) ? count($product->audio_urls) : (is_string($product->audio_urls) ? count(json_decode($product->audio_urls, true) ?? []) : 0); @endphp
+                                            @if ($urlCount > 0)
+                                                <br><small class="text-success">{{ $urlCount }} URLs</small>
+                                            @else
+                                                <br><small class="text-warning">No local URLs</small>
+                                            @endif
                                         @else
                                             <span class="badge badge-secondary">Not Linked</span>
                                         @endif
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
+                                            <button wire:click="quickPlay({{ $product->id }})" 
+                                                    class="btn btn-sm btn-info"
+                                                    title="Play audio preview">
+                                                <i class="fas fa-play"></i>
+                                            </button>
                                             <button wire:click="edit({{ $product->id }})" 
                                                     class="btn btn-sm btn-warning">
                                                 <i class="fas fa-edit"></i>
@@ -448,34 +598,30 @@
                                                 <h5>Audio Preview</h5>
                                             </div>
                                             <div class="card-body">
-                                                @if ($editingProduct->preview_audio_url || $editingProduct->audio_urls)
-                                                    <div class="mb-2">
-                                                        <div id="tts-custom-player" class="border rounded p-2" style="background:#181818;color:#eee;">
-                                                            <div class="d-flex align-items-center mb-1">
-                                                                <div class="flex-grow-1" style="position:relative;height:14px;" aria-label="Preview progress">
-                                                                    <div style="position:absolute;left:0;top:0;right:0;bottom:0;background:#333;border-radius:7px;overflow:hidden;">
-                                                                        <div id="tts-progress-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#00aaff,#00dd88);"></div>
-                                                                    </div>
-                                                                    <div id="tts-progress-handle" style="position:absolute;top:50%;left:0%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 0 4px rgba(0,0,0,.6);"></div>
+                                                <div class="mb-2">
+                                                    <div id="tts-custom-player" class="border rounded p-2" style="background:#181818;color:#eee;">
+                                                        <div class="d-flex align-items-center mb-1">
+                                                            <div class="flex-grow-1" style="position:relative;height:14px;" aria-label="Preview progress">
+                                                                <div style="position:absolute;left:0;top:0;right:0;bottom:0;background:#333;border-radius:7px;overflow:hidden;">
+                                                                    <div id="tts-progress-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#00aaff,#00dd88);"></div>
                                                                 </div>
-                                                                <div class="ml-2 small" style="width:70px;text-align:right;">
-                                                                    <span id="tts-time-elapsed-inline">0:00</span>/<span id="tts-time-total-inline">0:00</span>
-                                                                </div>
+                                                                <div id="tts-progress-handle" style="position:absolute;top:50%;left:0%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 0 4px rgba(0,0,0,.6);"></div>
                                                             </div>
-                                                            <div class="small" id="bg-music-status" style="color:#9ecfff; font-weight:500;"></div>
+                                                            <div class="ml-2 small" style="width:70px;text-align:right;">
+                                                                <span id="tts-time-elapsed-inline">0:00</span>/<span id="tts-time-total-inline">0:00</span>
+                                                            </div>
                                                         </div>
+                                                        <div class="small" id="bg-music-status" style="color:#9ecfff; font-weight:500;"></div>
                                                     </div>
-                                                    <button type="button" wire:click="playExistingAudio" class="btn btn-success btn-sm">
-                                                        <i class="fas fa-play"></i> Start Preview
-                                                    </button>
-                                                    <button type="button" wire:click="generateAudioPreview" class="btn btn-outline-info btn-sm ml-2">
-                                                        <i class="fas fa-sync"></i> Rebuild Preview
-                                                    </button>
-                                                @else
-                                                    <p class="text-muted">No audio files available yet.</p>
-                                                    <button type="button" wire:click="generateAudioPreview" class="btn btn-info btn-sm">
-                                                        <i class="fas fa-headphones"></i> Build Preview
-                                                    </button>
+                                                </div>
+                                                <button type="button" wire:click="playExistingAudio" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-play"></i> Start Preview
+                                                </button>
+                                                <button type="button" wire:click="generateAudioPreview" class="btn btn-outline-info btn-sm ml-2">
+                                                    <i class="fas fa-sync"></i> Rebuild Preview
+                                                </button>
+                                                @if (!$editingProduct->preview_audio_url && !$editingProduct->audio_urls)
+                                                    <small class="text-muted ml-2">(audio loaded live from backend)</small>
                                                 @endif
                                                 
                                                 <a href="{{ route('admin.tts.messages') }}" target="_blank" class="btn btn-secondary btn-sm ml-2">
@@ -484,7 +630,8 @@
                                                 
                                                 <small class="form-text text-muted mt-2">
                                                     <strong>Load Audio Preview:</strong> Uses existing audio files stored in the database.<br>
-                                                    If no audio available, generate them first in the <strong>TTS Messages</strong> section.
+                                                    If no audio available, tries Node.js backend directly.<br>
+                                                    If still unavailable, generate them in the <strong>TTS Messages</strong> section.
                                                 </small>
                                                 
                                                 {{-- Debug Info --}}

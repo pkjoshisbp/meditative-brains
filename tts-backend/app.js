@@ -14,6 +14,7 @@ import languageRouter from './routes/language.js';
 import attentionGuideRouter from './routes/attentionGuide.js';
 import logsRouter from './routes/logs.js';
 import ttsProductsRouter from './routes/ttsProducts.js';
+import audioBookRouter from './routes/audioBookRoute.js';
 import path from 'path';
 import cors from 'cors';
 import logger from './utils/logger.js';
@@ -23,10 +24,27 @@ import TtsProduct from './models/TtsProduct.js';
 import { generateAudioForMessage } from './utils/audioGenerator.js';
 import voicesList from './azure-voices.json' assert { type: 'json' };
 
+/**
+ * Batch wrapper: generate audio for each message in sequence using generateAudioForMessage.
+ * Returns { success, audioPaths, audioUrls } matching the shape the callers expect.
+ */
+async function generateAudioFromMessages({ messages, speaker, engine, language, prosodyRate, prosodyPitch, prosodyVolume, speakerStyle, category = 'default' }) {
+    const audioPaths = [];
+    const audioUrls  = [];
+    for (const message of messages) {
+        const result = await generateAudioForMessage(message, {
+            speaker, engine, language, prosodyRate, prosodyPitch, prosodyVolume, speakerStyle, category
+        });
+        audioPaths.push(result.relativePath);
+        audioUrls.push(result.audioUrl);
+    }
+    return { success: true, audioPaths, audioUrls };
+}
+
 // Define HTTPS options with your SSL certificate and key
 const options = {
-    cert: fs.readFileSync('/var/www/meditative-brains.com/ssl/meditative-brains.com-le.crt'),
-    key: fs.readFileSync('/var/www/meditative-brains.com/ssl/meditative-brains.com-le.key')
+    cert: fs.readFileSync('/var/www/mentalfitness.store/ssl/mentalfitness.store-le.crt'),
+    key: fs.readFileSync('/var/www/mentalfitness.store/ssl/mentalfitness.store-le.key')
 };
 
 const app = express();
@@ -67,10 +85,16 @@ app.use("/api/language", languageRouter);
 app.use("/api/attention-guide", attentionGuideRouter);
 app.use("/api/logs", logsRouter); // Add this line for logs router
 app.use("/api/tts-products", ttsProductsRouter); // Add TTS products router
+app.use("/api/audiobook", audioBookRouter); // Add audiobook router
 
 // Add static file serving for audio files
 const audioCachePath = path.join(process.cwd(), 'audio-cache');
 app.use('/audio-cache', express.static(audioCachePath));
+
+// Products audio — final generated audio for products (separate from temp cache)
+const productsAudioPath = path.join(process.cwd(), 'products-audio');
+if (!fs.existsSync(productsAudioPath)) fs.mkdirSync(productsAudioPath, { recursive: true });
+app.use('/products-audio', express.static(productsAudioPath));
 
 // Add static file serving for flutter logs
 const flutterLogsPath = path.join(process.cwd(), 'flutter_logs');

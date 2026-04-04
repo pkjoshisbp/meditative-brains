@@ -145,7 +145,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" wire:model="backgroundMusic" id="backgroundMusic">
+                                            <input class="form-check-input" type="checkbox" wire:model.live="backgroundMusic" id="backgroundMusic">
                                             <label class="form-check-label" for="backgroundMusic">
                                                 Enable Background Music
                                             </label>
@@ -216,13 +216,13 @@
                             </div>
                             <div class="col-md-4 text-right">
                                 @if(isset($generationResult['audioUrl']))
-                                    <a href="https://meditative-brains.com:3001{{ $generationResult['audioUrl'] }}" 
+                                    <a href="https://mentalfitness.store:3001{{ $generationResult['audioUrl'] }}" 
                                        target="_blank" class="btn btn-success">
                                         <i class="fas fa-download"></i> Download Audio
                                     </a>
                                     <br><br>
                                     <audio controls class="w-100">
-                                        <source src="https://meditative-brains.com:3001{{ $generationResult['audioUrl'] }}" type="audio/mpeg">
+                                        <source src="https://mentalfitness.store:3001{{ $generationResult['audioUrl'] }}" type="audio/mpeg">
                                         Your browser does not support the audio element.
                                     </audio>
                                 @endif

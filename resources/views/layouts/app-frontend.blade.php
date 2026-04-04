@@ -5,24 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Meditative Brains - Meditative Minds Audio & Sleep Aid Music' }}</title>
+    <title>{{ $title ?? 'Mental Fitness Store - Premium Mental Wellness Audio' }}</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="{{ $description ?? 'Discover premium Meditative Minds audio experiences: affirmations, sleep aid music, meditation tracks, and healing frequencies for personal development and wellness.' }}">
+    <meta name="description" content="{{ $description ?? 'Discover premium mental wellness audio: affirmations, sleep music, meditation tracks, and healing frequencies designed to train your mind and transform your life.' }}">
     <meta name="keywords" content="{{ $keywords ?? 'TTS affirmations, sleep music, meditation, binaural beats, solfeggio frequencies, nature sounds' }}">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="{{ $title ?? 'Meditative Brains' }}">
-    <meta property="og:description" content="{{ $description ?? 'Premium meditation and wellness audio content' }}">
+    <meta property="og:title" content="{{ $title ?? 'Mental Fitness Store' }}">
+    <meta property="og:description" content="{{ $description ?? 'Premium mental wellness audio — train your mind, transform your life.' }}">
     <meta property="og:image" content="{{ asset('images/og-image.jpg') }}">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ url()->current() }}">
-    <meta property="twitter:title" content="{{ $title ?? 'Meditative Brains' }}">
-    <meta property="twitter:description" content="{{ $description ?? 'Premium meditation and wellness audio content' }}">
+    <meta property="twitter:title" content="{{ $title ?? 'Mental Fitness Store' }}">
+    <meta property="twitter:description" content="{{ $description ?? 'Premium mental wellness audio — train your mind, transform your life.' }}">
     <meta property="twitter:image" content="{{ asset('images/og-image.jpg') }}">
 
     <!-- Fonts -->
@@ -42,11 +42,13 @@
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
                 <div class="logo-container me-3">
-                    <i class="fas fa-brain fa-2x text-primary"></i>
+                    <div style="width:44px;height:44px;background:linear-gradient(135deg,#059669,#0891b2);border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-brain fa-lg text-white"></i>
+                    </div>
                 </div>
                 <div class="d-flex flex-column justify-content-center">
-                    <span class="fw-bold fs-4 lh-1">Meditative Brains</span>
-                    <small class="text-muted lh-1">Premium Wellness Audio</small>
+                    <span class="fw-bold fs-4 lh-1">Mental<span style="color:#34d399">Fitness</span></span>
+                    <small class="lh-1" style="color:#94a3b8;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;">Train Your Mind</small>
                 </div>
             </a>
             
@@ -68,7 +70,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('mind-audio') ? 'active' : '' }}" href="{{ route('audio.catalog') }}">
-                            <i class="fas fa-headphones me-1"></i>Meditative Minds Audio
+                            <i class="fas fa-headphones me-1"></i>Mental Wellness Audio
                         </a>
                     </li>
                     <li class="nav-item dropdown">
@@ -77,7 +79,7 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ route('audio.catalog') }}">
-                                <i class="fas fa-microphone-alt me-2 text-primary"></i>Meditative Minds Audio
+                                <i class="fas fa-microphone-alt me-2 text-primary"></i>Mental Wellness Audio
                             </a></li>
                             <li><a class="dropdown-item" href="{{ route('products', ['categoryId' => 2]) }}">
                                 <i class="fas fa-moon me-2 text-info"></i>Sleep Aid Music
@@ -101,17 +103,22 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#subscription">
+                        <a class="nav-link" href="{{ route('subscription') }}">
                             <i class="fas fa-star me-1"></i>Subscription
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#about">
+                        <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}">
                             <i class="fas fa-info-circle me-1"></i>About
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#contact">
+                        <a class="nav-link {{ request()->routeIs('blog*') ? 'active' : '' }}" href="{{ route('blog') }}">
+                            <i class="fas fa-blog me-1"></i>Blog
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" href="{{ route('contact') }}">
                             <i class="fas fa-envelope me-1"></i>Contact
                         </a>
                     </li>
@@ -131,7 +138,7 @@
                         </li>
                     @else
                         <li class="nav-item">
-                            <a class="nav-link position-relative" href="#cart">
+                            <a class="nav-link position-relative" href="{{ route('cart') }}">
                                 <i class="fas fa-shopping-cart me-1"></i>Cart
                                 @php
                                     $cartCount = auth()->user()->cartItems()->count();
@@ -148,16 +155,19 @@
                                 <i class="fas fa-user-circle me-2"></i>{{ Auth::user()->name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ route('home') }}">
-                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                <li><a class="dropdown-item" href="{{ route('account.dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>My Account
                                 </a></li>
-                                <li><a class="dropdown-item" href="#my-purchases">
-                                    <i class="fas fa-download me-2"></i>My Downloads
+                                <li><a class="dropdown-item" href="{{ route('account.library') }}">
+                                    <i class="fas fa-headphones me-2"></i>My Library
                                 </a></li>
-                                <li><a class="dropdown-item" href="#subscription-manage">
-                                    <i class="fas fa-star me-2"></i>My Subscription
+                                <li><a class="dropdown-item" href="{{ route('account.orders') }}">
+                                    <i class="fas fa-receipt me-2"></i>My Orders
                                 </a></li>
-                                @if(Auth::user()->email === 'admin@meditative-brains.com')
+                                <li><a class="dropdown-item" href="{{ route('account.profile') }}">
+                                    <i class="fas fa-user-edit me-2"></i>Profile
+                                </a></li>
+                                @if(Auth::user()->email === 'admin@mentalfitness.store' || Auth::user()->email === 'admin@meditative-brains.com')
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">
                                         <i class="fas fa-cog me-2"></i>Admin Panel
@@ -183,7 +193,10 @@
 
     <!-- Main Content -->
     <main>
-        {{ $slot }}
+        {{ $slot ?? '' }}
+        @hasSection('content')
+            @yield('content')
+        @endif
     </main>
 
     <!-- Footer -->
@@ -192,13 +205,15 @@
             <div class="row">
                 <div class="col-lg-4 mb-4">
                     <div class="d-flex align-items-center mb-3">
-                        <i class="fas fa-brain fa-2x text-primary me-3"></i>
+                        <div style="width:44px;height:44px;background:linear-gradient(135deg,#059669,#0891b2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;" class="me-3">
+                            <i class="fas fa-brain text-white"></i>
+                        </div>
                         <div>
-                            <h5 class="mb-0">Meditative Brains</h5>
-                            <small class="text-muted">Premium Wellness Audio</small>
+                            <h5 class="mb-0">Mental<span style="color:#34d399">Fitness</span> Store</h5>
+                            <small class="text-muted" style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;">Train Your Mind</small>
                         </div>
                     </div>
-                    <p class="mb-3">Transform your life with our premium collection of TTS affirmations, sleep aid music, meditation tracks, and healing frequencies.</p>
+                    <p class="mb-3">Transform your life with our premium collection of mental wellness audio: affirmations, sleep music, meditation tracks, and healing frequencies.</p>
                     <div class="d-flex gap-3">
                         <a href="#" class="text-light fs-4"><i class="fab fa-facebook"></i></a>
                         <a href="#" class="text-light fs-4"><i class="fab fa-twitter"></i></a>
@@ -238,11 +253,12 @@
                 <div class="col-lg-2 col-md-4 mb-4">
                     <h6 class="text-primary mb-3">Company</h6>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#about" class="text-light text-decoration-none">About Us</a></li>
-                        <li class="mb-2"><a href="#contact" class="text-light text-decoration-none">Contact</a></li>
-                        <li class="mb-2"><a href="#privacy" class="text-light text-decoration-none">Privacy Policy</a></li>
-                        <li class="mb-2"><a href="#terms" class="text-light text-decoration-none">Terms of Service</a></li>
-                        <li class="mb-2"><a href="#refund" class="text-light text-decoration-none">Refund Policy</a></li>
+                        <li class="mb-2"><a href="{{ route('about') }}" class="text-light text-decoration-none">About Us</a></li>
+                        <li class="mb-2"><a href="{{ route('blog') }}" class="text-light text-decoration-none">Blog</a></li>
+                        <li class="mb-2"><a href="{{ route('contact') }}" class="text-light text-decoration-none">Contact</a></li>
+                        <li class="mb-2"><a href="{{ route('legal.privacy') }}" class="text-light text-decoration-none">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="{{ route('legal.terms') }}" class="text-light text-decoration-none">Terms of Service</a></li>
+                        <li class="mb-2"><a href="{{ route('legal.refund') }}" class="text-light text-decoration-none">Refund Policy</a></li>
                     </ul>
                 </div>
                 
@@ -250,20 +266,24 @@
                     <h6 class="text-primary mb-3" id="contact">Contact Info</h6>
                     <ul class="list-unstyled">
                         <li class="mb-2">
+                            <i class="fas fa-building me-2 text-muted"></i>
+                            <span class="text-light">MYWEB SOLUTIONS</span>
+                        </li>
+                        <li class="mb-2">
                             <i class="fas fa-envelope me-2"></i>
-                            <a href="mailto:support@meditative-brains.com" class="text-light text-decoration-none">support@meditative-brains.com</a>
+                            <a href="mailto:info@mentalfitness.store" class="text-light text-decoration-none">info@mentalfitness.store</a>
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-phone me-2"></i>
-                            <span class="text-light">+1 (555) 123-4567</span>
+                            <a href="tel:+919937253528" class="text-light text-decoration-none">+91 9937253528</a>
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-clock me-2"></i>
-                            <span class="text-light">24/7 Support</span>
+                            <span class="text-light">Mon–Sat, 10 AM–6 PM IST</span>
                         </li>
                         <li class="mb-2">
                             <i class="fas fa-globe me-2"></i>
-                            <span class="text-light">meditative-brains.com</span>
+                            <a href="https://mentalfitness.store" class="text-light text-decoration-none">mentalfitness.store</a>
                         </li>
                     </ul>
                 </div>
@@ -273,7 +293,8 @@
             
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="mb-0">© {{ date('Y') }} Meditative Brains. All rights reserved.</p>
+                    <p class="mb-0">&copy; {{ date('Y') }} Mental Fitness Store. All rights reserved.</p>
+                    <p class="mb-0 small text-muted mt-1">A product of <strong>MYWEB SOLUTIONS</strong></p>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <div class="d-flex justify-content-md-end gap-3">

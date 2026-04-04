@@ -12,7 +12,7 @@ class TTSIntegrationService
 
     public function __construct()
     {
-        $this->ttsBaseUrl = config('services.tts.base_url', 'https://meditative-brains.com:3001/api');
+        $this->ttsBaseUrl = config('services.tts.base_url', 'https://mentalfitness.store:3001/api');
         $this->ttsApiKey = config('services.tts.api_key');
     }
 

@@ -10,9 +10,9 @@ return [
     'locale' => 'en_US',
     
     // URLs
-    'return_url' => env('APP_URL') . '/payment/success',
-    'cancel_url' => env('APP_URL') . '/payment/cancel',
-    'webhook_url' => env('APP_URL') . '/api/paypal/webhook',
+    'return_url' => env('APP_URL') . '/payment/paypal/success',
+    'cancel_url' => env('APP_URL') . '/payment/paypal/cancel',
+    'webhook_url' => env('APP_URL') . '/webhooks/paypal',
     
     // Subscription settings
     'trial_billing_cycles' => 1,

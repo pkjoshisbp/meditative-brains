@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Enable CORS for Laravel integration
 router.use(cors({
-    origin: ['https://meditative-brains.com', 'http://localhost:8000', 'http://127.0.0.1:8000'],
+    origin: ['https://mentalfitness.store', 'http://localhost:8000', 'http://127.0.0.1:8000'],
     credentials: true
 }));
 

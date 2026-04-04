@@ -11,10 +11,11 @@ import { parseSSMLForVITS, enhanceTextForVITS } from './ssmlParser.js';
 import voicesList from '../azure-voices.json' assert { type: 'json' };
 
 const AUDIO_CACHE_BASE = path.join(process.cwd(), 'audio-cache');
+const PRODUCTS_AUDIO_BASE = path.join(process.cwd(), 'products-audio');
 const TEMP_TEXT_DIR = path.join(process.cwd(), 'temp-texts');
 
 // Create necessary directories
-for (const dir of [AUDIO_CACHE_BASE, TEMP_TEXT_DIR]) {
+for (const dir of [AUDIO_CACHE_BASE, PRODUCTS_AUDIO_BASE, TEMP_TEXT_DIR]) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
 
@@ -62,7 +63,7 @@ function formatProsodyRate(rate) {
 }
 
 // Add base URL configuration
-const BASE_URL = process.env.BASE_URL || 'https://meditative-brains.com:3001';
+const BASE_URL = process.env.BASE_URL || 'https://mentalfitness.store:3001';
 
 function generateAudioPaths(text, options = {}) {
   // Always use the category from options, fallback to 'default'
@@ -119,8 +120,9 @@ function generateAudioPaths(text, options = {}) {
 
   // Build path: en-US/category/model/filename
   const categoryPath = category ? slugifyText(category) : 'default';
+  const storageBase = options && options.storageType === 'products' ? 'products-audio' : 'audio-cache';
   const relativePath = path.join(
-    'audio-cache',
+    storageBase,
     language,
     categoryPath,
     folderSpeaker, // Use the mapped speaker name
@@ -139,11 +141,89 @@ function getSupportedStyles(voiceShortName) {
   return voice && Array.isArray(voice.StyleList) ? voice.StyleList : [];
 }
 
-// Generate SSML with style only if supported
-function buildSSML({ text, language, speaker, speakerStyle, speakerPersonality, ssml }) {
+/**
+ * Convert custom markup notation to proper SSML inline tags.
+ *
+ * Supported markup:
+ *   [pause:800]                  → <break time="800ms"/>
+ *   [silence:500]                → <break time="500ms"/>
+ *   [personality:Warm]…[/personality] → <mstts:express-as style="warm">…</mstts:express-as>
+ *   [rate:slow]…[/rate]          → <prosody rate="slow">…</prosody>
+ *   [pitch:high]…[/pitch]        → <prosody pitch="high">…</prosody>
+ *   [volume:loud]…[/volume]      → <prosody volume="loud">…</prosody>
+ *   **text**                     → <emphasis level="strong">text</emphasis>
+ *   *text*                       → <emphasis level="moderate">text</emphasis>
+ */
+function convertMarkupToSSML(text) {
+  if (!text || typeof text !== 'string') return text || '';
+
+  let result = text;
+
+  // 1. [pause:N]  – treat N as milliseconds
+  result = result.replace(/\[pause:(\d+)\]/gi, (_, ms) => `<break time="${ms}ms"/>`);
+
+  // 2. [silence:N] – treat N as milliseconds
+  result = result.replace(/\[silence:(\d+)\]/gi, (_, ms) => `<break time="${ms}ms"/>`);
+
+  // 3. [personality:X]…[/personality]
+  result = result.replace(
+    /\[personality:([^\]]+)\]([\s\S]*?)\[\/personality\]/gi,
+    (_, style, content) => `<mstts:express-as style="${style.trim().toLowerCase()}">${content}</mstts:express-as>`
+  );
+
+  // 4. [rate:X]…[/rate]
+  result = result.replace(
+    /\[rate:([^\]]+)\]([\s\S]*?)\[\/rate\]/gi,
+    (_, rate, content) => `<prosody rate="${rate.trim()}">${content}</prosody>`
+  );
+
+  // 5. [pitch:X]…[/pitch]
+  result = result.replace(
+    /\[pitch:([^\]]+)\]([\s\S]*?)\[\/pitch\]/gi,
+    (_, pitch, content) => `<prosody pitch="${pitch.trim()}">${content}</prosody>`
+  );
+
+  // 6. [volume:X]…[/volume]
+  result = result.replace(
+    /\[volume:([^\]]+)\]([\s\S]*?)\[\/volume\]/gi,
+    (_, vol, content) => `<prosody volume="${vol.trim()}">${content}</prosody>`
+  );
+
+  // 7. **strong emphasis** (must come before single *)
+  result = result.replace(/\*\*([^*]+)\*\*/g, '<emphasis level="strong">$1</emphasis>');
+
+  // 8. *moderate emphasis*
+  result = result.replace(/\*([^*]+)\*/g, '<emphasis level="moderate">$1</emphasis>');
+
+  // 9. Strip any remaining unrecognised [tag] or [/tag] so they are not read aloud
+  result = result.replace(/\[[^\]]*\]/g, '');
+
+  logger.debug('convertMarkupToSSML', {
+    inputLength: text.length,
+    outputLength: result.length,
+    sample: result.substring(0, 200)
+  });
+
+  return result;
+}
+
+// Generate SSML with style only if supported.
+// For Azure multilingual voices (Ava, Ada, etc.), the <lang xml:lang="..."> element
+// is what drives accent switching. The root xml:lang on <speak> should stay "en-US"
+// (the voice's native locale) while <lang> wraps the text with the target accent.
+function buildSSML({ text, language, speaker, speakerStyle, speakerPersonality, ssml, prosodyRate, prosodyPitch, prosodyVolume }) {
   if (ssml) return ssml;
 
-  // Use en-US as the base, wrap text in <lang xml:lang="en-IN">...</lang>
+  // Convert custom markup to SSML inline tags before wrapping
+  const processedText = convertMarkupToSSML(text);
+
+  // Determine if we need a global prosody wrapper
+  const needsProsody = (prosodyRate && prosodyRate !== 'medium') ||
+                       (prosodyPitch && prosodyPitch !== 'medium') ||
+                       (prosodyVolume && prosodyVolume !== 'medium');
+
+  // Root xml:lang stays "en-US" (voice's native locale).
+  // The <lang> element below is what tells the multilingual voice which accent to use.
   let ssmlContent = `<?xml version="1.0"?>
 <speak version="1.0"
        xmlns="http://www.w3.org/2001/10/synthesis"
@@ -159,7 +239,21 @@ function buildSSML({ text, language, speaker, speakerStyle, speakerPersonality, 
     ssmlContent += `\n    <mstts:express-as style="${speakerStyle}">`;
   }
 
-  ssmlContent += `\n      <lang xml:lang="${language}">${text}</lang>`;
+  // Apply global prosody settings if any differ from medium
+  if (needsProsody) {
+    let prosodyAttrs = '';
+    if (prosodyRate && prosodyRate !== 'medium') prosodyAttrs += ` rate="${prosodyRate}"`;
+    if (prosodyPitch && prosodyPitch !== 'medium') prosodyAttrs += ` pitch="${prosodyPitch}"`;
+    if (prosodyVolume && prosodyVolume !== 'medium') prosodyAttrs += ` volume="${prosodyVolume}"`;
+    ssmlContent += `\n      <prosody${prosodyAttrs}>`;
+  }
+
+  // <lang xml:lang="..."> is what triggers accent switching for multilingual voices
+  ssmlContent += `\n      <lang xml:lang="${language}">${processedText}</lang>`;
+
+  if (needsProsody) {
+    ssmlContent += `\n      </prosody>`;
+  }
 
   if (speakerStyle) {
     ssmlContent += `\n    </mstts:express-as>`;
@@ -169,7 +263,8 @@ function buildSSML({ text, language, speaker, speakerStyle, speakerPersonality, 
   }
 
   ssmlContent += `\n  </voice>\n</speak>`;
-  logger.debug('Generated SSML:', { ssml: ssmlContent, language });
+  console.log('[buildSSML] language:', language, 'speaker:', speaker, 'style:', speakerStyle, 'personality:', speakerPersonality);
+  console.log('[buildSSML] SSML output:\n', ssmlContent);
   return ssmlContent;
 }
 
@@ -192,17 +287,16 @@ async function generateAudioFile(text, filePath, options) {
         language: options.language,
         speaker: options.speaker,
         speakerStyle: options.speakerStyle,
-        speakerPersonality: options.speakerPersonality
+        speakerPersonality: options.speakerPersonality,
+        prosodyRate: options.prosodyRate,
+        prosodyPitch: options.prosodyPitch,
+        prosodyVolume: options.prosodyVolume
       });
       logger.info('Using backend-generated SSML for TTS', { filePath, text, ssml: usedSSML });
     }
 
-    logger.debug('Final TTS request parameters:', { 
-      language: options.language,
-      speaker: options.speaker,
-      style: options.speakerStyle,
-      ssml: usedSSML
-    });
+    console.log('[generateAudioFile] Final TTS params — language:', options.language, 'speaker:', options.speaker, 'style:', options.speakerStyle);
+    console.log('[generateAudioFile] SSML sent to Azure:\n', usedSSML);
 
     try {
       // Ensure parent directory exists before writing file
@@ -476,8 +570,10 @@ async function generateAudioForMessage(text, options = {}) {
 
   // Build path: en-US/category/model/filename
   const categoryPath = category ? slugifyText(category) : 'default';
+  const storageBase2 = options && options.storageType === 'products' ? 'products-audio' : 'audio-cache';
+  const storageBaseDir = options && options.storageType === 'products' ? PRODUCTS_AUDIO_BASE : AUDIO_CACHE_BASE;
   relativePath = path.join(
-    'audio-cache',
+    storageBase2,
     language,
     categoryPath,
     folderSpeaker, // Use the mapped speaker name
@@ -485,7 +581,7 @@ async function generateAudioForMessage(text, options = {}) {
   ).replace(/\\/g, '/');
 
   audioUrl = `${BASE_URL}/${relativePath}`;
-  filePath = path.join(AUDIO_CACHE_BASE, language, categoryPath, folderSpeaker, `${slug}-${hash}.${extension}`);
+  filePath = path.join(storageBaseDir, language, categoryPath, folderSpeaker, `${slug}-${hash}.${extension}`);
 
   // Check if audio file already exists
   if (fs.existsSync(filePath)) {

@@ -25,7 +25,7 @@ class CategoryManagement extends Component
     public function loadCategories()
     {
         try {
-            $response = Http::get('https://meditative-brains.com:3001/api/category');
+            $response = Http::get('https://mentalfitness.store:3001/api/category');
             
             if ($response->successful()) {
                 $this->categories = $response->json();
@@ -59,14 +59,14 @@ class CategoryManagement extends Component
 
         try {
             \Log::info('Sending request to TTS API', [
-                'url' => 'https://meditative-brains.com:3001/api/category',
+                'url' => 'https://mentalfitness.store:3001/api/category',
                 'data' => [
                     'category' => $this->categoryName,
                     'language' => 'en-US'
                 ]
             ]);
 
-            $response = Http::post('https://meditative-brains.com:3001/api/category', [
+            $response = Http::post('https://mentalfitness.store:3001/api/category', [
                 'category' => $this->categoryName,
                 'language' => 'en-US' // Default language
             ]);
@@ -113,7 +113,7 @@ class CategoryManagement extends Component
         ]);
 
         try {
-            $response = Http::put("https://meditative-brains.com:3001/api/category/{$this->editingCategoryId}", [
+            $response = Http::put(rtrim(config("services.tts.base_url"), "/api") . "/api/category/{$this->editingCategoryId}", [
                 'category' => $this->editingCategoryName,
                 'language' => 'en-US'
             ]);
@@ -139,7 +139,7 @@ class CategoryManagement extends Component
     public function deleteCategory($categoryId)
     {
         try {
-            $response = Http::delete("https://meditative-brains.com:3001/api/category/{$categoryId}");
+            $response = Http::delete(rtrim(config("services.tts.base_url"), "/api") . "/api/category/{$categoryId}");
 
             if ($response->successful()) {
                 session()->flash('success', 'Category deleted successfully!');
@@ -166,7 +166,7 @@ class CategoryManagement extends Component
     public function testConnection()
     {
         try {
-            $response = Http::timeout(10)->get('https://meditative-brains.com:3001/api/category');
+            $response = Http::timeout(10)->get('https://mentalfitness.store:3001/api/category');
             
             if ($response->successful()) {
                 session()->flash('success', 'API connection successful! Found ' . count($response->json()) . ' categories.');

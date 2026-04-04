@@ -6,23 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Models\TtsCategory;
 use App\Models\TtsAudioProduct;
 use App\Services\AccessControlService;
+use App\Services\AudioSecurityService;
 use App\Services\AudioService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TtsBackendController extends Controller
 {
     protected $accessControlService;
     protected $audioService;
+    protected $audioSecurityService;
     protected $ttsBackendUrl;
 
-    public function __construct(AccessControlService $accessControlService, AudioService $audioService)
+    public function __construct(AccessControlService $accessControlService, AudioService $audioService, AudioSecurityService $audioSecurityService)
     {
         $this->accessControlService = $accessControlService;
         $this->audioService = $audioService;
-        $this->ttsBackendUrl = 'https://meditative-brains.com:3001';
+        $this->audioSecurityService = $audioSecurityService;
+        $this->ttsBackendUrl = rtrim(config('services.tts.base_url'), '/api');
     }
 
     /**
@@ -778,10 +783,10 @@ class TtsBackendController extends Controller
         $audioUrls = [];
         if (is_array($raw)) {
             foreach ($raw as $item) {
-                if (is_string($item)) { $audioUrls[] = $item; continue; }
+                if (is_string($item)) { $audioUrls[] = $this->normalizeAudioUrl($item); continue; }
                 if (is_array($item)) {
                     $candidate = $item['url'] ?? $item['audio_url'] ?? $item['src'] ?? $item['path'] ?? null;
-                    if (is_string($candidate)) { $audioUrls[] = $candidate; }
+                    if (is_string($candidate)) { $audioUrls[] = $this->normalizeAudioUrl($candidate); }
                 }
             }
         }
@@ -797,6 +802,41 @@ class TtsBackendController extends Controller
             ];
         }
 
+        if (!empty($tracks)) {
+            $tracks = $this->ensureEncryptedProductTracks($product, $tracks);
+        }
+
+        // Fallback: if no tracks in audio_urls, try fetching live audio from Node.js backend
+        $fetchedLanguage = null;
+        if (empty($tracks) && $product->backend_category_id) {
+            $nodeResult = $this->fetchBestNodeAudio($product);
+            $tracks = $nodeResult['tracks'];
+            if (!empty($tracks)) {
+                $tracks = $this->ensureEncryptedProductTracks($product, $tracks);
+            }
+            // If we got audio and the language differs from stored, update the product language
+            if (!empty($tracks) && !empty($nodeResult['language'])) {
+                $fetchedLanguage = $nodeResult['language'];
+                $detectedLang = ($nodeResult['engine'] ?? '') === 'vits'
+                    ? 'en'
+                    : $nodeResult['language'];
+                if ($product->language !== $detectedLang) {
+                    try {
+                        $product->update([
+                            'language'         => $detectedLang,
+                            'backend_language' => $nodeResult['language'],
+                            'backend_speaker'  => $nodeResult['speaker'] ?? $product->backend_speaker,
+                        ]);
+                    } catch (\Exception $e) {
+                        Log::warning('Could not auto-update product language', [
+                            'product_id' => $product->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
+            }
+        }
+
         return response()->json([
             'success' => true,
             'product' => [
@@ -807,7 +847,9 @@ class TtsBackendController extends Controller
                 'language' => $product->language,
                 'total_tracks' => count($tracks),
                 'has_background_music' => $product->has_background_music,
-                'background_music_track' => $product->background_music_track,
+                'background_music_track' => $this->resolveBackgroundMusicPlaybackUrl($product),
+                'background_music_track_name' => $product->background_music_track,
+                'background_music_url' => $this->resolveBackgroundMusicPlaybackUrl($product),
             ],
             'tracks' => $tracks,
             'access' => [
@@ -829,7 +871,7 @@ class TtsBackendController extends Controller
         }
 
         // Optional: restrict to admin or trial roles later.
-        $base = storage_path('app/audio/bg-music');
+        $base = storage_path('app/bg-music');
         $collections = [];
         $scanDirs = [
             'original' => $base . '/original',
@@ -839,15 +881,15 @@ class TtsBackendController extends Controller
             if (!is_dir($dir)) continue;
             $files = collect(scandir($dir))
                 ->reject(fn($f) => in_array($f, ['.', '..']))
-                ->filter(fn($f) => preg_match('/\.(mp3|wav|m4a)$/i', $f))
+                ->filter(fn($f) => preg_match('/\.(mp3|wav|m4a|aac|ogg)$/i', $f))
                 ->values()
                 ->map(function ($f) use ($variant) {
-                    $relative = 'audio/bg-music/' . $variant . '/' . $f; // storage relative
+                    $relative = 'bg-music/' . $variant . '/' . $f;
                     return [
                         'file' => $f,
                         'variant' => $variant,
                         'path' => $relative,
-                        'url' => route('bg.music.stream', ['variant' => $variant, 'file' => $f], false)
+                        'url' => $this->issueBackgroundMusicSecureUrl($f),
                     ];
                 });
             $collections[$variant] = $files->toArray();
@@ -868,12 +910,308 @@ class TtsBackendController extends Controller
         $user = Auth::user();
         if (!$user) return response()->json(['error' => 'Authentication required'], 401);
         if (!in_array($variant, ['original','encrypted'])) return response()->json(['error'=>'invalid_variant'],422);
-        $path = storage_path('app/audio/bg-music/'.$variant.'/'.$file);
+        $path = storage_path('app/bg-music/'.$variant.'/'.$file);
         if (!is_file($path)) return response()->json(['error'=>'not_found'],404);
         $mime = mime_content_type($path) ?: 'audio/mpeg';
         return response()->file($path, [
             'Content-Type' => $mime,
             'Cache-Control' => 'public, max-age=3600'
         ]);
+    }
+
+    // ─── Private helpers ─────────────────────────────────────────────────────
+
+    /**
+     * Normalise audio URLs – replace legacy hostnames with the current domain.
+     */
+    private function normalizeAudioUrl(string $url): string
+    {
+        $legacyPrefixes = [
+            'https://meditative-brains.com:3001',
+            'http://meditative-brains.com:3001',
+            'https://motivation.mywebsolutions.co.in:3000',
+            'http://motivation.mywebsolutions.co.in:3000',
+            'https://motivation.mywebsolutions.co.in:3001',
+            'http://motivation.mywebsolutions.co.in:3001',
+        ];
+        $newBase = 'https://mentalfitness.store:3001';
+        foreach ($legacyPrefixes as $old) {
+            if (str_starts_with($url, $old)) {
+                return $newBase . substr($url, strlen($old));
+            }
+        }
+        return $url;
+    }
+
+    /**
+     * Return a signed, publicly playable URL for the product's background music.
+     * Flutter/just_audio cannot use auth-gated API endpoints directly.
+     */
+    private function resolveBackgroundMusicPlaybackUrl(TtsAudioProduct $product): ?string
+    {
+        if (!$product->has_background_music) {
+            return null;
+        }
+
+        if (!empty($product->background_music_track)) {
+            $signedUrl = $this->issueBackgroundMusicSecureUrl($product->background_music_track);
+            if ($signedUrl) {
+                return $signedUrl;
+            }
+        }
+
+        if (!empty($product->background_music_url) && str_starts_with($product->background_music_url, 'http')) {
+            return $this->normalizeAudioUrl($product->background_music_url);
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve a bg-music track stem or filename to a signed stream URL.
+     */
+    private function issueBackgroundMusicSecureUrl(string $track): ?string
+    {
+        $track = trim($track);
+        if ($track === '') {
+            return null;
+        }
+
+        $dir = storage_path('app/bg-music/original');
+        if (!is_dir($dir)) {
+            return null;
+        }
+
+        $candidate = null;
+        foreach ((array)scandir($dir) as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            $base = pathinfo($item, PATHINFO_FILENAME);
+            if (strcasecmp($base, pathinfo($track, PATHINFO_FILENAME)) === 0) {
+                $candidate = $item;
+                break;
+            }
+        }
+
+        if (!$candidate) {
+            return null;
+        }
+
+        try {
+            $encryptedPath = $this->audioSecurityService->encryptBgMusicFile($candidate);
+            return $this->audioSecurityService->generateSecureUrl($encryptedPath, null, 30);
+        } catch (\Throwable $e) {
+            Log::warning('Failed issuing background music secure URL', [
+                'track' => $track,
+                'candidate' => $candidate,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Ensure product track URLs are served from Laravel-managed encrypted storage.
+     * Raw Node URLs are copied into audio/original/tts-products and mirrored into
+     * encrypted storage before signed URLs are returned to Flutter.
+     */
+    private function ensureEncryptedProductTracks(TtsAudioProduct $product, array $tracks): array
+    {
+        $secured = [];
+        $updatedUrls = [];
+        $changed = false;
+
+        foreach ($tracks as $track) {
+            $url = is_array($track) ? ($track['url'] ?? null) : null;
+            if (!is_string($url) || $url === '') {
+                continue;
+            }
+
+            $normalizedUrl = $this->normalizeAudioUrl($url);
+            if (str_contains($normalizedUrl, '/audio/signed-stream')) {
+                $track['url'] = $normalizedUrl;
+                $secured[] = $track;
+                $updatedUrls[] = $normalizedUrl;
+                continue;
+            }
+
+            $securedUrl = $this->mirrorProductTrackToSecureStorage(
+                $product,
+                (int) ($track['index'] ?? count($secured)),
+                $normalizedUrl
+            );
+
+            if ($securedUrl) {
+                $track['url'] = $securedUrl;
+                $updatedUrls[] = $securedUrl;
+                if ($securedUrl !== $normalizedUrl) {
+                    $changed = true;
+                }
+            } else {
+                $track['url'] = $normalizedUrl;
+                $updatedUrls[] = $normalizedUrl;
+            }
+
+            $secured[] = $track;
+        }
+
+        if ($changed && !empty($updatedUrls)) {
+            try {
+                $product->update([
+                    'audio_urls' => array_values($updatedUrls),
+                    'preview_audio_url' => $updatedUrls[0] ?? $product->preview_audio_url,
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning('Failed persisting secured product audio URLs', [
+                    'product_id' => $product->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return $secured;
+    }
+
+    private function mirrorProductTrackToSecureStorage(TtsAudioProduct $product, int $index, string $sourceUrl): ?string
+    {
+        try {
+            $extension = pathinfo(parse_url($sourceUrl, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION);
+            $extension = $extension !== '' ? strtolower($extension) : 'mp3';
+            $originalRelative = sprintf(
+                'tts-products/product-%d/track-%02d.%s',
+                $product->id,
+                $index + 1,
+                $extension
+            );
+            $originalStoragePath = 'audio/original/' . $originalRelative;
+
+            if (!Storage::disk('local')->exists($originalStoragePath)) {
+                $response = Http::timeout(90)->get($sourceUrl);
+                if (!$response->successful()) {
+                    Log::warning('Unable to mirror raw product audio', [
+                        'product_id' => $product->id,
+                        'index' => $index,
+                        'status' => $response->status(),
+                        'source_url' => $sourceUrl,
+                    ]);
+                    return null;
+                }
+
+                Storage::disk('local')->put($originalStoragePath, $response->body());
+            }
+
+            $encryptedPath = $this->audioSecurityService->encryptOriginalFile($originalRelative, $product->id);
+            return $this->audioSecurityService->generateSignedUrl($encryptedPath, null, 60 * 24);
+        } catch (\Throwable $e) {
+            Log::warning('Failed securing product track', [
+                'product_id' => $product->id,
+                'index' => $index,
+                'source_url' => Str::limit($sourceUrl, 160),
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Fetch the best available audio tracks for a product from the Node.js backend.
+     * Returns an array with keys: tracks[], language, speaker, engine.
+     */
+    private function fetchBestNodeAudio(TtsAudioProduct $product): array
+    {
+        $nodeBaseUrl = rtrim($this->ttsBackendUrl, '/');
+        // strip trailing /api if present so we can add it ourselves
+        if (str_ends_with($nodeBaseUrl, '/api')) {
+            $nodeBaseUrl = substr($nodeBaseUrl, 0, -4);
+        }
+        $categoryId   = $product->backend_category_id;
+        $preferredLang = $product->backend_language ?: null;
+
+        try {
+            // 1. If we already know the preferred language, use the flat per-message endpoint.
+            if ($preferredLang) {
+                $uri = $nodeBaseUrl . '/api/motivationMessage/language/' . urlencode($preferredLang) . '/category/' . $categoryId;
+                $resp = Http::timeout(15)->get($uri);
+                if ($resp->successful()) {
+                    $messages = $resp->json();
+                    $firstMsg = is_array($messages) && count($messages) > 0 ? $messages[0] : [];
+                    $tracks = [];
+                    foreach ((array)$messages as $msg) {
+                        $audioUrl = $msg['audioUrl'] ?? null;
+                        if ($audioUrl) {
+                            $tracks[] = [
+                                'index' => count($tracks),
+                                'url'   => $this->normalizeAudioUrl($audioUrl),
+                                'title' => ($product->name ?? 'Track') . ' #' . (count($tracks) + 1),
+                            ];
+                        }
+                    }
+                    if (!empty($tracks)) {
+                        return [
+                            'tracks'   => $tracks,
+                            'language' => $firstMsg['language'] ?? $preferredLang,
+                            'speaker'  => $firstMsg['speaker']  ?? '',
+                            'engine'   => $firstMsg['engine']   ?? 'azure',
+                        ];
+                    }
+                }
+            }
+
+            // 2. Fallback: fetch all variants for the category and pick the one with most audio.
+            $uri  = $nodeBaseUrl . '/api/motivationMessage/category/' . $categoryId;
+            $resp = Http::timeout(15)->get($uri);
+            if (!$resp->successful()) {
+                return ['tracks' => []];
+            }
+
+            $variants = $resp->json();
+            if (!is_array($variants) || empty($variants)) {
+                return ['tracks' => []];
+            }
+
+            // Sort variants so Azure with most audio comes first (prefer Azure over VITS for locale accuracy).
+            usort($variants, function ($a, $b) {
+                $aCount = count($a['audioUrls'] ?? []);
+                $bCount = count($b['audioUrls'] ?? []);
+                if ($aCount !== $bCount) return $bCount - $aCount;
+                // Secondary: prefer non-vits
+                $aVits = ($a['engine'] ?? '') === 'vits' ? 1 : 0;
+                $bVits = ($b['engine'] ?? '') === 'vits' ? 1 : 0;
+                return $aVits - $bVits;
+            });
+
+            foreach ($variants as $variant) {
+                $audioUrls = $variant['audioUrls'] ?? [];
+                if (empty($audioUrls)) continue;
+
+                $tracks = [];
+                foreach ($audioUrls as $i => $url) {
+                    if (is_string($url)) {
+                        $tracks[] = [
+                            'index' => $i,
+                            'url'   => $this->normalizeAudioUrl($url),
+                            'title' => ($product->name ?? 'Track') . ' #' . ($i + 1),
+                        ];
+                    }
+                }
+                if (!empty($tracks)) {
+                    return [
+                        'tracks'   => $tracks,
+                        'language' => $variant['language'] ?? 'en',
+                        'speaker'  => $variant['speaker']  ?? '',
+                        'engine'   => $variant['engine']   ?? 'azure',
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('fetchBestNodeAudio failed', [
+                'product_id'  => $product->id,
+                'category_id' => $categoryId,
+                'error'       => $e->getMessage(),
+            ]);
+        }
+
+        return ['tracks' => []];
     }
 }

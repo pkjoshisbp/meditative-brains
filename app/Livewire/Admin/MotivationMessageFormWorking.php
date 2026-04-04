@@ -47,7 +47,7 @@ class MotivationMessageFormWorking extends Component
     {
         // Load categories with logging
         \Log::info('Fetching categories...');
-        $response = Http::get('https://meditative-brains.com:3001/api/category');
+        $response = Http::get('https://mentalfitness.store:3001/api/category');
         
         if ($response->successful()) {
             $this->categories = $response->json();
@@ -75,13 +75,13 @@ class MotivationMessageFormWorking extends Component
 
     private function fetchMessagesForCategory($categoryId)
     {
-        $response = Http::get("https://meditative-brains.com:3001/api/motivationMessage/category/{$categoryId}");
+        $response = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/category/{$categoryId}");
         $this->existingRecords = $response->successful() ? $response->json() : [];
     }
 
     public function fetchAdminMessages()
     {
-        $response = Http::get("https://meditative-brains.com:3001/api/motivationMessage/admin-only");
+        $response = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/admin-only");
         $this->existingRecords = $response->successful() ? $response->json() : [];
     }
 
@@ -480,9 +480,9 @@ class MotivationMessageFormWorking extends Component
 
         // If savingAsNew is true, always create a new record
         if ($this->savingAsNew || !$this->editingRecordId) {
-            $response = Http::post('https://meditative-brains.com:3001/api/motivationMessage', $payload);
+            $response = Http::post('https://mentalfitness.store:3001/api/motivationMessage', $payload);
         } else {
-            $response = Http::put("https://meditative-brains.com:3001/api/motivationMessage/{$this->editingRecordId}", $payload);
+            $response = Http::put(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/{$this->editingRecordId}", $payload);
         }
 
         if ($response->successful()) {
@@ -617,7 +617,7 @@ class MotivationMessageFormWorking extends Component
     {
         $messagesForApi = explode("\n", $messages);
         
-        $response = Http::put("https://meditative-brains.com:3001/api/motivationMessage/{$recordId}", [
+        $response = Http::put(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/{$recordId}", [
             'engine' => $engine,
             'language' => $language,
             'speaker' => $speaker,
@@ -713,7 +713,7 @@ class MotivationMessageFormWorking extends Component
         }
 
         try {
-            $response = Http::post('https://meditative-brains.com:3001/api/generate-category-audio', [
+            $response = Http::post('https://mentalfitness.store:3001/api/generate-category-audio', [
                 'categoryId' => $this->categoryId,
                 'language' => $this->language,
                 'speaker' => $this->speaker,
@@ -740,7 +740,7 @@ class MotivationMessageFormWorking extends Component
     {
         try {
             \Log::info('Triggering audio generation for record', ['recordId' => $recordId]);
-            $response = Http::get("https://meditative-brains.com:3001/api/generate-category-audio/{$recordId}");
+            $response = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/generate-category-audio/{$recordId}");
 
             if ($response->successful()) {
                 $result = $response->json();

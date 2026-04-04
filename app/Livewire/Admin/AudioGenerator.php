@@ -94,7 +94,7 @@ class AudioGenerator extends Component
                 'musicVolume' => $this->musicVolume
             ];
 
-            $response = Http::timeout(180)->post('https://meditative-brains.com:3001/api/attentionGuide/audio', $payload);
+            $response = Http::timeout(180)->post('https://mentalfitness.store:3001/api/attentionGuide/audio', $payload);
 
             if ($response->successful()) {
                 $this->generationResult = $response->json();
@@ -134,7 +134,7 @@ class AudioGenerator extends Component
         }
 
         // Return a download response
-        $audioUrl = 'https://meditative-brains.com:3001' . $this->generationResult['audioUrl'];
+        $audioUrl = rtrim(config('services.tts.base_url'), '/api') . $this->generationResult['audioUrl'];
         return redirect()->to($audioUrl);
     }
 

@@ -1,0 +1,560 @@
+TIMESTAMP: 2026-04-02 01:37:58.812314
+DEVICE INFO: android BP2A.250605.031.A3.M536BXXSEGZB7
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2026-04-02 00:33:23] EqualizerService: Initializing EqualizerService
+[2026-04-02 00:33:23] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-02 00:33:23] EqualizerService: EqualizerService initialized successfully
+[2026-04-02 00:34:17] 🎵 [SLUG GENERATION] Generated slug: "positive-attitude"
+tude
+store/bg-music/positive-attitude.aac
+[2026-04-02 00:34:19] 🎵 [DOWNLOAD] Response body size: 7309285 bytes
+fitness.store/bg-music/positive-attitude.aac: 200
+[2026-04-02 00:34:19] 🎵 Music path after download: /data/user/0/com.example.motivation_app/app_flutter/bg_music_positive-attitude.aac
+c_positive-attitude.aac
+[2026-04-02 00:34:19] 🎵 Stopped previous playback
+[2026-04-02 00:34:19] 🎵 Playing background music file: /data/user/0/com.example.motivation_app/app_flutter/bg_music_positive-attitude.aac
+[2026-04-02 00:34:31] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/i-keep-my-face-toward-the-sunshine-167a8220bd80deaabc9f8fad5093a05a.aac
+[2026-04-02 00:34:32] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-keep-my-face-toward-the-sunshine-167a8220bd80deaabc9f8fad5093a05a.aac
+[2026-04-02 00:34:32] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-keep-my-face-toward-the-sunshine-167a8220bd80deaabc9f8fad5093a05a.aac
+[2026-04-02 00:34:32] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/i-cultivate-a-positive-attitude-to-make--55e16d53547cc4cbca0218d1f027f1d6.aac
+[2026-04-02 00:34:33] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-cultivate-a-positive-attitude-to-make--55e16d53547cc4cbca0218d1f027f1d6.aac
+[2026-04-02 00:34:33] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-cultivate-a-positive-attitude-to-make--55e16d53547cc4cbca0218d1f027f1d6.aac
+[2026-04-02 00:34:33] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/i-love-what-i-do-and-it-shows-in-my-work-08ea73e0a6cd406641ce92ecbb296ce2.aac
+[2026-04-02 00:34:34] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-love-what-i-do-and-it-shows-in-my-work-08ea73e0a6cd406641ce92ecbb296ce2.aac
+[2026-04-02 00:34:34] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-love-what-i-do-and-it-shows-in-my-work-08ea73e0a6cd406641ce92ecbb296ce2.aac
+[2026-04-02 00:34:34] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/my-optimism-leads-to-achievement-and-suc-7ef6b0809890061777f6f1a5903fabe9.aac
+[2026-04-02 00:34:34] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-keep-my-face-toward-the-sunshine-167a8220bd80deaabc9f8fad5093a05a.aac
+[2026-04-02 00:34:35] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/my-optimism-leads-to-achievement-and-suc-7ef6b0809890061777f6f1a5903fabe9.aac
+[2026-04-02 00:34:35] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/my-optimism-leads-to-achievement-and-suc-7ef6b0809890061777f6f1a5903fabe9.aac
+[2026-04-02 00:34:35] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/i-celebrate-life-and-find-joy-in-every-m-e39b13f8a7822aa37eba1ca85fd4d90f.aac
+[2026-04-02 00:34:36] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-celebrate-life-and-find-joy-in-every-m-e39b13f8a7822aa37eba1ca85fd4d90f.aac
+[2026-04-02 00:34:36] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-celebrate-life-and-find-joy-in-every-m-e39b13f8a7822aa37eba1ca85fd4d90f.aac
+[2026-04-02 00:34:36] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/i-rise-after-every-fall-and-keep-moving--8bda7f4e8b021921e0dd34dc082532c0.aac
+[2026-04-02 00:34:37] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-rise-after-every-fall-and-keep-moving--8bda7f4e8b021921e0dd34dc082532c0.aac
+[2026-04-02 00:34:37] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-rise-after-every-fall-and-keep-moving--8bda7f4e8b021921e0dd34dc082532c0.aac
+[2026-04-02 00:34:37] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/my-attitude-is-a-powerful-tool-for-posit-6cfdd6d9c207d9675f90a822c0701a55.aac
+[2026-04-02 00:34:43] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/my-attitude-is-a-powerful-tool-for-posit-6cfdd6d9c207d9675f90a822c0701a55.aac
+[2026-04-02 00:34:43] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/my-attitude-is-a-powerful-tool-for-posit-6cfdd6d9c207d9675f90a822c0701a55.aac
+[2026-04-02 00:34:43] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/i-believe-in-myself-and-my-potential-f9aee93851a7c690784b33285f9cb11e.aac
+[2026-04-02 00:34:44] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-believe-in-myself-and-my-potential-f9aee93851a7c690784b33285f9cb11e.aac
+[2026-04-02 00:34:44] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-believe-in-myself-and-my-potential-f9aee93851a7c690784b33285f9cb11e.aac
+[2026-04-02 00:34:44] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/i-focus-on-what-i-have-and-appreciate-it-e4ce2eea155015762aba2cb7e6ce2533.aac
+[2026-04-02 00:34:45] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-focus-on-what-i-have-and-appreciate-it-e4ce2eea155015762aba2cb7e6ce2533.aac
+[2026-04-02 00:34:45] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-focus-on-what-i-have-and-appreciate-it-e4ce2eea155015762aba2cb7e6ce2533.aac
+[2026-04-02 00:34:45] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/i-choose-positivity-over-negativity-51a8ec108f98b7f9b0863ce2c576ec1e.aac
+[2026-04-02 00:34:46] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-choose-positivity-over-negativity-51a8ec108f98b7f9b0863ce2c576ec1e.aac
+[2026-04-02 00:34:46] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-choose-positivity-over-negativity-51a8ec108f98b7f9b0863ce2c576ec1e.aac
+[2026-04-02 00:34:46] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/i-replace-negative-thoughts-with-positiv-006e2101c406405a72d9a56c70bf3da2.aac
+[2026-04-02 00:34:47] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-replace-negative-thoughts-with-positiv-006e2101c406405a72d9a56c70bf3da2.aac
+[2026-04-02 00:34:47] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-replace-negative-thoughts-with-positiv-006e2101c406405a72d9a56c70bf3da2.aac
+[2026-04-02 00:34:47] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/each-day-brings-new-strength-and-new-tho-1ec124e723bd2837443cb9c541fa87fd.aac
+[2026-04-02 00:34:48] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/each-day-brings-new-strength-and-new-tho-1ec124e723bd2837443cb9c541fa87fd.aac
+[2026-04-02 00:34:48] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/each-day-brings-new-strength-and-new-tho-1ec124e723bd2837443cb9c541fa87fd.aac
+[2026-04-02 00:34:48] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/my-positive-attitude-sparks-extraordinar-00c8c7f91d8a2d7c325bc7cd4abd942c.aac
+[2026-04-02 00:34:49] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/my-positive-attitude-sparks-extraordinar-00c8c7f91d8a2d7c325bc7cd4abd942c.aac
+[2026-04-02 00:34:49] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/my-positive-attitude-sparks-extraordinar-00c8c7f91d8a2d7c325bc7cd4abd942c.aac
+[2026-04-02 00:34:49] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/my-optimism-multiplies-my-success-e3765d4d2cd0bb9506a22a0d4ccff3b7.aac
+[2026-04-02 00:34:50] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/my-optimism-multiplies-my-success-e3765d4d2cd0bb9506a22a0d4ccff3b7.aac
+[2026-04-02 00:34:50] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/my-optimism-multiplies-my-success-e3765d4d2cd0bb9506a22a0d4ccff3b7.aac
+[2026-04-02 00:34:50] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/i-choose-to-have-a-good-day-through-my-p-261415691e73a9c2cdf6e72afb158209.aac
+[2026-04-02 00:34:51] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-choose-to-have-a-good-day-through-my-p-261415691e73a9c2cdf6e72afb158209.aac
+[2026-04-02 00:34:51] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-choose-to-have-a-good-day-through-my-p-261415691e73a9c2cdf6e72afb158209.aac
+[2026-04-02 00:34:51] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-US/positive-attitude/p225/i-radiate-positivity-and-attract-positiv-03a1376a089c002666bf71d6188e96cb.aac
+[2026-04-02 00:35:03] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-cultivate-a-positive-attitude-to-make--55e16d53547cc4cbca0218d1f027f1d6.aac
+[2026-04-02 00:35:33] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-radiate-positivity-and-attract-positiv-03a1376a089c002666bf71d6188e96cb.aac
+[2026-04-02 00:35:33] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-US/positive-attitude/p225/i-radiate-positivity-and-attract-positiv-03a1376a089c002666bf71d6188e96cb.aac
+[2026-04-02 01:12:52] EqualizerService: Initializing EqualizerService
+[2026-04-02 01:12:52] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-02 01:12:52] EqualizerService: EqualizerService initialized successfully
+[2026-04-02 01:13:23] 🎵 [DOWNLOAD] Attempting download from: https://mentalfitness.store/bg-music/quit-smoking---respiratory-healing-and-oxygenation.aac
+[2026-04-02 01:13:26] 🎵 [DOWNLOAD] Response body size: 5236454 bytes
+fitness.store/bg-music/quit-smoking---respiratory-healing-and-oxygenation.aac: 200
+[2026-04-02 01:13:26] ✅ [DOWNLOAD] Successfully cached background music at: /data/user/0/com.example.motivation_app/app_flutter/bg_music_quit-smoking---respiratory-healing-and-oxygenation.aac
+[2026-04-02 01:13:26] 🎵 Playing background music file: /data/user/0/com.example.motivation_app/app_flutter/bg_music_quit-smoking---respiratory-healing-and-oxygenation.aac
+[2026-04-02 01:13:26] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-feel-lighter-and-stronger-with--3dd0169b0f595d692a229a2475416edf.aac
+[2026-04-02 01:13:28] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-feel-lighter-and-stronger-with--3dd0169b0f595d692a229a2475416edf.aac
+[2026-04-02 01:13:28] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-feel-lighter-and-stronger-with--3dd0169b0f595d692a229a2475416edf.aac
+[2026-04-02 01:13:28] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/each-clean-breath-fills-my-body-with-cal-69e72ce6ce7eae715162ece9b971daa6.aac
+[2026-04-02 01:13:34] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/each-clean-breath-fills-my-body-with-cal-69e72ce6ce7eae715162ece9b971daa6.aac
+[2026-04-02 01:13:34] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/each-clean-breath-fills-my-body-with-cal-69e72ce6ce7eae715162ece9b971daa6.aac
+[2026-04-02 01:13:34] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/fresh-air-reaches-the-deepest-parts-of-m-de6aad915d30a5cc5888944b74be44fb.aac
+[2026-04-02 01:13:37] Exception during download: ClientException: Connection closed while receiving data, uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/fresh-air-reaches-the-deepest-parts-of-m-de6aad915d30a5cc5888944b74be44fb.aac
+[2026-04-02 01:13:37] Audio cache error: ClientException: Connection closed while receiving data, uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/fresh-air-reaches-the-deepest-parts-of-m-de6aad915d30a5cc5888944b74be44fb.aac
+Stack: #0      _HttpIncoming.listen.<anonymous closure> (dart:_http/http_impl.dart:426)
+#1      Stream.handleError.<anonymous closure> (dart:async/stream.dart:961)
+#2      _HandleErrorStream._handleError (dart:async/stream_pipe.dart:303)
+#3      _ForwardingStreamSubscription._handleError (dart:async/stream_pipe.dart:188)
+#4      _RootZone.runBinaryGuarded (dart:async/zone.dart:903)
+#5      _BufferingStreamSubscription._sendError.sendError (dart:async/stream_impl.dart:400)
+#6      _BufferingStreamSubscription._sendError (dart:async/stream_impl.dart:418)
+#7      _BufferingStreamSubscription._addError (dart:async/stream_impl.dart:322)
+#8      _SyncStreamControllerDispatch._sendError (dart:async/stream_controller.dart:802)
+#9      _StreamController._addError (dart:async/stream_controller.dart:671)
+#10     _StreamController.addError (dart:async/stream_controller.dart:625)
+#11     _HttpParser._reportBodyError (dart:_http/http_parser.dart:1262)
+#12     _HttpParser._onDone (dart:_http/http_parser.dart:941)
+#13     _RootZone.runGuarded (dart:async/zone.dart:879)
+#14     _BufferingStreamSubscription._sendDone.sendDone (dart:async/stream_impl.dart:434)
+#15     _BufferingStreamSubscription._sendDone (dart:async/stream_impl.dart:444)
+#16     _BufferingStreamSubscription._close (dart:async/stream_impl.dart:333)
+#17     _SyncStreamControllerDispatch._sendDone (dart:async/stream_controller.dart:806)
+#18     _StreamController._closeUnchecked (dart:async/stream_controller.dart:652)
+#19     _StreamController.close (dart:async/stream_controller.dart:645)
+#20     _Socket._onError (dart:io-patch/socket_patch.dart:2898)
+#21     _RootZone.runBinaryGuarded (dart:async/zone.dart:903)
+#22     _BufferingStreamSubscription._sendError.sendError (dart:async/stream_impl.dart:400)
+#23     _BufferingStreamSubscription._sendError (dart:async/stream_impl.dart:415)
+#24     _BufferingStreamSubscription._addError (dart:async/stream_impl.dart:322)
+#25     _SyncStreamControllerDispatch._sendError (dart:async/stream_controller.dart:802)
+#26     _StreamController._addError (dart:async/stream_controller.dart:671)
+#27     _StreamController.addError (dart:async/stream_controller.dart:625)
+#28     _RawSecureSocket._reportError (dart:io/secure_socket.dart:961)
+#29     _RootZone.runBinaryGuarded (dart:async/zone.dart:903)
+#30     _BufferingStreamSubscription._sendError.sendError (dart:async/stream_impl.dart:400)
+#31     _BufferingStreamSubscription._sendError (dart:async/stream_impl.dart:418)
+#32     _BufferingStreamSubscription._addError (dart:async/stream_impl.dart:322)
+#33     _SyncStreamControllerDispatch._sendError (dart:async/stream_controller.dart:802)
+#34     _StreamController._addError (dart:async/stream_controller.dart:671)
+#35     _StreamController.addError (dart:async/stream_controller.dart:625)
+#36     new _RawSocket.<anonymous closure> (dart:io-patch/socket_patch.dart:2325)
+#37     _RootZone.runBinaryGuarded (dart:async/zone.dart:903)
+#38     _RootZone.bindBinaryCallbackGuarded.<anonymous closure> (dart:async/zone.dart:937)
+#39     _NativeSocket.reportError (dart:io-patch/socket_patch.dart:1936)
+#40     _NativeSocket.multiplex (dart:io-patch/socket_patch.dart:1731)
+#41     _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:193)
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-breathe-more-easily-with-every-smoke-f-15b746050f1e31774511ecffe234ed42.aac
+[2026-04-02 01:13:38] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-feel-lighter-and-stronger-with--3dd0169b0f595d692a229a2475416edf.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-breathe-more-easily-with-every-smoke-f-15b746050f1e31774511ecffe234ed42.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-breathe-more-easily-with-every-smoke-f-15b746050f1e31774511ecffe234ed42.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breathing-is-calm-steady-and-powerful-77c0f13aa188db2bb1c4c89bfe4def1a.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breathing-is-calm-steady-and-powerful-77c0f13aa188db2bb1c4c89bfe4def1a.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breathing-is-calm-steady-and-powerful-77c0f13aa188db2bb1c4c89bfe4def1a.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-are-gently-clearing-and-repairi-844bef77ab4303939f87a0e8f695beb4.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-are-gently-clearing-and-repairi-844bef77ab4303939f87a0e8f695beb4.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-are-gently-clearing-and-repairi-844bef77ab4303939f87a0e8f695beb4.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/oxygen-flows-freely-and-heals-every-cell-ff1bf75dad15656eb63fe733cdc45915.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/oxygen-flows-freely-and-heals-every-cell-ff1bf75dad15656eb63fe733cdc45915.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/oxygen-flows-freely-and-heals-every-cell-ff1bf75dad15656eb63fe733cdc45915.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-feel-more-energy-as-my-breathing-impro-9291dbb2abdadd95b503b861ed38510a.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-feel-more-energy-as-my-breathing-impro-9291dbb2abdadd95b503b861ed38510a.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-feel-more-energy-as-my-breathing-impro-9291dbb2abdadd95b503b861ed38510a.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/be-calm-and-relaxed-be-positive-keep-smi-9b996c5ac02876cb7ddeae366d19b8d7.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/be-calm-and-relaxed-be-positive-keep-smi-9b996c5ac02876cb7ddeae366d19b8d7.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/be-calm-and-relaxed-be-positive-keep-smi-9b996c5ac02876cb7ddeae366d19b8d7.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/you-are-not-missing-nicotine--you-are-be-6fe00122c21c81a473f7a35274cf35e5.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/you-are-not-missing-nicotine--you-are-be-6fe00122c21c81a473f7a35274cf35e5.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/you-are-not-missing-nicotine--you-are-be-6fe00122c21c81a473f7a35274cf35e5.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/more-you-are-relaxed-easier-it-is-to-sta-4986f1580fe1a408bacb5cdcf53556b5.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/more-you-are-relaxed-easier-it-is-to-sta-4986f1580fe1a408bacb5cdcf53556b5.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/more-you-are-relaxed-easier-it-is-to-sta-4986f1580fe1a408bacb5cdcf53556b5.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breath-brings-clarity-and-calm-a1235de9bd0d61aeb48fb4b0731a938b.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breath-brings-clarity-and-calm-a1235de9bd0d61aeb48fb4b0731a938b.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breath-brings-clarity-and-calm-a1235de9bd0d61aeb48fb4b0731a938b.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-enjoy-full-clean-breathing-every-day-41ab94552d89312a6eeb292016992dc0.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-enjoy-full-clean-breathing-every-day-41ab94552d89312a6eeb292016992dc0.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-enjoy-full-clean-breathing-every-day-41ab94552d89312a6eeb292016992dc0.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-expand-with-ease-in-smoke-free--1d282c55db306c2f59d0052bf62079df.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-expand-with-ease-in-smoke-free--1d282c55db306c2f59d0052bf62079df.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-expand-with-ease-in-smoke-free--1d282c55db306c2f59d0052bf62079df.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/each-inhale-brings-healing-each-exhale-r-4ac48c0ac45389174d5f2bfeb3d01a49.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/each-inhale-brings-healing-each-exhale-r-4ac48c0ac45389174d5f2bfeb3d01a49.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/each-inhale-brings-healing-each-exhale-r-4ac48c0ac45389174d5f2bfeb3d01a49.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-chest-feels-open-and-free-dca46a4ce60fef4986a7b99a8b790599.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-chest-feels-open-and-free-dca46a4ce60fef4986a7b99a8b790599.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-chest-feels-open-and-free-dca46a4ce60fef4986a7b99a8b790599.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breathing-muscles-grow-stronger-and-m-cecaf72758bae780ee59b899589af7d1.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breathing-muscles-grow-stronger-and-m-cecaf72758bae780ee59b899589af7d1.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breathing-muscles-grow-stronger-and-m-cecaf72758bae780ee59b899589af7d1.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/clean-air-restores-my-natural-breathing--5a201d2fe1841ebf3f449c2dad41b07c.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/clean-air-restores-my-natural-breathing--5a201d2fe1841ebf3f449c2dad41b07c.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/clean-air-restores-my-natural-breathing--5a201d2fe1841ebf3f449c2dad41b07c.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-feel-lighter-and-more-active-in-my-smo-3beadd020ae84331ded72866183b4530.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-feel-lighter-and-more-active-in-my-smo-3beadd020ae84331ded72866183b4530.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-feel-lighter-and-more-active-in-my-smo-3beadd020ae84331ded72866183b4530.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-receive-pure-oxygen-and-respond-4b143dbe7022f6bce8c0ab05fb81398b.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-receive-pure-oxygen-and-respond-4b143dbe7022f6bce8c0ab05fb81398b.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-receive-pure-oxygen-and-respond-4b143dbe7022f6bce8c0ab05fb81398b.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/small-smoke-free-choices-create-big-resp-183c4f82d173d94afa08ea8747d04322.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/small-smoke-free-choices-create-big-resp-183c4f82d173d94afa08ea8747d04322.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/small-smoke-free-choices-create-big-resp-183c4f82d173d94afa08ea8747d04322.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-cough-eases-and-my-lungs-feel-lighter-ddf37e205e0ba2cef30f75375b4310fb.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-cough-eases-and-my-lungs-feel-lighter-ddf37e205e0ba2cef30f75375b4310fb.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-cough-eases-and-my-lungs-feel-lighter-ddf37e205e0ba2cef30f75375b4310fb.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-breathe-slowly-and-feel-calm-in-my-che-d0a8b6514fbd4885c5e043e256402e2b.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-breathe-slowly-and-feel-calm-in-my-che-d0a8b6514fbd4885c5e043e256402e2b.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-breathe-slowly-and-feel-calm-in-my-che-d0a8b6514fbd4885c5e043e256402e2b.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-body-rewards-me-with-better-breathing-1c9f90a8a1e8e91141d1db7a99a70a89.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-body-rewards-me-with-better-breathing-1c9f90a8a1e8e91141d1db7a99a70a89.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-body-rewards-me-with-better-breathing-1c9f90a8a1e8e91141d1db7a99a70a89.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-am-grateful-for-clear-deep-breaths-1d9a8be544e0f1cbc16e7c6d428bb9eb.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-am-grateful-for-clear-deep-breaths-1d9a8be544e0f1cbc16e7c6d428bb9eb.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-am-grateful-for-clear-deep-breaths-1d9a8be544e0f1cbc16e7c6d428bb9eb.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-heal-at-their-own-perfect-pace-0fffe38d0cd7f6be36fc28132f1d0eae.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-heal-at-their-own-perfect-pace-0fffe38d0cd7f6be36fc28132f1d0eae.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-heal-at-their-own-perfect-pace-0fffe38d0cd7f6be36fc28132f1d0eae.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/keep-believing-it-is-easy-you-can-do-it-ca40c0f715480e7b9ad746405d8ada8a.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/keep-believing-it-is-easy-you-can-do-it-ca40c0f715480e7b9ad746405d8ada8a.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/keep-believing-it-is-easy-you-can-do-it-ca40c0f715480e7b9ad746405d8ada8a.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-mornings-begin-with-fresh-satisfying--821dc271efcb99d3edcbbe80847139e2.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-mornings-begin-with-fresh-satisfying--821dc271efcb99d3edcbbe80847139e2.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-mornings-begin-with-fresh-satisfying--821dc271efcb99d3edcbbe80847139e2.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-enjoy-walking-and-breathing-easily-fre-194a63b83a557dd1d62d534d317be060.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-enjoy-walking-and-breathing-easily-fre-194a63b83a557dd1d62d534d317be060.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-enjoy-walking-and-breathing-easily-fre-194a63b83a557dd1d62d534d317be060.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:13:38] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/this-smoke-free-breath-brings-calm-to-my-ef286a7d456f5d8dbd1f02fa0f861553.aac
+[2026-04-02 01:13:38] Exception during download: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/this-smoke-free-breath-brings-calm-to-my-ef286a7d456f5d8dbd1f02fa0f861553.aac
+[2026-04-02 01:13:38] Audio cache error: ClientException with SocketException: Failed host lookup: 'mentalfitness.store' (OS Error: No address associated with hostname, errno = 7), uri=https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/this-smoke-free-breath-brings-calm-to-my-ef286a7d456f5d8dbd1f02fa0f861553.aac
+Stack: #0      IOClient.send (package:http/src/io_client.dart:227)
+<asynchronous suspension>
+#1      BaseClient._sendUnstreamed (package:http/src/base_client.dart:93)
+<asynchronous suspension>
+#2      _withClient (package:http/http.dart:170)
+<asynchronous suspension>
+#3      AudioCacheService.getCachedVoiceOver (package:motivation_app/services/audio_cache_service.dart:94)
+<asynchronous suspension>
+#4      _HomeScreenState._startBackgroundCaching (package:motivation_app/screens/home_screen.dart:664)
+<asynchronous suspension>
+
+[2026-04-02 01:14:17] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/each-clean-breath-fills-my-body-with-cal-69e72ce6ce7eae715162ece9b971daa6.aac
+[2026-04-02 01:20:33] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/fresh-air-reaches-the-deepest-parts-of-m-de6aad915d30a5cc5888944b74be44fb.aac
+[2026-04-02 01:20:35] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/fresh-air-reaches-the-deepest-parts-of-m-de6aad915d30a5cc5888944b74be44fb.aac
+[2026-04-02 01:20:35] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/fresh-air-reaches-the-deepest-parts-of-m-de6aad915d30a5cc5888944b74be44fb.aac
+[2026-04-02 01:23:04] EqualizerService: Initializing EqualizerService
+[2026-04-02 01:23:04] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-02 01:23:04] EqualizerService: EqualizerService initialized successfully
+[2026-04-02 01:23:07] 🎵 [CACHE] Cached path from prefs: /data/user/0/com.example.motivation_app/app_flutter/bg_music_quit-smoking---respiratory-healing-and-oxygenation.aac
+n.aac
+[2026-04-02 01:23:07] 🎵 Playing background music file: /data/user/0/com.example.motivation_app/app_flutter/bg_music_quit-smoking---respiratory-healing-and-oxygenation.aac
+[2026-04-02 01:23:08] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-feel-lighter-and-stronger-with--3dd0169b0f595d692a229a2475416edf.aac
+[2026-04-02 01:23:08] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/each-clean-breath-fills-my-body-with-cal-69e72ce6ce7eae715162ece9b971daa6.aac
+[2026-04-02 01:23:08] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/fresh-air-reaches-the-deepest-parts-of-m-de6aad915d30a5cc5888944b74be44fb.aac
+[2026-04-02 01:23:08] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-breathe-more-easily-with-every-smoke-f-15b746050f1e31774511ecffe234ed42.aac
+[2026-04-02 01:23:08] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-feel-lighter-and-stronger-with--3dd0169b0f595d692a229a2475416edf.aac
+[2026-04-02 01:23:09] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-breathe-more-easily-with-every-smoke-f-15b746050f1e31774511ecffe234ed42.aac
+[2026-04-02 01:23:09] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-breathe-more-easily-with-every-smoke-f-15b746050f1e31774511ecffe234ed42.aac
+[2026-04-02 01:23:09] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breathing-is-calm-steady-and-powerful-77c0f13aa188db2bb1c4c89bfe4def1a.aac
+[2026-04-02 01:23:10] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breathing-is-calm-steady-and-powerful-77c0f13aa188db2bb1c4c89bfe4def1a.aac
+[2026-04-02 01:23:10] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breathing-is-calm-steady-and-powerful-77c0f13aa188db2bb1c4c89bfe4def1a.aac
+[2026-04-02 01:23:10] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-are-gently-clearing-and-repairi-844bef77ab4303939f87a0e8f695beb4.aac
+[2026-04-02 01:23:11] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-are-gently-clearing-and-repairi-844bef77ab4303939f87a0e8f695beb4.aac
+[2026-04-02 01:23:11] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-are-gently-clearing-and-repairi-844bef77ab4303939f87a0e8f695beb4.aac
+[2026-04-02 01:23:11] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/oxygen-flows-freely-and-heals-every-cell-ff1bf75dad15656eb63fe733cdc45915.aac
+[2026-04-02 01:23:14] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/oxygen-flows-freely-and-heals-every-cell-ff1bf75dad15656eb63fe733cdc45915.aac
+[2026-04-02 01:23:14] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/oxygen-flows-freely-and-heals-every-cell-ff1bf75dad15656eb63fe733cdc45915.aac
+[2026-04-02 01:23:14] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-feel-more-energy-as-my-breathing-impro-9291dbb2abdadd95b503b861ed38510a.aac
+[2026-04-02 01:23:17] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-feel-more-energy-as-my-breathing-impro-9291dbb2abdadd95b503b861ed38510a.aac
+[2026-04-02 01:23:17] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-feel-more-energy-as-my-breathing-impro-9291dbb2abdadd95b503b861ed38510a.aac
+[2026-04-02 01:23:17] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/be-calm-and-relaxed-be-positive-keep-smi-9b996c5ac02876cb7ddeae366d19b8d7.aac
+[2026-04-02 01:23:33] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/be-calm-and-relaxed-be-positive-keep-smi-9b996c5ac02876cb7ddeae366d19b8d7.aac
+[2026-04-02 01:23:33] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/be-calm-and-relaxed-be-positive-keep-smi-9b996c5ac02876cb7ddeae366d19b8d7.aac
+[2026-04-02 01:23:33] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/you-are-not-missing-nicotine--you-are-be-6fe00122c21c81a473f7a35274cf35e5.aac
+[2026-04-02 01:23:47] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/each-clean-breath-fills-my-body-with-cal-69e72ce6ce7eae715162ece9b971daa6.aac
+[2026-04-02 01:24:25] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/fresh-air-reaches-the-deepest-parts-of-m-de6aad915d30a5cc5888944b74be44fb.aac
+[2026-04-02 01:25:02] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-breathe-more-easily-with-every-smoke-f-15b746050f1e31774511ecffe234ed42.aac
+[2026-04-02 01:25:40] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breathing-is-calm-steady-and-powerful-77c0f13aa188db2bb1c4c89bfe4def1a.aac
+[2026-04-02 01:26:19] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-are-gently-clearing-and-repairi-844bef77ab4303939f87a0e8f695beb4.aac
+[2026-04-02 01:26:57] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/oxygen-flows-freely-and-heals-every-cell-ff1bf75dad15656eb63fe733cdc45915.aac
+[2026-04-02 01:27:35] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-feel-more-energy-as-my-breathing-impro-9291dbb2abdadd95b503b861ed38510a.aac
+[2026-04-02 01:28:12] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/be-calm-and-relaxed-be-positive-keep-smi-9b996c5ac02876cb7ddeae366d19b8d7.aac
+[2026-04-02 01:28:54] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/you-are-not-missing-nicotine--you-are-be-6fe00122c21c81a473f7a35274cf35e5.aac
+[2026-04-02 01:30:06] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/you-are-not-missing-nicotine--you-are-be-6fe00122c21c81a473f7a35274cf35e5.aac
+[2026-04-02 01:30:06] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/you-are-not-missing-nicotine--you-are-be-6fe00122c21c81a473f7a35274cf35e5.aac
+[2026-04-02 01:30:44] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/more-you-are-relaxed-easier-it-is-to-sta-4986f1580fe1a408bacb5cdcf53556b5.aac
+[2026-04-02 01:31:34] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/more-you-are-relaxed-easier-it-is-to-sta-4986f1580fe1a408bacb5cdcf53556b5.aac
+[2026-04-02 01:31:34] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/more-you-are-relaxed-easier-it-is-to-sta-4986f1580fe1a408bacb5cdcf53556b5.aac
+[2026-04-02 01:32:14] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breath-brings-clarity-and-calm-a1235de9bd0d61aeb48fb4b0731a938b.aac
+[2026-04-02 01:32:44] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breath-brings-clarity-and-calm-a1235de9bd0d61aeb48fb4b0731a938b.aac
+[2026-04-02 01:32:44] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-breath-brings-clarity-and-calm-a1235de9bd0d61aeb48fb4b0731a938b.aac
+[2026-04-02 01:33:19] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-enjoy-full-clean-breathing-every-day-41ab94552d89312a6eeb292016992dc0.aac
+[2026-04-02 01:33:58] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-enjoy-full-clean-breathing-every-day-41ab94552d89312a6eeb292016992dc0.aac
+[2026-04-02 01:33:58] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/i-enjoy-full-clean-breathing-every-day-41ab94552d89312a6eeb292016992dc0.aac
+[2026-04-02 01:34:36] Downloading audio from: https://mentalfitness.store:3001/audio-cache/en-IN/quit-smoking---respiratory-healing-and-o/en-GB-AdaMultilingualNeural/my-lungs-expand-with-ease-in-smoke-free--1d282c55db306c2f59d0052bf62079df.aac
+[2026-04-02 01:37:58] Sending debug logs to server...

@@ -62,6 +62,7 @@ class ProductCatalog extends Component
                     'price' => $product->getCurrentPrice(),
                 ]
             );
+            $count = auth()->user()->cartItems()->count();
         } else {
             // Add to session cart
             $cart = session()->get('cart', []);
@@ -71,9 +72,11 @@ class ProductCatalog extends Component
                 'quantity' => 1,
             ];
             session()->put('cart', $cart);
+            $count = count($cart);
         }
 
-        session()->flash('message', 'Product added to cart!');
+        $this->dispatch('cart-updated', count: $count);
+        session()->flash('message', "\"{$product->name}\" added to cart!");
     }
 
     public function render()

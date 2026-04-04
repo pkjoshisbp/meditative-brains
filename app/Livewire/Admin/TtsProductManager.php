@@ -189,7 +189,7 @@ class TtsProductManager extends AdminComponent
     public function checkBackendConnection()
     {
         try {
-            $response = Http::timeout(5)->get('https://meditative-brains.com:3001/api/category');
+            $response = Http::timeout(5)->get('https://mentalfitness.store:3001/api/category');
             $this->backendConnected = $response->successful();
         } catch (\Exception $e) {
             $this->backendConnected = false;
@@ -203,33 +203,35 @@ class TtsProductManager extends AdminComponent
             return;
         }
 
+        // Always refresh message counts when syncing (runs on every mount when connected)
+        $this->refreshMessageCounts();
+
         try {
-            $response = Http::get('https://meditative-brains.com:3001/api/category');
-            
+            $response = Http::get('https://mentalfitness.store:3001/api/category');
+
             if ($response->successful()) {
                 $categories = $response->json();
                 $syncCount = 0;
                 $this->syncMessages = [];
-                
+
                 // Pre-fetch all messages once to avoid N+1 calls and build counts map
                 $messageCounts = $this->fetchBackendMessageCounts();
-                
+
                 foreach ($categories as $category) {
                     $existing = TtsAudioProduct::where('backend_category_id', $category['_id'])->first();
                     $messageCount = $messageCounts[$category['_id']] ?? 0;
-                    
+
                     if (!$existing) {
-                        
                         TtsAudioProduct::create([
                             'name' => $category['category'],
                             'description' => $category['description'] ?? '',
                             'short_description' => substr($category['description'] ?? '', 0, 200),
-                            'category' => $category['category'], // Required field
-                            'audio_type' => 'tts', // Required field  
-                            'language' => 'en', // Required field
+                            'category' => $category['category'],
+                            'audio_type' => 'tts',
+                            'language' => 'en',
                             'price' => 9.99,
                             'sale_price' => null,
-                            'tags' => 'tts,audio,motivation',
+                            'tags' => json_encode(['tts', 'audio', 'motivation']),
                             'preview_duration' => 30,
                             'sort_order' => 0,
                             'is_active' => true,
@@ -237,14 +239,13 @@ class TtsProductManager extends AdminComponent
                             'backend_category_id' => $category['_id'],
                             'total_messages_count' => $messageCount,
                         ]);
-                        
                         $syncCount++;
                         $this->syncMessages[] = "Auto-synced category: {$category['category']} ({$messageCount} messages)";
                     } else {
                         $existing->update(['total_messages_count' => $messageCount]);
                     }
                 }
-                
+
                 if ($syncCount > 0) {
                     session()->flash('success', "Auto-synced {$syncCount} new categories from TTS backend.");
                 }
@@ -264,8 +265,8 @@ class TtsProductManager extends AdminComponent
 
         try {
             $endpoints = [
-                'https://meditative-brains.com:3001/api/messages',
-                'https://meditative-brains.com:3001/api/motivationMessage'
+                'https://mentalfitness.store:3001/api/messages',
+                'https://mentalfitness.store:3001/api/motivationMessage'
             ];
 
             $messages = [];
@@ -294,6 +295,12 @@ class TtsProductManager extends AdminComponent
 
                 // Determine category id (product linkage key)
                 $catId = $m['categoryId'] ?? $m['category_id'] ?? null;
+
+                // categoryId may be a populated MongoDB object: {_id: '...', category: '...', __v: 0}
+                if (is_array($catId)) {
+                    $catId = $catId['_id'] ?? $catId['id'] ?? null;
+                }
+
                 if (!$catId && isset($m['category'])) {
                     if (is_array($m['category'])) {
                         $catId = $m['category']['_id'] ?? $m['category']['id'] ?? null;
@@ -340,7 +347,7 @@ class TtsProductManager extends AdminComponent
 
         try {
             // Get category details
-            $categoryResponse = Http::get('https://meditative-brains.com:3001/api/category');
+            $categoryResponse = Http::get('https://mentalfitness.store:3001/api/category');
             if (!$categoryResponse->successful()) {
                 session()->flash('error', 'Failed to fetch categories from backend.');
                 return;
@@ -355,7 +362,7 @@ class TtsProductManager extends AdminComponent
             }
 
             // Get messages for this category
-            $messageResponse = Http::get("https://meditative-brains.com:3001/api/motivationMessage/category/{$categoryId}");
+            $messageResponse = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/category/{$categoryId}");
             if (!$messageResponse->successful()) {
                 session()->flash('error', 'Failed to fetch messages for this category.');
                 return;
@@ -380,7 +387,8 @@ class TtsProductManager extends AdminComponent
                 'language' => 'en',
                 'price' => 9.99,
                 'sale_price' => null,
-                'tags' => 'tts,audio,motivation,' . strtolower(str_replace(' ', '-', $category['category'])),
+                'tags' => json_encode(['tts', 'audio', 'motivation', strtolower(str_replace(' ', '-', $category['category']))]),
+
                 'preview_duration' => 30,
                 'sort_order' => 0,
                 'is_active' => true,
@@ -414,7 +422,7 @@ class TtsProductManager extends AdminComponent
             // Optionally generate audio URLs placeholder (for future TTS processing)
             $audioUrls = [];
             foreach ($messages as $index => $message) {
-                $audioUrls[] = "https://meditative-brains.com:3001/api/tts/audio/{$message['_id']}.mp3";
+                $audioUrls[] = rtrim(config("services.tts.base_url"), "/api") . "/api/tts/audio/{$message['_id']}.mp3";
             }
             
             $product->update([
@@ -455,14 +463,85 @@ class TtsProductManager extends AdminComponent
         }
     }
 
+    /**
+     * Scan all products that have language='en' (generic) and a backend_category_id.
+     * For each, fetch the best available language variant from Node.js and update
+     * the language/backend_language/backend_speaker fields.
+     * VITS products keep language='en'.
+     */
+    public function fixLanguageCodes(): void
+    {
+        $ttsBase = rtrim(config('services.tts.base_url'), '/');
+        if (str_ends_with($ttsBase, '/api')) {
+            $ttsBase = substr($ttsBase, 0, -4);
+        }
+
+        $products = TtsAudioProduct::where('language', 'en')
+            ->whereNotNull('backend_category_id')
+            ->get();
+
+        $updated = 0;
+        $skipped = 0;
+
+        foreach ($products as $product) {
+            try {
+                $resp = Http::timeout(10)->get($ttsBase . '/api/motivationMessage/category/' . $product->backend_category_id);
+                if (!$resp->successful()) { $skipped++; continue; }
+
+                $variants = $resp->json();
+                if (!is_array($variants)) { $skipped++; continue; }
+
+                // Sort: most audio URLs first, prefer Azure over VITS
+                usort($variants, function ($a, $b) {
+                    $aCount = count($a['audioUrls'] ?? []);
+                    $bCount = count($b['audioUrls'] ?? []);
+                    if ($aCount !== $bCount) return $bCount - $aCount;
+                    $aVits = ($a['engine'] ?? '') === 'vits' ? 1 : 0;
+                    $bVits = ($b['engine'] ?? '') === 'vits' ? 1 : 0;
+                    return $aVits - $bVits;
+                });
+
+                $best = null;
+                foreach ($variants as $v) {
+                    if (!empty($v['audioUrls'])) { $best = $v; break; }
+                }
+
+                if (!$best) { $skipped++; continue; }
+
+                $engine      = $best['engine']   ?? 'azure';
+                $rawLang     = $best['language']  ?? 'en';
+                $newLang     = ($engine === 'vits') ? 'en' : $rawLang;
+                $newSpeaker  = $best['speaker']   ?? '';
+
+                if ($product->language === $newLang && $product->backend_language === $rawLang) {
+                    $skipped++; continue;
+                }
+
+                $product->update([
+                    'language'         => $newLang,
+                    'backend_language' => $rawLang,
+                    'backend_speaker'  => $newSpeaker ?: $product->backend_speaker,
+                ]);
+                $updated++;
+            } catch (\Exception $e) {
+                Log::warning('fixLanguageCodes: error for product ' . $product->id, ['error' => $e->getMessage()]);
+                $skipped++;
+            }
+        }
+
+        session()->flash('success', "Language codes fixed: {$updated} updated, {$skipped} skipped (no audio or already correct).");
+    }
+
     public function create()
     {
+        $this->resetFormState();
         $this->showForm = true;
     }
 
     public function edit($productId)
     {
         $this->editingProduct = TtsAudioProduct::findOrFail($productId);
+        $this->loadBgMusicFiles();
         $this->loadProductData();
         $this->loadBackendData();
         $this->showForm = true;
@@ -478,7 +557,13 @@ class TtsProductManager extends AdminComponent
         $this->category = $this->editingProduct->category ?? '';
         $this->price = $this->editingProduct->price;
         $this->sale_price = $this->editingProduct->sale_price;
-        $this->tags = $this->editingProduct->tags ?? '';
+        $this->tags = $this->editingProduct->tags
+            ? (is_array($this->editingProduct->tags)
+                ? implode(',', $this->editingProduct->tags)
+                : (str_starts_with(trim($this->editingProduct->tags), '[')
+                    ? implode(',', json_decode($this->editingProduct->tags, true) ?? [])
+                    : $this->editingProduct->tags))
+            : '';
         $this->preview_duration = $this->editingProduct->preview_duration;
         $this->sort_order = $this->editingProduct->sort_order;
         $this->is_active = $this->editingProduct->is_active;
@@ -524,14 +609,14 @@ class TtsProductManager extends AdminComponent
 
         try {
             // Load category details
-            $categoryResponse = Http::get("https://meditative-brains.com:3001/api/category");
+            $categoryResponse = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/category");
             if ($categoryResponse->successful()) {
                 $categories = $categoryResponse->json();
                 $this->backendCategory = collect($categories)->firstWhere('_id', $this->backend_category_id);
             }
 
             // Load messages (limited to 5 for preview)
-            $messageResponse = Http::get("https://meditative-brains.com:3001/api/motivationMessage/category/{$this->backend_category_id}");
+            $messageResponse = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/category/{$this->backend_category_id}");
             if ($messageResponse->successful()) {
                 $this->backendMessages = array_slice($messageResponse->json(), 0, 5);
             }
@@ -553,6 +638,7 @@ class TtsProductManager extends AdminComponent
         $this->validate();
 
         try {
+            $resolvedBackgroundMusicUrl = $this->resolveBackgroundMusicUrlFromTrack($this->background_music_track);
             $data = [
                 'name' => $this->name,
                 'description' => $this->description,
@@ -561,12 +647,18 @@ class TtsProductManager extends AdminComponent
                 'audio_type' => 'tts',
                 'language' => 'en',
                 'price' => $this->price,
-                'tags' => $this->tags,
+                'tags' => $this->tags
+                    ? (str_starts_with(trim($this->tags), '[')
+                        ? $this->tags
+                        : json_encode(array_map('trim', explode(',', $this->tags))))
+                    : json_encode([]),
                 'preview_duration' => $this->preview_duration,
                 'sort_order' => $this->sort_order,
                 'is_active' => $this->is_active,
                 'is_featured' => $this->is_featured,
-                'background_music_url' => $this->background_music_url ?: null,
+                'background_music_url' => $this->has_background_music
+                    ? ($this->background_music_url ?: $resolvedBackgroundMusicUrl)
+                    : null,
                 'cover_image_path' => $this->cover_image_path ?: null,
                 'meta_title' => $this->meta_title,
                 'meta_description' => $this->meta_description,
@@ -610,6 +702,7 @@ class TtsProductManager extends AdminComponent
                 Log::info('TTS Product Save - Created product ID: ' . $product->id);
             }
 
+            $this->resetFormState();
             $this->showForm = false;
             
         } catch (\Exception $e) {
@@ -654,65 +747,74 @@ class TtsProductManager extends AdminComponent
 
     public function cancel()
     {
-        try {
-            $dir = storage_path('app/bg-music/original');
-            $debug = [];
-            if (!is_dir($dir)) {
-                $this->bgMusicFiles = [];
-                $this->bgMusicDebug = 'Missing dir: '.$dir;
-                return;
-            }
-            $items = @scandir($dir);
-            if ($items === false) {
-                $this->bgMusicFiles = [];
-                $this->bgMusicDebug = 'scandir failed: '.$dir;
-                return;
-            }
-            $tracks = [];
-            foreach ($items as $item) {
-                if ($item === '.' || $item === '..') continue;
-                $full = $dir.DIRECTORY_SEPARATOR.$item;
-                if (is_link($full)) {
-                    $debug[] = 'link '.$item.' -> '.readlink($full);
-                }
-                $real = realpath($full);
-                if ($real && is_file($real)) {
-                    $ext = strtolower(pathinfo($item, PATHINFO_EXTENSION));
-                    if (in_array($ext, ['mp3','wav','m4a','aac','ogg'])) {
-                        $tracks[pathinfo($item, PATHINFO_FILENAME)] = true;
-                    }
-                }
-            }
-            ksort($tracks);
-            $this->bgMusicFiles = array_keys($tracks);
-            if ($this->background_music_track && in_array($this->background_music_track, $this->bgMusicFiles)) {
-                // keep
-            } elseif ($this->editingProduct && $this->editingProduct->background_music_track && in_array($this->editingProduct->background_music_track, $this->bgMusicFiles)) {
-                $this->background_music_track = $this->editingProduct->background_music_track;
-            } elseif ($this->bgMusicFiles) {
-                $this->background_music_track = $this->bgMusicFiles[0];
-            }
-            $this->bgMusicDebug = 'scanned='.count($items).' valid='.count($this->bgMusicFiles).' '.implode(' | ',$debug);
-            Log::info('Loaded bg music tracks (scandir)', ['count' => count($this->bgMusicFiles)]);
-        } catch (\Exception $e) {
-            Log::warning('Failed loading bg music files: '.$e->getMessage());
-            $this->bgMusicFiles = [];
-            $this->bgMusicDebug = 'exception: '.$e->getMessage();
-        }
-            Log::info('Loaded bg music tracks', ['count' => count($this->bgMusicFiles), 'dir' => $dir]);
+        $this->resetFormState();
+        $this->showForm = false;
+    }
+
+    protected function resetFormState(): void
+    {
+        $this->editingProduct = null;
+        $this->name = '';
+        $this->description = '';
+        $this->short_description = '';
+        $this->category = '';
+        $this->price = '';
+        $this->sale_price = '';
+        $this->tags = '';
+        $this->preview_duration = 30;
+        $this->sort_order = 0;
+        $this->is_active = true;
+        $this->is_featured = false;
+        $this->background_music_url = '';
+        $this->cover_image = null;
+        $this->cover_image_path = '';
+        $this->meta_title = '';
+        $this->meta_description = '';
+        $this->meta_keywords = '';
+        $this->backend_category_id = '';
+        $this->total_messages_count = 0;
+        $this->bg_music_volume = 0.30;
+        $this->message_repeat_count = 2;
+        $this->repeat_interval = 2.00;
+        $this->message_interval = 10.00;
+        $this->fade_in_duration = 0.5;
         $this->fade_out_duration = 0.5;
         $this->enable_silence_padding = true;
         $this->silence_start = 1.0;
         $this->silence_end = 1.0;
         $this->has_background_music = false;
         $this->background_music_type = 'relaxing';
-    $this->background_music_track = '';
-    $this->loadBgMusicFiles();
+        $this->background_music_track = '';
         $this->audio_urls = '';
         $this->preview_audio_url = '';
-        
         $this->backendMessages = [];
         $this->backendCategory = null;
+        $this->loadBgMusicFiles();
+    }
+
+    protected function resolveBackgroundMusicUrlFromTrack(?string $track): ?string
+    {
+        $track = trim((string) $track);
+        if ($track === '') {
+            return null;
+        }
+
+        $dir = storage_path('app/bg-music/original');
+        if (!is_dir($dir)) {
+            return null;
+        }
+
+        foreach ((array) scandir($dir) as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            if (strcasecmp(pathinfo($item, PATHINFO_FILENAME), pathinfo($track, PATHINFO_FILENAME)) !== 0) {
+                continue;
+            }
+            return route('bg.music.stream', ['variant' => 'original', 'file' => $item]);
+        }
+
+        return null;
     }
 
     public function generateAudioPreview($productId = null)
@@ -751,15 +853,8 @@ class TtsProductManager extends AdminComponent
                 $audioUrls = array_values(array_unique(array_filter($audioUrls)));
                 
                 if (!empty($audioUrls)) {
-                    // Normalize legacy domain to new domain for playback (temporary until Mongo updated)
-                    $legacyHost = 'motivation.mywebsolutions.co.in:3000';
-                    $newHost = 'meditative-brains.com:3001';
-                    $audioUrls = array_map(function($u) use ($legacyHost, $newHost) {
-                        if (is_string($u) && str_contains($u, $legacyHost)) {
-                            return str_replace($legacyHost, $newHost, $u);
-                        }
-                        return $u;
-                    }, $audioUrls);
+                    // Normalize legacy domains to new domain for playback
+                    $audioUrls = array_map([$this, 'normalizeAdminAudioUrl'], $audioUrls);
                     // Prepare audio configuration for the frontend
                     $audioConfig = [
                         'audioUrls' => $audioUrls,
@@ -802,11 +897,9 @@ class TtsProductManager extends AdminComponent
 
             // Second priority: Check if preview audio URL exists (might be relative path)
             if ($product->preview_audio_url) {
-                $previewUrl = $product->preview_audio_url;
-                
-                // Only add domain if it's a relative path
+                $previewUrl = $this->normalizeAdminAudioUrl($product->preview_audio_url);
                 if (!str_starts_with($previewUrl, 'http')) {
-                    $previewUrl = 'https://motivation.mywebsolutions.co.in:3000/' . ltrim($previewUrl, '/');
+                    $previewUrl = 'https://mentalfitness.store:3001/' . ltrim($previewUrl, '/');
                 }
                 
                 // Simple single audio preview (fallback)
@@ -824,6 +917,35 @@ class TtsProductManager extends AdminComponent
                 return;
             }
 
+            // Third priority: Try fetching audio from Node.js backend (backend_category_id fallback)
+            if ($product->backend_category_id) {
+                $audioUrls = $this->fetchAdminNodeAudioUrls($product);
+                if (!empty($audioUrls)) {
+                    $audioConfig = [
+                        'audioUrls' => $audioUrls,
+                        'messageRepeatCount' => $product->message_repeat_count ?? 2,
+                        'repeatInterval' => $product->repeat_interval ?? 2.0,
+                        'messageInterval' => $product->message_interval ?? 10.0,
+                        'fadeInDuration' => 0,
+                        'fadeOutDuration' => 0,
+                        'silenceStart' => $product->silence_start ?? 1.0,
+                        'silenceEnd' => $product->silence_end ?? 1.0,
+                        'hasBackgroundMusic' => $product->has_background_music ?? false,
+                        'backgroundMusicUrl' => $product->background_music_url,
+                        'bgMusicVolume' => isset($product->bg_music_volume) ? (float)$product->bg_music_volume : 0.3,
+                        'previewDuration' => $product->preview_duration ?? 30,
+                        'category' => $product->category ?? null,
+                        'backgroundMusicType' => $product->background_music_type ?? null,
+                        'backgroundMusicTrack' => $this->background_music_track ?: ($product->background_music_track ?? null),
+                        'previewTitle' => $product->name ?? 'Preview',
+                        'enforceTimeline' => true,
+                    ];
+                    session()->flash('success', 'Playing audio from backend (' . count($audioUrls) . ' clips).');
+                    $this->dispatch('playSequentialAudio', config: $audioConfig);
+                    return;
+                }
+            }
+
             // No audio available
             session()->flash('error', 'No audio URLs available for this product. Please generate audio files first using the TTS Messages section.');
             
@@ -837,6 +959,92 @@ class TtsProductManager extends AdminComponent
     {
         // Just call the same method since it handles existing audio correctly
         $this->generateAudioPreview();
+    }
+
+    /**
+     * Quick play from the product list row (without opening the edit form).
+     */
+    public function quickPlay(int $productId): void
+    {
+        $this->generateAudioPreview($productId);
+    }
+
+    /**
+     * Normalise audio URL – replace legacy hostnames with the current server.
+     */
+    protected function normalizeAdminAudioUrl(string $url): string
+    {
+        $legacyPrefixes = [
+            'https://meditative-brains.com:3001',
+            'http://meditative-brains.com:3001',
+            'https://motivation.mywebsolutions.co.in:3000',
+            'http://motivation.mywebsolutions.co.in:3000',
+            'https://motivation.mywebsolutions.co.in:3001',
+            'http://motivation.mywebsolutions.co.in:3001',
+        ];
+        $newBase = 'https://mentalfitness.store:3001';
+        foreach ($legacyPrefixes as $old) {
+            if (str_starts_with($url, $old)) {
+                return $newBase . substr($url, strlen($old));
+            }
+        }
+        return $url;
+    }
+
+    /**
+     * Fetch audio URLs from Node.js backend for admin preview.
+     * Returns a flat array of normalised audio URL strings.
+     */
+    protected function fetchAdminNodeAudioUrls(TtsAudioProduct $product): array
+    {
+        $ttsBase = rtrim(config('services.tts.base_url'), '/');
+        if (str_ends_with($ttsBase, '/api')) {
+            $ttsBase = substr($ttsBase, 0, -4);
+        }
+        $categoryId    = $product->backend_category_id;
+        $preferredLang = $product->backend_language ?: null;
+
+        try {
+            // Try preferred language first (flat per-message endpoint)
+            if ($preferredLang) {
+                $resp = Http::timeout(15)->get(
+                    $ttsBase . '/api/motivationMessage/language/' . urlencode($preferredLang) . '/category/' . $categoryId
+                );
+                if ($resp->successful()) {
+                    $msgs = $resp->json();
+                    $urls = array_filter(array_map(
+                        fn($m) => isset($m['audioUrl']) ? $this->normalizeAdminAudioUrl($m['audioUrl']) : null,
+                        (array)$msgs
+                    ));
+                    if (!empty($urls)) return array_values($urls);
+                }
+            }
+
+            // Fallback: all variants for category – pick the one with most audio
+            $resp = Http::timeout(15)->get($ttsBase . '/api/motivationMessage/category/' . $categoryId);
+            if (!$resp->successful()) return [];
+
+            $variants = $resp->json();
+            if (!is_array($variants)) return [];
+
+            usort($variants, fn($a, $b) => count($b['audioUrls'] ?? []) - count($a['audioUrls'] ?? []));
+
+            foreach ($variants as $variant) {
+                $audioUrls = $variant['audioUrls'] ?? [];
+                if (empty($audioUrls)) continue;
+                return array_values(array_map(
+                    fn($u) => is_string($u) ? $this->normalizeAdminAudioUrl($u) : null,
+                    array_filter($audioUrls, 'is_string')
+                ));
+            }
+        } catch (\Exception $e) {
+            Log::warning('fetchAdminNodeAudioUrls failed', [
+                'product_id' => $product->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return [];
     }
 
     protected function getViewData(): array

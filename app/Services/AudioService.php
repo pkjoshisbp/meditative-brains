@@ -13,7 +13,7 @@ class AudioService
 
     public function __construct()
     {
-        $this->ttsBackendUrl = 'https://meditative-brains.com:3001';
+        $this->ttsBackendUrl = rtrim(env('TTS_BASE_URL', 'https://mentalfitness.store:3001/api'), '/api');
         $this->defaultTimeout = 60; // 60 seconds for audio generation
     }
 
