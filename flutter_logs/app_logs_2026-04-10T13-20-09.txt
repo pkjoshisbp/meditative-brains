@@ -1,0 +1,43 @@
+DEVICE: android BP2A.250605.031.A3.M536BXXSEGZB7
+TIMESTAMP: 2026-04-10 13:20:09.395311
+DEVICE INFO: android BP2A.250605.031.A3.M536BXXSEGZB7
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2026-04-10 13:00:17] Log file cleared after successful upload
+[2026-04-10 13:00:32] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 13:00:33] [BG] Catalog loaded variants=2 tracks=17
+ody(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=hfj7z34DGvg2d5V4kYB4MsLGPkcRRZOm5XXyxo6wzfdlQZjllGAqiTThcbrgBiJk&expires=1775808033&signature=0aec30d66652f4e21014a50072bee4c6de2d33b9f8244b6f9d3eb8cc3be2b185"}
+[2026-04-10 13:00:33] [LANG] Loaded 5 language(s): [en-GB, en-US, en-IN, hi-IN, en]
+[2026-04-10 13:00:35] [DEBUG] User requested debug log send
+[2026-04-10 13:18:15] EqualizerService: Initializing EqualizerService
+[2026-04-10 13:18:15] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-10 13:18:15] EqualizerService: EqualizerService initialized successfully
+[2026-04-10 13:18:17] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 13:18:18] [BG] Catalog loaded variants=2 tracks=17
+ody(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=lvZxfMOKkRldSlvV0Szgkmm3rM9VviPJLXxFqonNXWebOEGlhDT46puDtQBBYLkl&expires=1775809098&signature=a879ee8aa4dbe8a3f6631edc0134381ae8de786cd3b9b19c3d582f1c5fe11678"}
+[2026-04-10 13:18:18] [LANG] Loaded 5 language(s): [en-GB, en-US, en-IN, hi-IN, en]
+[2026-04-10 13:19:04] [TTS][GET] productDetail(71) -> https://mentalfitness.store/api/tts/products/71/detail
+English India - En US Ava  )" | id=73 name="en-IN - Supreme Confidence (English India - Ada)"
+[2026-04-10 13:19:05] [TTS][PARSE] productDetail(71): tracks=35 hasBg=true bg=https://mentalfitness.store/audio/stream?token=Ars96fdAcSehETk0d97MRWM9UN7t17Sgf3yn1ndpDa8GbDrAhiABmMhKiE57I26Y&expires=1775809145&signature=602ed0c81e2a4e89797bf039e41b3182d37614e5b0ca9873eb45a917da824c28
+797bf039e41b3182d37614e5b0ca9873eb45a917da824c28
+,"background_music_track":"https:\/\/mentalfitness.store\/audio\/stream?token=36crUj2hO6nboIdsseteG3kPham1A8o1VvI0yKGdfaTHXJdUTRiYJsi3emJ8yjDM&expi
+[2026-04-10 13:19:05] [START] Total flat tracks: 82, sentenceRepeat=1, playlistLoop=false
+) bg=NONE
+g=https://mentalfitness.store/audio/stream?token=Ars96fdAcSehETk0d97MRWM9UN7t17Sgf3yn1ndpDa8GbDrAhiABmMhKiE57I26Y&expires=1775809145&signature=602ed0c81e2a4e89797bf039e41b3182d37614e5b0ca9873eb45a917da824c28
+music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\
+[2026-04-10 13:19:05] Downloading audio from: https://mentalfitness.store/audio/stream?token=Ars96fdAcSehETk0d97MRWM9UN7t17Sgf3yn1ndpDa8GbDrAhiABmMhKiE57I26Y&expires=1775809145&signature=602ed0c81e2a4e89797bf039e41b3182d37614e5b0ca9873eb45a917da824c28
+[2026-04-10 13:19:08] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/170cec12773b7318711007b51b687cba.mp3
+[2026-04-10 13:19:08] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/170cec12773b7318711007b51b687cba.mp3
+[2026-04-10 13:19:08] [SEQ] playFlat: 82 tracks, sentenceRepeat=1, playlistLoop=false, msgInterval=2s, repeatMsgInterval=2s
+ache/170cec12773b7318711007b51b687cba.mp3 manual=false
+[2026-04-10 13:19:08] [POWER] Wakelock enabled for Mental Fitness playback
+[2026-04-10 13:19:08] [SEQ] Normalized background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/170cec12773b7318711007b51b687cba.mp3
+[2026-04-10 13:19:08] [SEQ] BG music started (looping): file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/170cec12773b7318711007b51b687cba.mp3 vo[2026-04-[2026-04-10 13:19:08] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+lish India - En US Ava  )" -> 3D%3D&signature=29c2131ec0ed90da9c381dce8a21e49ff6e136da03531abc4c9918be49a7102a
+[2026-04-10 13:19:12] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 13:19:16] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 13:19:18] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+tude (English India - En US Ava  )" -> 3D%3D&signature=39576386f311ed2408a4467308e9285c86a83161c827359124a99066e1d14990
+[2026-04-10 13:19:19] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 13:19:20] [POWER] Wakelock disabled for Mental Fitness playback
+[2026-04-10 13:20:09] Sending debug logs to server...

@@ -36,4 +36,9 @@ return [
         'api_key' => env('TTS_API_KEY'),
     ],
 
+    'azure_tts' => [
+        'key'    => env('AZURE_KEY', ''),
+        'region' => env('AZURE_REGION', 'centralindia'),
+    ],
+
 ];

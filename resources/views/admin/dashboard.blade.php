@@ -76,6 +76,9 @@
                     <a href="{{ route('admin.categories') }}" class="btn btn-secondary me-2 mb-2">
                         <i class="fas fa-folder-plus"></i> Manage Categories
                     </a>
+                    <a href="{{ route('admin.bg-music') }}" class="btn btn-success me-2 mb-2">
+                        <i class="fas fa-music"></i> BG Music Manager
+                    </a>
                     <a href="{{ route('products') }}" class="btn btn-info me-2 mb-2" target="_blank">
                         <i class="fas fa-external-link-alt"></i> View Frontend
                     </a>

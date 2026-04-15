@@ -1,0 +1,524 @@
+DEVICE: android BP2A.250605.031.A3.M536BXXSEGZB7
+TIMESTAMP: 2026-04-10 13:00:17.289521
+DEVICE INFO: android BP2A.250605.031.A3.M536BXXSEGZB7
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2026-04-10 00:38:44] EqualizerService: Initializing EqualizerService
+[2026-04-10 00:38:44] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-10 00:38:44] EqualizerService: EqualizerService initialized successfully
+[2026-04-10 00:39:11] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 00:39:11] [BG] Catalog loaded variants=2 tracks=17
+ody(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=tiMBxjmurP1uLYRRowPgOUaJmtUdvEDXqFexg5GB056vtonnw2ZMqwTszBqcwdjI&expires=1775763551&signature=d1649ce0bf93b4acbd0ddd92193a472d02731e6e6191962bd4f452372cf3769b"}
+[2026-04-10 00:39:11] [LANG] Loaded 5 language(s): [en-GB, en-US, en-IN, hi-IN, en]
+[2026-04-10 00:39:40] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 00:39:41] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=OTlbLCLwioSGUhbEVq6SJvCEWs77BbBrSz3BJ2XTLCC1abk1Vbl9aTDxgYF9gZ0U&expires=1775763581&signature=d3a3c8029870a483dc7931298e7dcef14b33b202c3251d29bbb5e023de754269"}
+[2026-04-10 00:39:41] Downloading audio from: https://mentalfitness.store/audio/stream?token=Mifl6B9qH6mz5ds1Lq1K7CMk6laWanWiysjO5KmGjrMMqb3v7OOuv5GXoIkm8WB0&expires=1775763581&signature=233d78c5606901f76cec857c5b497b90208956c8ce56a557999c4340eaef3a19
+[2026-04-10 00:39:44] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:39:44] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:39:44] [BG] Cached background music for hypnosis-relaxation.mp3: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:39:49] [TTS][GET] productDetail(97) -> https://mentalfitness.store/api/tts/products/97/detail
+l
+[2026-04-10 00:39:50] [DETAIL] en-IN - Brain & Nervous System Balance: fetched detail tracks=29 hasBg=false bg=NONE
+name":"Brain & Nervous System Balance","display_name":"en-IN - Brain & Nervous System Balance","category":"Quit Smoking","language":"en-IN","total_tracks":29,"has_background_music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\/signed-stream?exp
+[2026-04-10 00:39:50] [DETAIL] en-IN - Detox & Immune Repair: fetched detail tracks=29 hasBg=false bg=NONE
+"id":97,"name":"Detox & Immune Repair","display_name":"en-IN - Detox & Immune Repair","category":"Quit Smoking","language":"en-IN","total_tracks":29,"has_background_music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\/signed-stream?expires=1775848190&pa
+[2026-04-10 00:39:50] [DETAIL] en-IN - Heart & Circulation: fetched detail tracks=29 hasBg=false bg=NONE
+:{"id":96,"name":"Heart & Circulation","display_name":"en-IN - Heart & Circulation","category":"Quit Smoking","language":"en-IN","total_tracks":29,"has_background_music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\/signed-stream?expires=1775848190&path=Y
+[2026-04-10 00:39:50] [START] en-IN - Heart & Circulation: 29 track(s) bg=NONE
+tLoop=false
+hasBg=false bg=NONE
+":101,"name":"Cellular & Genetic Repair","display_name":"en-IN - Cellular & Genetic Repair","category":"Quit Smoking","language":"en-IN","total_tracks":29,"has_background_music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\/signed-stream?expires=1775
+[2026-04-10 00:39:50] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 00:39:51] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=NDnJRm8KRJKIY4fZkAvQZtKd1w7sabG2KYVhYkp13gNdVK13QWhhkX4vZv3yTAg4&expires=1775763591&signature=10af896697afc6eb0bdeb20414f11d102e782aed9b4ba2d98622555ac0124aa3"}
+[2026-04-10 00:39:51] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:39:51] [POWER] Wakelock enabled for Mental Fitness playback
+tLoop=false, msgInterval=2s, repeatMsgInterval=2s
+che/baf725eca18c5f9bce388ec4832dfb31.mp3 manual=true
+p3
+[2026-04-10 00:39:51] [SEQ] Normalized background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:39:51] [SEQ] BG music started (looping): file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3 vo[2026-04-10 00:39:51] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=572e18bcc7c83a5338e2a2e32f1cfc852e29a74630a0bd015088dcfddafb55d3
+[2026-04-10 00:39:53] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:39:57] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:39:59] [SEQ] [playlist:1][track:2/116][repeat:1/1] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=29afe196ff5dcaf56014794d2b526ec6d54c1b0ce3edafd3c174ba111900f159
+[2026-04-10 00:40:00] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:40:06] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=ab2a9594c07d53e2b8c3d11db85d6bd077925c483084d22709ec3889b85883f1
+[2026-04-10 00:40:09] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:40:14] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=be1d23bd42ce4c3a0d66895cb5a1450f9390735b8519682656da0b9776e8140f
+[2026-04-10 00:40:17] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:40:22] [SEQ] [playlist:1][track:5/116][repeat:1/1] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=8c64396fd1ddcb791b983cb7cd6c6ff4e8cdca78aa4e6085fa5fcfdceec71405
+[2026-04-10 00:40:25] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:40:31] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=2e3f7a6d3476aa2a5b3ce82bf4c52ba0c3d1adb004a004a527dd1e43e84c39c7
+[2026-04-10 00:40:33] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:40:39] [SEQ] [playlist:1][track:7/116][repeat:1/1] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=adb5659e942bd90bb11383407f0887fb13aad611b0b953505bdfb3c653de3a7e
+[2026-04-10 00:40:42] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:40:49] [SEQ] [playlist:1][track:8/116][repeat:1/1] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=74d06ec97470f23c42805448bce4e7693cce833ef81f0a8c5beb092547d89253
+[2026-04-10 00:40:51] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:40:51] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:40:57] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=b014043031d04e78e35ac604f001b67e2a5db2db522d82a8885346364e2ae363
+[2026-04-10 00:41:00] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:41:05] [SEQ] [playlist:1][track:10/116][repeat:1/1] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=536c16be6c0f35fe23fbf0ad2550ad0b79b4312afe71e35c4014f88ee2c92a33
+[2026-04-10 00:41:07] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+eady
+[2026-04-10 00:41:13] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=db9b4c573d9714ea51e5b260222ad2e5aa297652189f72abe9bfffe1793845bf
+[2026-04-10 00:41:15] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:41:15] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:41:21] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=126666d0c040be4f41b1afe563a07fa82c2227204eee4806411ec7ad1fb34853
+[2026-04-10 00:41:24] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:41:29] [SEQ] [playlist:1][track:13/116][repeat:1/1] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=1c3b1dfc2188a0cf4412267a6620a4b4b926b945d1a3504300f9ee0fc1fa6104
+[2026-04-10 00:41:31] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:41:37] [SEQ][BG][watchdog] state changed → playing=false proc=ProcessingState.ready
+[2026-04-10 00:41:37] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=0e033e5614406ee9510781e7d1b99fe1160a93cfe38748d8f609376ac16aa666
+[2026-04-10 00:41:38] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:41:39] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:41:39] [POWER] Wakelock disabled for Mental Fitness playback
+[2026-04-10 00:42:22] [START] Total flat tracks: 116, sentenceRepeat=2, playlistLoop=true
+[2026-04-10 00:42:22] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 00:42:23] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=yURbBGNULXzeV99ycfay0XfGQ5WVx39ACnBiLKv7058WUZ4z4Fyr4Oyx8ZaKf9Bw&expires=1775763743&signature=ccdfd8d49ee5e8ee5e06e87cf28a29a5c8df16097dee3fc8fcf1aa2795c5c367"}
+[2026-04-10 00:42:23] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:42:23] [START] Final background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3 manual=true
+p3
+[2026-04-10 00:42:23] [POWER] Wakelock enabled for Mental Fitness playback
+tLoop=true, msgInterval=20s, repeatMsgInterval=3s
+[2026-04-10 00:42:23] [SEQ] Normalized background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:42:23] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+on_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3 volume=0.5
+30a0bd015088dcfddafb55d3
+[2026-04-10 00:42:24] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:42:28] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:42:31] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=572e18bcc7c83a5338e2a2e32f1cfc852e29a74630a0bd015088dcfddafb55d3
+[2026-04-10 00:42:32] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:42:56] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=29afe196ff5dcaf56014794d2b526ec6d54c1b0ce3edafd3c174ba111900f159
+[2026-04-10 00:42:59] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:43:06] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=29afe196ff5dcaf56014794d2b526ec6d54c1b0ce3edafd3c174ba111900f159
+[2026-04-10 00:43:08] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:43:33] [SEQ] [playlist:1][track:3/116][repeat:1/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=ab2a9594c07d53e2b8c3d11db85d6bd077925c483084d22709ec3889b85883f1
+[2026-04-10 00:43:35] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:43:41] [SEQ] [playlist:1][track:3/116][repeat:2/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=ab2a9594c07d53e2b8c3d11db85d6bd077925c483084d22709ec3889b85883f1
+[2026-04-10 00:43:44] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:44:07] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=be1d23bd42ce4c3a0d66895cb5a1450f9390735b8519682656da0b9776e8140f
+[2026-04-10 00:44:10] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:44:17] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=be1d23bd42ce4c3a0d66895cb5a1450f9390735b8519682656da0b9776e8140f
+[2026-04-10 00:44:19] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+eady
+[2026-04-10 00:44:43] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=8c64396fd1ddcb791b983cb7cd6c6ff4e8cdca78aa4e6085fa5fcfdceec71405
+[2026-04-10 00:44:46] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:44:53] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=8c64396fd1ddcb791b983cb7cd6c6ff4e8cdca78aa4e6085fa5fcfdceec71405
+[2026-04-10 00:44:55] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:45:19] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=2e3f7a6d3476aa2a5b3ce82bf4c52ba0c3d1adb004a004a527dd1e43e84c39c7
+[2026-04-10 00:45:21] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:45:28] [SEQ] [playlist:1][track:6/116][repeat:2/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=2e3f7a6d3476aa2a5b3ce82bf4c52ba0c3d1adb004a004a527dd1e43e84c39c7
+[2026-04-10 00:45:39] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:46:03] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=adb5659e942bd90bb11383407f0887fb13aad611b0b953505bdfb3c653de3a7e
+[2026-04-10 00:46:06] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:46:14] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=adb5659e942bd90bb11383407f0887fb13aad611b0b953505bdfb3c653de3a7e
+[2026-04-10 00:46:16] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:46:42] [SEQ] [playlist:1][track:8/116][repeat:1/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=74d06ec97470f23c42805448bce4e7693cce833ef81f0a8c5beb092547d89253
+[2026-04-10 00:46:44] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:46:51] [SEQ] [playlist:1][track:8/116][repeat:2/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=74d06ec97470f23c42805448bce4e7693cce833ef81f0a8c5beb092547d89253
+[2026-04-10 00:46:53] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:47:17] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+ous System Balance" -> 3D%3D&signature=b014043031d04e78e35ac604f001b67e2a5db2db522d82a8885346364e2ae363
+[2026-04-10 00:47:21] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:47:21] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:47:27] [SEQ] [playlist:1][track:9/116][repeat:2/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=b014043031d04e78e35ac604f001b67e2a5db2db522d82a8885346364e2ae363
+[2026-04-10 00:47:30] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+eady
+[2026-04-10 00:47:53] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=536c16be6c0f35fe23fbf0ad2550ad0b79b4312afe71e35c4014f88ee2c92a33
+[2026-04-10 00:47:56] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:48:02] [SEQ] [playlist:1][track:10/116][repeat:2/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=536c16be6c0f35fe23fbf0ad2550ad0b79b4312afe71e35c4014f88ee2c92a33
+[2026-04-10 00:48:05] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:48:28] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=db9b4c573d9714ea51e5b260222ad2e5aa297652189f72abe9bfffe1793845bf
+[2026-04-10 00:48:31] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:48:37] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=db9b4c573d9714ea51e5b260222ad2e5aa297652189f72abe9bfffe1793845bf
+[2026-04-10 00:48:40] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:49:04] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=126666d0c040be4f41b1afe563a07fa82c2227204eee4806411ec7ad1fb34853
+[2026-04-10 00:49:06] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:49:12] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=126666d0c040be4f41b1afe563a07fa82c2227204eee4806411ec7ad1fb34853
+[2026-04-10 00:49:15] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:49:38] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=1c3b1dfc2188a0cf4412267a6620a4b4b926b945d1a3504300f9ee0fc1fa6104
+[2026-04-10 00:49:41] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:49:47] [SEQ] [playlist:1][track:13/116][repeat:2/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=1c3b1dfc2188a0cf4412267a6620a4b4b926b945d1a3504300f9ee0fc1fa6104
+[2026-04-10 00:49:50] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:50:13] [SEQ] [playlist:1][track:14/116][repeat:1/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=0e033e5614406ee9510781e7d1b99fe1160a93cfe38748d8f609376ac16aa666
+[2026-04-10 00:50:16] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:50:16] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:50:23] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=0e033e5614406ee9510781e7d1b99fe1160a93cfe38748d8f609376ac16aa666
+[2026-04-10 00:50:25] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:50:49] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=1d9e19d37fe2325fe038711a75e93ec626d75ae1fde5c610cb8315bf4c1c0392
+[2026-04-10 00:50:51] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:50:58] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=1d9e19d37fe2325fe038711a75e93ec626d75ae1fde5c610cb8315bf4c1c0392
+[2026-04-10 00:51:00] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+eady
+[2026-04-10 00:51:24] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=d983eeaff8051864e2cbdc62138366f67ff59fb2388860ad5380d4c13cee055d
+[2026-04-10 00:51:26] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:51:33] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=d983eeaff8051864e2cbdc62138366f67ff59fb2388860ad5380d4c13cee055d
+[2026-04-10 00:51:35] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:51:59] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=87274cf47f04d6c7189955fa96905d2ceef9571a80ee359c60edc6d6a42d09ec
+[2026-04-10 00:52:02] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:52:08] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=87274cf47f04d6c7189955fa96905d2ceef9571a80ee359c60edc6d6a42d09ec
+[2026-04-10 00:52:11] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:52:35] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=011ce111f2a405de546c00ae0f5352649591e3df439d16bbf6f8b0a286c5f8e8
+[2026-04-10 00:52:37] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:52:44] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=011ce111f2a405de546c00ae0f5352649591e3df439d16bbf6f8b0a286c5f8e8
+[2026-04-10 00:52:47] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:53:11] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=2e7b53011d0d0b53f4f3540431e9430cfbeac3e3e4b2626ff42747bd667fc71e
+[2026-04-10 00:53:13] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:53:19] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=2e7b53011d0d0b53f4f3540431e9430cfbeac3e3e4b2626ff42747bd667fc71e
+[2026-04-10 00:53:22] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:53:45] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=b8d4df17ccbf290d1810c55835f362a8aa39ff4b3a1f80652816f92622227acb
+[2026-04-10 00:53:48] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:53:56] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=b8d4df17ccbf290d1810c55835f362a8aa39ff4b3a1f80652816f92622227acb
+[2026-04-10 00:53:58] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:54:23] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=490b5ceddce59969162c1583bc8db21a0e1272174cf39ec79f7582d0e2df5023
+[2026-04-10 00:54:28] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+eady
+[2026-04-10 00:54:35] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=490b5ceddce59969162c1583bc8db21a0e1272174cf39ec79f7582d0e2df5023
+[2026-04-10 00:54:38] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+eady
+[2026-04-10 00:55:01] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=25873b9d5f79a3a3a5758d174341e8e56923da2cd0e146707e2b563df85d5882
+[2026-04-10 00:55:04] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:55:10] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=25873b9d5f79a3a3a5758d174341e8e56923da2cd0e146707e2b563df85d5882
+[2026-04-10 00:55:13] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:55:36] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=21e08a7b0708ee74498cde50b5135320101d50884388aba2d6daac5359b080de
+[2026-04-10 00:55:38] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:55:45] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=21e08a7b0708ee74498cde50b5135320101d50884388aba2d6daac5359b080de
+[2026-04-10 00:55:47] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:56:11] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=b750c7743600a8223c0c70fffec6f2a725bec04328b37a21d2e0893aeb2bf169
+[2026-04-10 00:56:13] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:56:20] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=b750c7743600a8223c0c70fffec6f2a725bec04328b37a21d2e0893aeb2bf169
+[2026-04-10 00:56:23] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:56:47] [SEQ] [playlist:1][track:25/116][repeat:1/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=867bb82ab31514fd27a13c1939286eb6aa10fa0aa2c169f063453d73ece518c5
+[2026-04-10 00:56:50] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:56:56] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=867bb82ab31514fd27a13c1939286eb6aa10fa0aa2c169f063453d73ece518c5
+[2026-04-10 00:56:58] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:56:58] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:57:22] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=eac36dc4f499a1a7027194950096ca8c6d42e8e3fe2399079b8c48d883921950
+[2026-04-10 00:57:24] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+eady
+[2026-04-10 00:57:31] [SEQ] [playlist:1][track:26/116][repeat:2/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=eac36dc4f499a1a7027194950096ca8c6d42e8e3fe2399079b8c48d883921950
+[2026-04-10 00:57:34] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:57:57] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=e7ff075a87a1bcd816f05faa422ad6f841d0897c62d9bbcd5efa173c5b29c00a
+[2026-04-10 00:58:00] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:58:06] [SEQ] [playlist:1][track:27/116][repeat:2/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=e7ff075a87a1bcd816f05faa422ad6f841d0897c62d9bbcd5efa173c5b29c00a
+[2026-04-10 00:58:09] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:58:32] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=35765935ee545231dfa4ef2c8801cab76908773336677c9b677fd3df13a2c0e8
+[2026-04-10 00:58:34] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:58:41] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=35765935ee545231dfa4ef2c8801cab76908773336677c9b677fd3df13a2c0e8
+[2026-04-10 00:58:43] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:59:07] [SEQ] [playlist:1][track:29/116][repeat:1/2] Playing: "en-IN - Brain & Nervous System Balance" -> 3D%3D&signature=bc84175dd1905e4e170f978fd2c0f62f0d0bbdf7b38bd4181d0e5b50962c565e
+[2026-04-10 00:59:09] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:59:16] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+vous System Balance" -> 3D%3D&signature=bc84175dd1905e4e170f978fd2c0f62f0d0bbdf7b38bd4181d0e5b50962c565e
+[2026-04-10 00:59:19] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:59:43] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=95f1352da43684367d2fd5e0a5f3678448213905fe8f88cb94aaaebccfff29e7
+[2026-04-10 00:59:46] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:59:53] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=95f1352da43684367d2fd5e0a5f3678448213905fe8f88cb94aaaebccfff29e7
+[2026-04-10 00:59:55] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:00:19] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=1177485542055b9ad94a8110274b251c194b59a59c25f9ee88f6a0824c0fa5c3
+[2026-04-10 01:00:22] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:00:29] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=1177485542055b9ad94a8110274b251c194b59a59c25f9ee88f6a0824c0fa5c3
+[2026-04-10 01:00:32] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:00:56] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=d773968c5a29fb8332bdf343997cede91be803c06e125fbe1f3717016a1f0c2d
+[2026-04-10 01:00:58] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:01:05] [SEQ] [playlist:1][track:32/116][repeat:2/2] Playing: "en-IN - Cellular & Genetic Repair" -> mM%3D&signature=d773968c5a29fb8332bdf343997cede91be803c06e125fbe1f3717016a1f0c2d
+[2026-04-10 01:01:08] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:01:32] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=7f8168bd9169ebcf4b757bdd0aea698ffcb2243593cec6e625158d90117a7407
+[2026-04-10 01:01:35] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:01:42] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=7f8168bd9169ebcf4b757bdd0aea698ffcb2243593cec6e625158d90117a7407
+[2026-04-10 01:01:44] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:02:09] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=690b78686ef44758f7ef4d0ca6a3d15db4ea7cec851869eeb0fd5ec91919521a
+[2026-04-10 01:02:11] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:02:18] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=690b78686ef44758f7ef4d0ca6a3d15db4ea7cec851869eeb0fd5ec91919521a
+[2026-04-10 01:02:21] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:02:45] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=2e6f5378f9b9c566ed2a9ac69d469c07b42c9a9c4afd730aac9f6b115630ea5e
+[2026-04-10 01:02:48] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:02:56] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=2e6f5378f9b9c566ed2a9ac69d469c07b42c9a9c4afd730aac9f6b115630ea5e
+[2026-04-10 01:02:58] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:03:23] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=992e8504e10e65518185528335048dccbbb19905003bec2b3ff8570e95332807
+[2026-04-10 01:03:26] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:03:33] [SEQ] [playlist:1][track:36/116][repeat:2/2] Playing: "en-IN - Cellular & Genetic Repair" -> mM%3D&signature=992e8504e10e65518185528335048dccbbb19905003bec2b3ff8570e95332807
+[2026-04-10 01:03:35] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:03:59] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=0f33dcef650b1414c4ad9d159d45607ef746755b827c1766f810cdff0576f66d
+[2026-04-10 01:04:02] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:04:08] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=0f33dcef650b1414c4ad9d159d45607ef746755b827c1766f810cdff0576f66d
+[2026-04-10 01:04:11] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:04:35] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=433468aacad59a10cf59055ecbf5011fe1fb8445164792a3345cfece790656d7
+[2026-04-10 01:04:38] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:04:45] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=433468aacad59a10cf59055ecbf5011fe1fb8445164792a3345cfece790656d7
+[2026-04-10 01:04:48] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:05:12] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=4d252404a058a364e12d97c614fc10e4286c4c934b45e76d89345cad5ea018b3
+[2026-04-10 01:05:14] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:05:14] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:05:21] [SEQ] [playlist:1][track:39/116][repeat:2/2] Playing: "en-IN - Cellular & Genetic Repair" -> mM%3D&signature=4d252404a058a364e12d97c614fc10e4286c4c934b45e76d89345cad5ea018b3
+[2026-04-10 01:05:24] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:05:48] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=9151f2df1d63268721893b32772a5693fa1a798b50c2af1c2732375750f25869
+[2026-04-10 01:05:50] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:05:58] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+Genetic Repair" -> mM%3D&signature=9151f2df1d63268721893b32772a5693fa1a798b50c2af1c2732375750f25869
+[2026-04-10 01:06:00] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:06:00] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 01:06:06] [POWER] Wakelock disabled for Mental Fitness playback
+[2026-04-10 10:33:08] EqualizerService: Initializing EqualizerService
+[2026-04-10 10:33:08] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-10 10:33:08] EqualizerService: EqualizerService initialized successfully
+[2026-04-10 10:33:25] EqualizerService: Initializing EqualizerService
+[2026-04-10 10:33:25] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-10 10:33:25] EqualizerService: EqualizerService initialized successfully
+[2026-04-10 10:33:38] EqualizerService: Initializing EqualizerService
+[2026-04-10 10:33:38] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-10 10:33:38] EqualizerService: EqualizerService initialized successfully
+[2026-04-10 10:33:40] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 10:33:41] [BG] Catalog loaded variants=2 tracks=17
+ody(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=CVRPQB4T3cC5Zj1LiSfwn7BgEicijSShxJR99vPaUPu9DkpXf6tmsDTgDJZQdKC8&expires=1775799221&signature=45c643eb99e3657fd88891fa28b8518dfc3b28fa7cfd4cdcb092202704ddd299"}
+[2026-04-10 10:33:41] [LANG] Loaded 5 language(s): [en-GB, en-US, en-IN, hi-IN, en]
+[2026-04-10 10:33:53] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 10:33:54] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=5wUOYYhsAececbnA0lKoy9uPaxlgceIsNXcRTF9EJnowsAZNbaki7FfN3ykIJmlr&expires=1775799234&signature=e5db2a0119dda87e035a431b7ab41a76d450738e760266eaf98e912c06d0d767"}
+[2026-04-10 10:33:54] Downloading audio from: https://mentalfitness.store/audio/stream?token=C85JlAoTZgdIXtfSXd9UGIFy5cF95xtyaqMSOaUg2lSwvdiEdbD78AmRMgGdRGtx&expires=1775799234&signature=559f447972dcb1b279b4a88a81895ebb06edec258ffaa310f7211976fbfa689d
+[2026-04-10 10:33:57] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/8e6a276f5b0c21dc0d5111a6ad42c410.mp3
+[2026-04-10 10:33:57] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/8e6a276f5b0c21dc0d5111a6ad42c410.mp3
+[2026-04-10 10:33:57] [BG] Cached background music for positive-attitude.aac: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/8e6a276f5b0c21dc0d5111a6ad42c410.mp3
+[2026-04-10 10:34:40] [TTS][GET] productDetail(73) -> https://mentalfitness.store/api/tts/products/73/detail
+[2026-04-10 10:34:41] [DETAIL] en-IN - Positive Attitude (English India - En US Ava  ): fetched detail tracks=35 hasBg=true bg=https://mentalfitness.store/audio/stream?token=EZVn9tWKcqzivywbmLciZgg9ypiS5amxaF6NZoLXDUfXnuOtNSs5vHLg8KZTeYUi&expires=1775799281&signature=f28f5279906644610d9caabb60cf3fcbaedd9af431dd0002833909ed9d62dc46
+,"background_music_track":"https:\/\/mentalfitness.store\/audio\/stream?token=6ghdML3ZqVg7yVDAC2EtyMgaJPtZk7rHmWpUz4tWpZGpHUjeAU5L2L3zjm9fEvoX&expi
+[2026-04-10 10:34:44] [START] Total flat tracks: 82, sentenceRepeat=2, playlistLoop=true
+s) bg=NONE
+g=https://mentalfitness.store/audio/stream?token=EZVn9tWKcqzivywbmLciZgg9ypiS5amxaF6NZoLXDUfXnuOtNSs5vHLg8KZTeYUi&expires=1775799281&signature=f28f5279906644610d9caabb60cf3fcbaedd9af431dd0002833909ed9d62dc46
+music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\
+[2026-04-10 10:34:44] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 10:34:45] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=uwHe1mhuNLSTV9hO1UMG9up06jWRfd7XKPNOGMtwjl20Ugc2QTZuWMuUnBAsIlQw&expires=1775799285&signature=68c195b8f2c0d142c7008a601c4469a6cdd1668113214b7f848276345c153bb3"}
+[2026-04-10 10:34:45] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/8e6a276f5b0c21dc0d5111a6ad42c410.mp3
+[2026-04-10 10:34:45] [SEQ] playFlat: 82 tracks, sentenceRepeat=2, playlistLoop=true, msgInterval=20s, repeatMsgInterval=3s
+ache/8e6a276f5b0c21dc0d5111a6ad42c410.mp3 manual=true
+
+[2026-04-10 10:34:45] [SEQ] Normalized background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/8e6a276f5b0c21dc0d5111a6ad42c410.mp3
+[2026-04-10 10:34:45] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+tude (English India - En US Ava  )" -> 3D%3D&signature=8ac9a2505ce3a3cb3b243e1d7e13c07fb22221d6091fc02f47b41be797cc6aa0
+[2026-04-10 10:34:47] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 10:34:51] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 10:34:54] [SEQ] [playlist:1][track:1/82][repeat:2/2] Playing: "en-IN - Positive Attitude (English India - En US Ava  )" -> 3D%3D&signature=8ac9a2505ce3a3cb3b243e1d7e13c07fb22221d6091fc02f47b41be797cc6aa0
+[2026-04-10 10:34:55] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+eady
+[2026-04-10 10:35:19] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+tude (English India - En US Ava  )" -> 3D%3D&signature=ecd16718f0b1761b7112382e93c8e1ebe2bdf4ac2a4e549d7e21b3eed6a78e87
+[2026-04-10 10:35:20] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 10:35:31] EqualizerService: Initializing EqualizerService
+[2026-04-10 10:35:31] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-10 10:35:31] EqualizerService: EqualizerService initialized successfully
+[2026-04-10 10:35:32] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 10:35:33] [LANG] Loaded 5 language(s): [en-GB, en-US, en-IN, hi-IN, en]
+[2026-04-10 10:35:33] [BG] Catalog loaded variants=2 tracks=17
+ody(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=m4xfVgNv2PD1GLLOxOMG2jSErfhEEMJPIelVdNSzb7HzjRNPhKjICliD0QvZGJAT&expires=1775799333&signature=a32e4db5bc91c133595e52d4f330b6a5eef2aa37b5aad888a21a5dc0c56a9765"}
+[2026-04-10 10:36:15] [TTS][GET] productDetail(73) -> https://mentalfitness.store/api/tts/products/73/detail
+[2026-04-10 10:36:16] [DETAIL] en-IN - Positive Attitude (English India - En US Ava  ): fetched detail tracks=35 hasBg=true bg=https://mentalfitness.store/audio/stream?token=wSiHZTZRQ6W1Eb04LqfLgR4FS6yQcXDOAbsGflqcmDgGEC1qa9IOANHodBU87cJg&expires=1775799375&signature=24312b120e117161b2e89e0e86127d8b37c5b75399f1f1fcd2bf556e157cf708
+,"background_music_track":"https:\/\/mentalfitness.store\/audio\/stream?token=l3KgpYaAmIhYX8DeZGefUA9wjaAOJ3ygtfqQpmqi7k1O0kTLehlaimZK4GjrovH6&expi
+[2026-04-10 10:36:16] [START] Total flat tracks: 82, sentenceRepeat=2, playlistLoop=true
+s) bg=NONE
+ks=47 hasBg=false bg=NONE
+ore/audio/stream?token=wSiHZTZRQ6W1Eb04LqfLgR4FS6yQcXDOAbsGflqcmDgGEC1qa9IOANHodBU87cJg&expires=1775799375&signature=24312b120e117161b2e89e0e86127d8b37c5b75399f1f1fcd2bf556e157cf708
+music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\
+[2026-04-10 10:36:16] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 10:36:17] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=UjDiRJg8OU7SQQh3rz8TNwEho8fVKnjeftmXZCxyA5USGKjmMc5SyntiB1vUyW4c&expires=1775799376&signature=13c93697c6a2908263048a21ee5288cce0deb298811bb408504d3690be56261a"}
+[2026-04-10 10:36:17] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/8e6a276f5b0c21dc0d5111a6ad42c410.mp3
+[2026-04-10 10:36:17] [SEQ] playFlat: 82 tracks, sentenceRepeat=2, playlistLoop=true, msgInterval=20s, repeatMsgInterval=3s
+ache/8e6a276f5b0c21dc0d5111a6ad42c410.mp3 manual=true
+
+[2026-04-10 10:36:17] [POWER] Wakelock enabled for Mental Fitness playback
+[2026-04-10 10:36:17] [SEQ] Normalized background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/8e6a276f5b0c21dc0d5111a6ad42c410.mp3
+[2026-04-10 10:36:17] [SEQ][BG][watchdog] state changed → playing=true proc=ProcessingState.ready
+ (English India - En US Ava  )" -> 3D%3D&signature=70c407b9224b1d1[2026-04-10 10:36:17] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 10:36:18] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 10:36:22] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 10:36:25] [SEQ] [playlist:1][track:1/82][repeat:2/2] Playing: "en-IN - Positive Attitude (English India - En US Ava  )" -> 3D%3D&signature=70c407b9224b1d18a2d19711f0635f478f6d4bf5087ced7d3356e4fb6a309f3f
+[2026-04-10 10:36:27] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+eady
+[2026-04-10 10:36:39] [POWER] Wakelock disabled for Mental Fitness playback
+[2026-04-10 10:36:44] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 10:36:44] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=yqvin1Adw55rIeMrOFx5riT0a3qQNUm8Kro6n3P2Vcp9RLIroc0ZMIbyHGDL5wNr&expires=1775799404&signature=de6a3e569fd19fef97e5982c07f606650359e9f2128d7c3933e28937d1936264"}
+[2026-04-10 10:36:44] Downloading audio from: https://mentalfitness.store/audio/stream?token=9s22Zv9O0uxGgCpJO9v90w708L0l3jAJadGbj0vF9M87LEBItfu2aM3ENHzWuMlM&expires=1775799404&signature=82ccf2e30988f9f6e2828aaf347c670ce4f54f1df80986c0cd7579d74242ec57
+[2026-04-10 10:36:47] [START] Total flat tracks: 82, sentenceRepeat=2, playlistLoop=true
+s) bg=NONE
+g=https://mentalfitness.store/audio/stream?token=wSiHZTZRQ6W1Eb04LqfLgR4FS6yQcXDOAbsGflqcmDgGEC1qa9IOANHodBU87cJg&expires=1775799375&signature=24312b120e117161b2e89e0e86127d8b37c5b75399f1f1fcd2bf556e157cf708
+[2026-04-10 10:36:47] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 10:36:48] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/0c5cc8a320055143e6ff2dc53f998690.mp3
+[2026-04-10 10:36:48] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/0c5cc8a320055143e6ff2dc53f998690.mp3
+[2026-04-10 10:36:48] [BG] Cached background music for positive-attitude.mp3: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/0c5cc8a320055143e6ff2dc53f998690.mp3
+[2026-04-10 10:36:49] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=pZhBtfW2ZT4FaDaI0xHFKwRqeGcyaZV2RUqtsSWMcB8WYLjnUMxaZV2WDBu35g0a&expires=1775799408&signature=c0ca15585bfc8dd07a58f6520d9e41c05e8d625c318c4198913f686ef8d604d0"}
+[2026-04-10 10:36:49] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/0c5cc8a320055143e6ff2dc53f998690.mp3
+[2026-04-10 10:36:49] [START] Final background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/0c5cc8a320055143e6ff2dc53f998690.mp3 manual=true
+
+[2026-04-10 10:36:49] [POWER] Wakelock enabled for Mental Fitness playback
+[2026-04-10 10:36:49] [SEQ] Normalized background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/0c5cc8a320055143e6ff2dc53f998690.mp3
+[2026-04-10 10:36:49] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+tude (English India - En US Ava  )" -> 3D%3D&signature=70c407b9224b1d18a2d19711f0635f478f6d4bf5087ced7d3356e4fb6a309f3f
+[2026-04-10 10:36:50] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 10:36:54] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 10:36:57] [SEQ] [playlist:1][track:1/82][repeat:2/2] Playing: "en-IN - Positive Attitude (English India - En US Ava  )" -> 3D%3D&signature=70c407b9224b1d18a2d19711f0635f478f6d4bf5087ced7d3356e4fb6a309f3f
+[2026-04-10 10:36:58] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 12:28:34] EqualizerService: Initializing EqualizerService
+[2026-04-10 12:28:34] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-10 12:28:34] EqualizerService: EqualizerService initialized successfully
+[2026-04-10 12:28:36] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 12:28:37] [BG] Catalog loaded variants=2 tracks=17
+ody(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=tbsvwMQQKKsZRGqDb3SU7mR8CqyfKAs1sxK6brTSOgY7RWMq7aoWEefHe4AKW2Yn&expires=1775806117&signature=fec4870d16b8828a12b307d057bf126fd4f4bea2155d1898927c8e3721f516e0"}
+[2026-04-10 12:28:37] [LANG] Loaded 5 language(s): [en-GB, en-US, en-IN, hi-IN, en]
+[2026-04-10 12:28:56] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 12:28:57] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=y8itwyU7zBJ4niKaHVZ1fdYYhRmFiL0kVmMk75HS22UwPSm5km4iMHRy7rolsgB4&expires=1775806137&signature=362ae7fc7b1bc269b4a20c52b00c1c26309173ac4130026656b0282e54a83abf"}
+[2026-04-10 12:28:57] Downloading audio from: https://mentalfitness.store/audio/stream?token=SlZg6QrWj9A98HrWGjZbwzDsskWAqMby3ah2eT2RZ4qyyZZQyNPmLnHm9iiBchpB&expires=1775806137&signature=417bcfc085b597fcd253cdebc7cb3d4567326ef5cd88c00cbdb7ceeac6a21451
+[2026-04-10 12:29:00] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+[2026-04-10 12:29:00] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+[2026-04-10 12:29:00] [BG] Cached background music for supreme-confidence.mp3: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+[2026-04-10 12:29:00] [TTS][GET] productDetail(71) -> https://mentalfitness.store/api/tts/products/71/detail
+[2026-04-10 12:29:01] [DETAIL] en-IN - Positive Attitude (English India - En US Ava  ): fetched detail tracks=35 hasBg=true bg=https://mentalfitness.store/audio/stream?token=ch1Wokjr9IqXMFxc4TXF8ux1A6GoKBxFcYhsqadLeWwE2Bpp90wOSE7VnieNajHJ&expires=1775806141&signature=cfb2d73d6c30bd17541a9229dfcfe079536c2cfd1800b2aa1f06693a1be6d1b7
+,"background_music_track":"https:\/\/mentalfitness.store\/audio\/stream?token=h5TktAuULYMF7n71KaobN2s3PttFoTBSwNKXqO1VxqfX5gGHVZT7fkQKkrE3pQ5D&expi
+[2026-04-10 12:29:01] [START] Total flat tracks: 82, sentenceRepeat=2, playlistLoop=true
+s) bg=NONE
+g=https://mentalfitness.store/audio/stream?token=ch1Wokjr9IqXMFxc4TXF8ux1A6GoKBxFcYhsqadLeWwE2Bpp90wOSE7VnieNajHJ&expires=1775806141&signature=cfb2d73d6c30bd17541a9229dfcfe079536c2cfd1800b2aa1f06693a1be6d1b7
+music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\
+[2026-04-10 12:29:01] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 12:29:02] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=UYBMD7yiMVMElDtEfGpuzu5YTfqM4jtP2ICBjtvUJluHNK3nGNpdxMKUZwaifnGQ&expires=1775806142&signature=808f741b3f56f3b0b45be9f093c18d1e119ba497f77f352fbe612483ce4cb140"}
+[2026-04-10 12:29:02] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+[2026-04-10 12:29:02] [SEQ] playFlat: 82 tracks, sentenceRepeat=2, playlistLoop=true, msgInterval=20s, repeatMsgInterval=3s
+lutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+[2026-04-10 12:29:02] [POWER] Wakelock enabled for Mental Fitness playback
+[2026-04-10 12:29:02] [SEQ] Normalized background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+[2026-04-10 12:29:02] [SEQ] [playlist:1][track:1/82][repeat:1/2] Playing: "en-IN - Positive Attitude (English India - En US Ava  )" -> 3D%3D&signature=9e027e283fbe21d[2026-04-10 12:29:02] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 12:29:03] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 12:29:07] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 12:29:10] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+tude (English India - En US Ava  )" -> 3D%3D&signature=9e027e283fbe21de452b1f589aca947170d646303585559b7d6d6267d71f47ae
+[2026-04-10 12:29:12] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 12:29:13] [POWER] Wakelock disabled for Mental Fitness playback
+[2026-04-10 12:53:52] EqualizerService: Initializing EqualizerService
+[2026-04-10 12:53:52] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-10 12:53:52] EqualizerService: EqualizerService initialized successfully
+[2026-04-10 12:53:54] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 12:53:54] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=AiNff3nebQECVPUcwZwlf2QSMUTZPZ6V4c1bqRym7K164too9pm9cW16XJmS6mhs&expires=1775807634&signature=dbc1cdbaeefc2b4bb13b9e57905df575967115b6f733a11dc22b1be1602f8b79"}
+[2026-04-10 12:53:54] [LANG] Loaded 5 language(s): [en-GB, en-US, en-IN, hi-IN, en]
+[2026-04-10 12:54:05] [TTS][GET] productDetail(71) -> https://mentalfitness.store/api/tts/products/71/detail
+[2026-04-10 12:54:05] [TTS][GET] productDetail(73) -> https://mentalfitness.store/api/tts/products/73/detail
+[2026-04-10 12:54:06] [DETAIL] en-IN - Positive Attitude (English India - En US Ava  ): fetched detail tracks=35 hasBg=true bg=https://mentalfitness.store/audio/stream?token=J1eIjPZlEdo6NXwSbyW4g5q4TQ9a6sjqJPAnT7mdsM8kVXvfATjWvCTOMAv3b40Q&expires=1775807645&signature=2d3525a78393a1eacd76befe5e175f0ed1216db2b07d041d04b10a100577d94f
+,"background_music_track":"https:\/\/mentalfitness.store\/audio\/stream?token=VAl0S8bp4D7DvyFqeFRPXOrwZbO3Ardb00MOE3ZMTJAc7P1VTRkWggZtZIn7vSiV&expi
+[2026-04-10 12:54:06] [START] Total flat tracks: 82, sentenceRepeat=2, playlistLoop=true
+":true,"product":{"id":73,"name":"Sup[2026-04-10 12:54:06] [START] en-IN - Supreme Confidence (English India - Ada): 47 track(s) bg=NONE
+g=https://mentalfitness.store/audio/stream?token=J1eIjPZlEdo6NXwSbyW4g5q4TQ9a6sjqJPAnT7mdsM8kVXvfATjWvCTOMAv3b40Q&expires=1775807645&signature=2d3525a78393a1eacd76befe5e175f0ed1216db2b07d041d04b10a100577d94f
+0,"url":"https:\/\/mentalfitness.store\/audio\
+[2026-04-10 12:54:06] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 12:54:07] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=boEcY1SS0rIIjGEMkIJE6bibDGgdNSHwdSYnbsAY9SOOFk7fDAtyIVaohLIObR2C&expires=1775807646&signature=7657d87831005cb93f4077612fb012c221256a8bf21419f59b6a06b3e12d25d3"}
+[2026-04-10 12:54:07] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+[2026-04-10 12:54:07] [BG] Cached background music for supreme-confidence.mp3: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+l Fitness playback
+[2026-04-10 12:54:07] [SEQ] Normalized background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+[2026-04-10 12:54:07] [SEQ][BG] bgPlayer state after setUrl: playing=false proc=ProcessingState.ready
+pp/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+[2026-04-10 12:54:07] [SEQ][BG][watchdog] state changed → playing=true proc=ProcessingState.ready
+pp/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3 volume=0.5
+[2026-04-10 12:54:07] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+tude (English India - En US Ava  )" -> 3D%3D&signature=b32d2ef229c28e0c34072aee22af7f21d8d9f75ae704f50ff804cbc62e9c1494
+[2026-04-10 12:54:08] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 12:54:12] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 12:54:15] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+tude (English India - En US Ava  )" -> 3D%3D&signature=b32d2ef229c28e0c34072aee22af7f21d8d9f75ae704f50ff804cbc62e9c1494
+[2026-04-10 12:54:17] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 12:54:20] [POWER] Wakelock disabled for Mental Fitness playback
+[2026-04-10 12:54:52] EqualizerService: Initializing EqualizerService
+[2026-04-10 12:54:52] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-10 12:54:52] EqualizerService: EqualizerService initialized successfully
+[2026-04-10 12:54:53] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 12:54:54] [BG] Catalog loaded variants=2 tracks=17
+ody(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=dx8J4wRqkRQNK3bG1sZ0uwHvpRRIzrrOVKkXl5G306gUohl20V1fvHDTUwMNyh2s&expires=1775807694&signature=655a6341fa886947fefaa9f8c736d78ad55bc160ce56c3c088b2359bef4af608"}
+[2026-04-10 12:54:54] [LANG] Loaded 5 language(s): [en-GB, en-US, en-IN, hi-IN, en]
+[2026-04-10 12:55:32] [TTS][GET] productDetail(71) -> https://mentalfitness.store/api/tts/products/71/detail
+[2026-04-10 12:55:32] [TTS][GET] productDetail(73) -> https://mentalfitness.store/api/tts/products/73/detail
+[2026-04-10 12:55:33] [DETAIL] en-IN - Positive Attitude (English India - En US Ava  ): fetched detail tracks=35 hasBg=true bg=https://mentalfitness.store/audio/stream?token=WLiniZecI59JlD6K3zuIWuB56PAHBEWUNPXDwUxDeZlZUq8ejFZfM5MIu95wYJXB&expires=1775807733&signature=a9cd129fee47f4cef5b22d199a9ea65ee99f9842b9d5b9c42e6e27129bb11086
+,"background_music_track":"https:\/\/mentalfitness.store\/audio\/stream?token=HQPpOALcaFFQ37qa68J5kP3KTHzeH52W980rBHQNRdWyLH15EL402JWCp7PVvKaI&expi
+[2026-04-10 12:55:33] [TTS][PARSE] productDetail(73): tracks=47 hasBg=false bg=NONE
+true
+detail tracks=47 hasBg=false bg=NONE
+ore/audio/stream?token=WLiniZecI59JlD6K3zuIWuB56PAHBEWUNPXDwUxDeZlZUq8ejFZfM5MIu95wYJXB&expires=1775807733&signature=a9cd129fee47f4cef5b22d199a9ea65ee99f9842b9d5b9c42e6e27129bb11086
+music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\
+[2026-04-10 12:55:33] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 12:55:34] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=CW6Ehx4LK08hSa4WoljuyXk52p09u0kFeRqdFp35ZJawjyt1oQ6UPf2MJzP2trAG&expires=1775807734&signature=481d1a8a73d9967683072f05a6a9402c7d6d9787858773cb078bcc02e9f356ea"}
+[2026-04-10 12:55:34] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+[2026-04-10 12:55:34] [START] BG source: manual selection (supreme-confidence.mp3)
+e, msgInterval=20s, repeatMsgInterval=3s
+ache/1fe70fa5adbc694d395cf9bea22decab.mp3 manual=true
+3
+[2026-04-10 12:55:34] [POWER] Wakelock enabled for Mental Fitness playback
+[2026-04-10 12:55:34] [SEQ] Normalized background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/1fe70fa5adbc694d395cf9bea22decab.mp3
+[2026-04-10 12:55:34] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+tude (English India - En US Ava  )" -> 3D%3D&signature=19c9729fc01457a[2026-04-10 12:55:34] [SEQ][BG][watchdog] state changed → playing=true proc=ProcessingState.ready
+[2026-04-10 12:55:35] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 12:55:39] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 12:55:42] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+tude (English India - En US Ava  )" -> 3D%3D&signature=19c9729fc01457a488a25c4eccc7277432e76fa4b3ee9c10fccf5f6e0d413fbb
+[2026-04-10 12:55:44] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 12:56:04] [POWER] Wakelock disabled for Mental Fitness playback
+[2026-04-10 13:00:17] Sending debug logs to server...

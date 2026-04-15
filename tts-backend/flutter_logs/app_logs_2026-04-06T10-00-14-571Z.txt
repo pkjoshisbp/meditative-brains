@@ -1,0 +1,6 @@
+TIMESTAMP: 2026-04-06 15:30:13.813087
+DEVICE INFO: android BP2A.250605.031.A3.M536BXXSEGZB7
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2026-04-06 14:36:17] Log file cleared after successful upload
+[2026-04-06 15:30:13] Sending debug logs to server...

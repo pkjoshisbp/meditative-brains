@@ -81,8 +81,8 @@
                                 <div>
                                     <strong>TTS Products Page (here) — Sync + Link</strong><br>
                                     <small class="text-muted">
-                                        On page load (when backend is connected) categories are auto-synced into the <code>tts_audio_products</code> table.
-                                        Each product is linked to a backend category via <code>backend_category_id</code>.
+                                        On page load (when backend is connected) backend source categories are auto-synced into the <code>tts_audio_products</code> table.
+                                        Each product keeps a source link via <code>backend_category_id</code>, but the storefront <em>Category</em> and product <em>Name</em> can now be managed separately in Laravel.
                                         The <em>Message Count</em> column shows how many motivation messages that category has.
                                         <br>Press <strong>Refresh Counts</strong> to re-fetch counts, or <strong>Manual Sync</strong> to sync new categories.
                                     </small>
@@ -271,6 +271,7 @@
                                     </td>
                                     <td>
                                         <strong>{{ $product->name }}</strong>
+                                        <br><small class="text-muted">Storefront category: {{ $product->category ?: 'Unassigned' }}</small>
                                         @if ($product->short_description)
                                             <br><small class="text-muted">{{ Str::limit($product->short_description, 50) }}</small>
                                         @endif
@@ -300,11 +301,18 @@
                                     <td>
                                         @if ($product->backend_category_id)
                                             <span class="badge badge-primary">Linked</span>
+                                            @if ($product->backend_category_name)
+                                                <br><small class="text-muted">Source: {{ $product->backend_category_name }}</small>
+                                            @endif
                                             @php $urlCount = is_array($product->audio_urls) ? count($product->audio_urls) : (is_string($product->audio_urls) ? count(json_decode($product->audio_urls, true) ?? []) : 0); @endphp
                                             @if ($urlCount > 0)
                                                 <br><small class="text-success">{{ $urlCount }} URLs</small>
                                             @else
                                                 <br><small class="text-warning">No local URLs</small>
+                                                <br>
+                                                <button wire:click="syncExistingAudioUrls({{ $product->id }})" class="btn btn-xs btn-outline-primary mt-1">
+                                                    Sync Local URLs
+                                                </button>
                                             @endif
                                         @else
                                             <span class="badge badge-secondary">Not Linked</span>
@@ -312,10 +320,16 @@
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <button wire:click="quickPlay({{ $product->id }})" 
-                                                    class="btn btn-sm btn-info"
+                                            <button onclick="ttsRowPlay({{ $product->id }}, this)" 
+                                                    class="btn btn-sm btn-info tts-row-play-btn"
+                                                    data-product-id="{{ $product->id }}"
                                                     title="Play audio preview">
                                                 <i class="fas fa-play"></i>
+                                            </button>
+                                            <button onclick="ttsStopPreview()" 
+                                                    class="btn btn-sm btn-dark"
+                                                    title="Stop playback">
+                                                <i class="fas fa-stop"></i>
                                             </button>
                                             <button wire:click="edit({{ $product->id }})" 
                                                     class="btn btn-sm btn-warning">
@@ -381,6 +395,7 @@
                                         <label for="name">Name *</label>
                                         <input wire:model="name" type="text" class="form-control @error('name') is-invalid @enderror" id="name">
                                         @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        <small class="form-text text-muted">Customer-facing audio title, for example: Respiratory Healing &amp; Oxygenation</small>
                                     </div>
 
                                     <div class="form-group">
@@ -402,7 +417,15 @@
                                         <input wire:model="category" type="text" class="form-control @error('category') is-invalid @enderror" 
                                                id="category" placeholder="Audio category">
                                         @error('category') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                        <small class="form-text text-muted">If left empty, will use the product name</small>
+                                        <small class="form-text text-muted">Storefront grouping, for example: Quit Smoking. If left empty, it will use the product name.</small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="backend_category_name">Backend Source Category</label>
+                                        <input wire:model="backend_category_name" type="text" class="form-control @error('backend_category_name') is-invalid @enderror"
+                                               id="backend_category_name" placeholder="Node/Mongo source category" readonly>
+                                        @error('backend_category_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                        <small class="form-text text-muted">This is the source category used to fetch messages and generated tracks from the current Node backend.</small>
                                     </div>
 
                                     <div class="row">
@@ -617,14 +640,23 @@
                                                 <button type="button" wire:click="playExistingAudio" class="btn btn-success btn-sm">
                                                     <i class="fas fa-play"></i> Start Preview
                                                 </button>
+                                                <button type="button" onclick="ttsStopPreview()" class="btn btn-dark btn-sm ml-1" title="Stop">
+                                                    <i class="fas fa-stop"></i> Stop
+                                                </button>
+                                                <button type="button" onclick="ttsPauseResumePreview()" id="tts-pause-btn" class="btn btn-secondary btn-sm ml-1" title="Pause/Resume">
+                                                    <i class="fas fa-pause"></i> Pause
+                                                </button>
                                                 <button type="button" wire:click="generateAudioPreview" class="btn btn-outline-info btn-sm ml-2">
                                                     <i class="fas fa-sync"></i> Rebuild Preview
+                                                </button>
+                                                <button type="button" wire:click="syncExistingAudioUrls({{ $editingProduct->id }})" class="btn btn-outline-primary btn-sm ml-2">
+                                                    <i class="fas fa-link"></i> Sync Local URLs
                                                 </button>
                                                 @if (!$editingProduct->preview_audio_url && !$editingProduct->audio_urls)
                                                     <small class="text-muted ml-2">(audio loaded live from backend)</small>
                                                 @endif
                                                 
-                                                <a href="{{ route('admin.tts.messages') }}" target="_blank" class="btn btn-secondary btn-sm ml-2">
+                                                <a href="{{ route('admin.tts.messages', ['category_id' => $backend_category_id, 'category_name' => $backend_category_name ?: ($backendCategory['category'] ?? null)]) }}" target="_blank" class="btn btn-secondary btn-sm ml-2">
                                                     <i class="fas fa-external-link-alt"></i> Open TTS Messages
                                                 </a>
                                                 
@@ -717,6 +749,7 @@
                                         <h4>Backend Category</h4>
                                     </div>
                                     <div class="card-body">
+                                        <p><strong>Source Category:</strong> {{ $backend_category_name ?: ($backendCategory['category'] ?? 'N/A') }}</p>
                                         <p><strong>Name:</strong> {{ $backendCategory['name'] ?? 'N/A' }}</p>
                                         <p><strong>Description:</strong> {{ $backendCategory['description'] ?? 'N/A' }}</p>
                                         <p><strong>Messages:</strong> {{ $total_messages_count }} total @if(!empty($backendMessages)) (showing {{ count($backendMessages) }}) @endif</p>
@@ -786,6 +819,45 @@
             let currentAudio = null;
             let backgroundMusic = null;
             let isPlaying = false;
+            let isPaused = false;
+            let currentPlayBtn = null; // currently active play button in row
+
+            // ── Global mini-player bar ──────────────────────────────────────
+            function showMiniPlayer(title) {
+                let bar = document.getElementById('tts-mini-player');
+                if (!bar) {
+                    bar = document.createElement('div');
+                    bar.id = 'tts-mini-player';
+                    bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1a1a2e;color:#eee;padding:8px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 -2px 8px rgba(0,0,0,.4);font-size:13px;';
+                    bar.innerHTML = `
+                        <i class="fas fa-music text-info"></i>
+                        <span id="tts-mini-title" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+                        <button onclick="ttsPauseResumePreview()" id="tts-mini-pause" class="btn btn-sm btn-secondary" style="min-width:70px;">
+                            <i class="fas fa-pause"></i> Pause
+                        </button>
+                        <button onclick="ttsStopPreview()" class="btn btn-sm btn-danger">
+                            <i class="fas fa-stop"></i> Stop
+                        </button>`;
+                    document.body.appendChild(bar);
+                }
+                document.getElementById('tts-mini-title').textContent = '▶ Now Playing: ' + (title || 'Audio Preview');
+                bar.style.display = 'flex';
+            }
+
+            function hideMiniPlayer() {
+                const bar = document.getElementById('tts-mini-player');
+                if (bar) bar.style.display = 'none';
+            }
+
+            function updatePauseBtn(paused) {
+                ['tts-pause-btn', 'tts-mini-pause'].forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (!btn) return;
+                    btn.innerHTML = paused
+                        ? '<i class="fas fa-play"></i> Resume'
+                        : '<i class="fas fa-pause"></i> Pause';
+                });
+            }
             
             // Legacy single audio preview support
             Livewire.on('playAudioPreview', (event) => {
@@ -799,9 +871,12 @@
             
             // Advanced sequential audio playback with background music
             Livewire.on('playSequentialAudio', (event) => {
-                stopAllAudio();
                 console.log('[TTS] Received playSequentialAudio event', event);
                 playSequentialAudio(event.config);
+            });
+            // Row quick-play triggered by ttsRowPlay() JS function
+            Livewire.on('quickPlayProduct', (event) => {
+                Livewire.dispatch('quickPlayLivewire', { id: event.id });
             });
             // Proxy for custom play button (ensures server side picks latest data)
             Livewire.on('playExistingAudioProxy', () => {
@@ -820,18 +895,62 @@
                     backgroundMusic = null;
                 }
                 isPlaying = false;
+                isPaused  = false;
+                hideMiniPlayer();
+                updatePauseBtn(false);
+                // Restore all row play buttons to play icon
+                document.querySelectorAll('.tts-row-play-btn').forEach(btn => {
+                    btn.innerHTML = '<i class="fas fa-play"></i>';
+                    btn.classList.remove('btn-warning');
+                    btn.classList.add('btn-info');
+                });
+                currentPlayBtn = null;
             }
                 // Expose globally for Stop button
                 window.ttsStopPreview = stopAllAudio;
+
+                window.ttsPauseResumePreview = function() {
+                    if (!currentAudio) return;
+                    if (isPaused) {
+                        currentAudio.play().catch(() => {});
+                        if (backgroundMusic) backgroundMusic.play().catch(() => {});
+                        isPaused = false;
+                        isPlaying = true;
+                    } else {
+                        currentAudio.pause();
+                        if (backgroundMusic) backgroundMusic.pause();
+                        isPaused = true;
+                    }
+                    updatePauseBtn(isPaused);
+                };
+
+                // Row-level play via JS (avoids Livewire round-trip just to stop first)
+                window.ttsRowPlay = function(productId, btn) {
+                    stopAllAudio();
+                    // Mark new button as active
+                    currentPlayBtn = btn;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    btn.classList.remove('btn-info');
+                    btn.classList.add('btn-warning');
+                    // Trigger Livewire
+                    Livewire.dispatch('quickPlayProduct', { id: productId });
+                };
             
         async function playSequentialAudio(config) {
                 try {
                     isPlaying = true;
+                    isPaused  = false;
                     console.log('Starting sequential audio playback with config:', config);
                     const urls = Array.isArray(config.audioUrls) ? config.audioUrls.filter(u => !!u) : [];
                     if (!urls.length) {
                         console.warn('No audio URLs provided.');
+                        stopAllAudio();
                         return;
+                    }
+                    // Show mini player and update active row button
+                    showMiniPlayer(config.previewTitle || 'Audio Preview');
+                    if (currentPlayBtn) {
+                        currentPlayBtn.innerHTML = '<i class="fas fa-pause"></i>';
                     }
             // Button states
                     const statusEl = document.getElementById('bg-music-status');

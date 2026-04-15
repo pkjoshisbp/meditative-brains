@@ -1,0 +1,61 @@
+DEVICE: android BP2A.250605.031.A3.M536BXXSEGZB7
+TIMESTAMP: 2026-04-10 00:31:01.820571
+DEVICE INFO: android BP2A.250605.031.A3.M536BXXSEGZB7
+ADDITIONAL INFO: Sent from MentalFitnessAudioScreen
+
+[2026-04-10 00:27:50] EqualizerService: Initializing EqualizerService
+[2026-04-10 00:27:50] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-10 00:27:50] EqualizerService: EqualizerService initialized successfully
+[2026-04-10 00:28:25] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 00:28:25] [BG] Catalog loaded variants=2 tracks=17
+ody(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=27yTElVEkWbps6LPyzvYuPbe6gJafTCHDoBp31XSu0CTBkrmkxfGMH4U73vLXE7p&expires=1775762905&signature=67a06e9fbc6c36968cfa3a19c274df6ad542beed2c7ce794d8ad5bef9fe70cd1"}
+[2026-04-10 00:28:25] [LANG] Loaded 5 language(s): [en-GB, en-US, en-IN, hi-IN, en]
+[2026-04-10 00:30:01] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 00:30:02] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=zELkMGHMXerdNpayHjheB77KShfBvT9tlNoMBcsDIHoeDcYvJC6WW58EcMwoGg9Y&expires=1775763002&signature=5340aab70cf3ed71fc1989cc3fbf05870ce376c2716e3d9afaa2d28264243c37"}
+[2026-04-10 00:30:02] Downloading audio from: https://mentalfitness.store/audio/stream?token=6ZS8N5rVISWGrA4F0pmW6VfW8IyyaczJ6eGXUCzFH3UboACD5RggpMO29nQlaAAr&expires=1775763002&signature=afa7daae6b1b186cf09ad42fc0b84744856e191bb40551abcd3a6094f9e56dcc
+[2026-04-10 00:30:04] Saved audio to: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:30:04] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:30:04] [BG] Cached background music for hypnosis-relaxation.mp3: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:30:14] [TTS][GET] productDetail(92) -> https://mentalfitness.store/api/tts/products/92/detail
+l
+[2026-04-10 00:30:15] [TTS][RESP] productDetail(96): status=200 body(first 400)={"success":true,"product":{"id":96,"name":"Heart & Circulation","display_name":"en-IN - Heart & Circulation","category":"Quit Smoking","language":"en-IN","total_tracks":29,"has_background_music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\/signed-stream?expires=1775847615&path=Y
+[2026-04-10 00:30:15] [DETAIL] en-IN - Heart & Circulation: fetched detail tracks=29 hasBg=false bg=NONE
+[2026-04-10 00:30:15] [TTS][PARSE] productDetail(92): tracks=6 hasBg=false bg=NONE
+uccess":true,"product":{"id":92,"name":"Hypnosis Relaxation","display_name":"en-IN - Hypnosis Relaxation","category":"Hypnosis Relaxation","language":"en-IN","total_tracks":6,"has_background_music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\/signed-stream?expires=1775847615&
+[2026-04-10 00:30:15] [DETAIL] en-IN - Hypnosis Relaxation: fetched detail tracks=6 hasBg=false bg=NONE
+[2026-04-10 00:30:15] [START] en-IN - Hypnosis Relaxation: 6 track(s) bg=NONE
+NONE
+E
+=29 hasBg=false bg=NONE
+id":100,"name":"Hormonal Balance & Calm","display_name":"en-IN - Hormonal Balance & Calm","category":"Quit Smoking","language":"en-IN","total_tracks":29,"has_background_music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0,"url":"https:\/\/mentalfitness.store\/audio\/signed-stream?expires=17758476
+[2026-04-10 00:30:15] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 00:30:16] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=LAcEZr70HV1V0aferne1TZfPaXL3YZmDO5zBmkQ0bYXLLzL9dC2IXy7EdfSUUHbR&expires=1775763016&signature=98607d48429405fb8efd17dd43245dc16e252ffe45929a7c13841a604f1cc70d"}
+[2026-04-10 00:30:16] Using cached audio: /data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:30:16] [SEQ] playFlat: 64 tracks, sentenceRepeat=1, playlistLoop=false, msgInterval=2s, repeatMsgInterval=2s
+ache/baf725eca18c5f9bce388ec4832dfb31.mp3 manual=true
+p3
+[2026-04-10 00:30:16] [POWER] Wakelock enabled for Mental Fitness playback
+[2026-04-10 00:30:16] [SEQ] Normalized background music URL: file:///data/user/0/com.example.motivation_app/app_flutter/audio-cache/baf725eca18c5f9bce388ec4832dfb31.mp3
+[2026-04-10 00:30:17] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+lation" -> mM%3D&signature=1daad8028c172e5732a7deffab3ea8a2ab1b570bf5ef6d789472bff8632e07c4
+[2026-04-10 00:30:18] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:30:22] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:30:24] [SEQ] [playlist:1][track:2/64][repeat:1/1] Playing: "en-IN - Heart & Circulation" -> mM%3D&signature=ca61ad54b22f430b035f61f8b79a0c223f81264eecd9f5ca0c5a3f2279e199e0
+[2026-04-10 00:30:26] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:30:31] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+lation" -> mM%3D&signature=f43fcfbb8db11ed916df6374edaca1b077bfad63dc59e350de8f8e5161a68ce9
+[2026-04-10 00:30:33] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:30:33] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:30:39] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+lation" -> mM%3D&signature=5676555c1f551e3cab0f8cf2783c2dfae0fba912fa8aa22bd3c752aa0469dbaf
+[2026-04-10 00:30:41] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:30:47] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+lation" -> mM%3D&signature=7b7e9ef33500c5518d03bf09c9236b0489e3c74c0fd346d530348431d1e32593
+[2026-04-10 00:30:48] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:30:54] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+lation" -> mM%3D&signature=bb58f8166ff41605e5bfd8ca5b2c6805e0eb38c9b53907d4e473a74bf3b73c6a
+[2026-04-10 00:30:55] [SEQ][BG] AFTER setUrl: bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:30:55] [SEQ][BG] AFTER voicePlay(): bgPlayer playing=true proc=ProcessingState.ready
+[2026-04-10 00:31:00] [SEQ][BG] BEFORE setUrl: bgPlayer playing=true proc=ProcessingState.ready
+lation" -> mM%3D&signature=b1603f4fc9feb0018aac91f931cd3a131cfff4697977162bec4f16755dedd2f6
+[2026-04-10 00:31:01] [DEBUG] User requested debug log send

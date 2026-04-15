@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\AudioSecurityService;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class AudioStreamController extends Controller
 {
@@ -184,6 +185,11 @@ class AudioStreamController extends Controller
                 ->header('X-Content-Type-Options', 'nosniff')
                 ->header('Content-Disposition', 'inline'); // Prevent download, force streaming
         } catch (\Exception $e) {
+            Log::warning('Audio signed stream failed', [
+                'path' => $request->get('path'),
+                'preview' => $request->get('preview'),
+                'error' => $e->getMessage(),
+            ]);
             return response('Unauthorized or file not found', 403);
         }
     }
@@ -193,12 +199,16 @@ class AudioStreamController extends Controller
         
         if (substr($header, 0, 3) === 'ID3' || substr($header, 0, 2) === "\xFF\xFB") {
             return 'audio/mpeg';
+        } elseif (substr($header, 0, 2) === "\xFF\xF1" || substr($header, 0, 2) === "\xFF\xF9") {
+            return 'audio/aac';
+        } elseif (substr($header, 4, 4) === 'ftyp') {
+            return 'audio/mp4';
         } elseif (substr($header, 0, 4) === 'RIFF') {
             return 'audio/wav';
         } elseif (substr($header, 0, 4) === 'OggS') {
             return 'audio/ogg';
         }
         
-        return 'audio/mpeg'; // Default to MP3
+        return 'audio/aac'; // All generated audio is AAC
     }
 }

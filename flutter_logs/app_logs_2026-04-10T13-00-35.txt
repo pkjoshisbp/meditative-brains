@@ -1,0 +1,11 @@
+DEVICE: android BP2A.250605.031.A3.M536BXXSEGZB7
+TIMESTAMP: 2026-04-10 13:00:35.788647
+DEVICE INFO: android BP2A.250605.031.A3.M536BXXSEGZB7
+ADDITIONAL INFO: Sent from MentalFitnessAudioScreen
+
+[2026-04-10 13:00:17] Log file cleared after successful upload
+[2026-04-10 13:00:32] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-10 13:00:33] [BG] Catalog loaded variants=2 tracks=17
+ody(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=hfj7z34DGvg2d5V4kYB4MsLGPkcRRZOm5XXyxo6wzfdlQZjllGAqiTThcbrgBiJk&expires=1775808033&signature=0aec30d66652f4e21014a50072bee4c6de2d33b9f8244b6f9d3eb8cc3be2b185"}
+[2026-04-10 13:00:33] [LANG] Loaded 5 language(s): [en-GB, en-US, en-IN, hi-IN, en]
+[2026-04-10 13:00:35] [DEBUG] User requested debug log send

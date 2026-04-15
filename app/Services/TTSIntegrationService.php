@@ -113,7 +113,9 @@ class TTSIntegrationService
             
             // Use AudioSecurityService to encrypt and store
             $audioService = app(AudioSecurityService::class);
-            $filename = sanitize_filename($ttsData['text']) . '.mp3';
+            $remotePath = parse_url($ttsData['audioUrl'] ?? '', PHP_URL_PATH) ?: '';
+            $extension = strtolower(pathinfo($remotePath, PATHINFO_EXTENSION) ?: 'aac');
+            $filename = sanitize_filename($ttsData['text']) . '.' . $extension;
             $encryptedPath = $audioService->encryptAndStore($tempFile, $filename);
             
             // Clean up temp file

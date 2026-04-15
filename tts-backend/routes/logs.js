@@ -98,8 +98,13 @@ router.post('/', async (req, res) => {
       
       // Send via email
       try {
+        const recipients = [
+          'pkjoshi.sbp@gmail.com',
+          'info@mywebsolutions.co.in',
+        ];
+
         const emailResult = await sendEmail({
-          to: 'pkjoshi.sbp@gmail.com',
+          to: recipients.join(', '),
           subject: `App Logs: ${timestamp || dateTime}`,
           text: `Logs from ${source || 'Flutter App'} ${deviceInfo ? `(${deviceInfo})` : ''}`,
           attachments: [{ 

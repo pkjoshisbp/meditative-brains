@@ -1,5 +1,6 @@
 import express from 'express';
 import Category from '../models/Category.js';
+import { logger } from '../utils/logger.js';
 
 const categoryRouter = express.Router();
 
@@ -45,9 +46,19 @@ categoryRouter.get('/', async (req, res) => {
                 { userId: userId }
             ]
         });
+
+        logger.info('Fetched categories for request', {
+            userId: userId ? userId.toString() : null,
+            count: categories.length,
+            sample: categories.slice(0, 5).map((category) => ({
+                id: category._id?.toString(),
+                name: category.category,
+            })),
+        });
         
         res.status(200).json(categories);
     } catch (error) {
+        logger.error('Error fetching categories', { error: error.message, stack: error.stack });
         res.status(500).json({ message: error.message });
     }
 });

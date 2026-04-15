@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Livewire\AdminComponent;
+use App\Services\AudioSecurityService;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\On;
@@ -10,10 +11,13 @@ use App\Models\TtsAudioProduct;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class TtsProductManager extends AdminComponent
 {
     use WithPagination, WithFileUploads;
+
+    private const PREVIEW_AUDIO_URL_MAX_LENGTH = 65535;
     
     protected string $pageTitle = 'TTS Product Manager';
     protected string $pageHeader = 'TTS Audio Products';
@@ -38,7 +42,9 @@ class TtsProductManager extends AdminComponent
     public $meta_keywords = '';
     
     // TTS specific
+    public $language = 'en';
     public $backend_category_id = '';
+    public $backend_category_name = '';
     public $total_messages_count = 0;
     
     // Audio settings
@@ -91,6 +97,7 @@ class TtsProductManager extends AdminComponent
         'meta_description' => 'nullable|string|max:500',
         'meta_keywords' => 'nullable|string|max:255',
         'backend_category_id' => 'nullable|string',
+        'backend_category_name' => 'nullable|string|max:255',
         'bg_music_volume' => 'required|numeric|min:0|max:1',
         'message_repeat_count' => 'required|integer|min:1|max:10',
         'repeat_interval' => 'required|numeric|min:0|max:60',
@@ -119,6 +126,16 @@ class TtsProductManager extends AdminComponent
             // Don't let mount errors break the component
             $this->backendConnected = false;
         }
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterActive(): void
+    {
+        $this->resetPage();
     }
 
     /**
@@ -197,6 +214,20 @@ class TtsProductManager extends AdminComponent
         }
     }
 
+    protected function supportsBackendCategoryName(): bool
+    {
+        return TtsAudioProduct::supportsBackendCategoryName();
+    }
+
+    protected function mergeBackendCategoryName(array $data, ?string $backendCategoryName): array
+    {
+        if ($this->supportsBackendCategoryName()) {
+            $data['backend_category_name'] = $backendCategoryName;
+        }
+
+        return $data;
+    }
+
     public function autoSyncCategories()
     {
         if (!$this->backendConnected) {
@@ -220,13 +251,14 @@ class TtsProductManager extends AdminComponent
                 foreach ($categories as $category) {
                     $existing = TtsAudioProduct::where('backend_category_id', $category['_id'])->first();
                     $messageCount = $messageCounts[$category['_id']] ?? 0;
+                    [$catalogCategory, $productTitle] = $this->deriveCatalogFieldsFromBackendCategory($category['category'] ?? '');
 
                     if (!$existing) {
-                        TtsAudioProduct::create([
-                            'name' => $category['category'],
+                        $productData = [
+                            'name' => $productTitle,
                             'description' => $category['description'] ?? '',
                             'short_description' => substr($category['description'] ?? '', 0, 200),
-                            'category' => $category['category'],
+                            'category' => $catalogCategory,
                             'audio_type' => 'tts',
                             'language' => 'en',
                             'price' => 9.99,
@@ -238,11 +270,24 @@ class TtsProductManager extends AdminComponent
                             'is_featured' => false,
                             'backend_category_id' => $category['_id'],
                             'total_messages_count' => $messageCount,
-                        ]);
+                        ];
+                        TtsAudioProduct::create($this->mergeBackendCategoryName($productData, $category['category'] ?? null));
                         $syncCount++;
                         $this->syncMessages[] = "Auto-synced category: {$category['category']} ({$messageCount} messages)";
                     } else {
-                        $existing->update(['total_messages_count' => $messageCount]);
+                        $updates = [
+                            'total_messages_count' => $messageCount,
+                        ];
+                        if ($this->supportsBackendCategoryName() && empty($existing->backend_category_name)) {
+                            $updates['backend_category_name'] = $category['category'] ?? null;
+                        }
+                        if ($existing->name === ($category['category'] ?? '') || $existing->name === (($category['category'] ?? '') . ' - Motivational Audio Pack')) {
+                            $updates['name'] = $productTitle;
+                        }
+                        if (empty($existing->category) || $existing->category === ($category['category'] ?? '')) {
+                            $updates['category'] = $catalogCategory;
+                        }
+                        $existing->update($updates);
                     }
                 }
 
@@ -376,13 +421,21 @@ class TtsProductManager extends AdminComponent
             }
 
             // Create or update the product with proper message data
-            $existingProduct = TtsAudioProduct::where('backend_category_id', $categoryId)->first();
+            [$catalogCategory, $productTitle] = $this->deriveCatalogFieldsFromBackendCategory($category['category'] ?? '');
+            $existingProduct = TtsAudioProduct::where('backend_category_id', $categoryId)
+                ->where(function ($query) use ($productTitle, $category) {
+                    $sourceCategory = $category['category'] ?? '';
+                    $query->where('name', $productTitle)
+                        ->orWhere('name', $sourceCategory)
+                        ->orWhere('name', $sourceCategory . ' - Motivational Audio Pack');
+                })
+                ->first();
             
             $productData = [
-                'name' => $category['category'] . ' - Motivational Audio Pack',
+                'name' => $productTitle,
                 'description' => "A collection of " . count($messages) . " motivational messages in the " . $category['category'] . " category. " . ($category['description'] ?? ''),
                 'short_description' => "Motivational audio pack with " . count($messages) . " inspiring messages",
-                'category' => $category['category'],
+                'category' => $catalogCategory,
                 'audio_type' => 'tts',
                 'language' => 'en',
                 'price' => 9.99,
@@ -409,6 +462,7 @@ class TtsProductManager extends AdminComponent
                 'has_background_music' => false,
                 'background_music_type' => 'relaxing',
             ];
+            $productData = $this->mergeBackendCategoryName($productData, $category['category'] ?? null);
 
             if ($existingProduct) {
                 $existingProduct->update($productData);
@@ -419,14 +473,8 @@ class TtsProductManager extends AdminComponent
                 session()->flash('success', "New product created with {$productData['total_messages_count']} messages from category: {$category['category']}");
             }
 
-            // Optionally generate audio URLs placeholder (for future TTS processing)
-            $audioUrls = [];
-            foreach ($messages as $index => $message) {
-                $audioUrls[] = rtrim(config("services.tts.base_url"), "/api") . "/api/tts/audio/{$message['_id']}.mp3";
-            }
-            
             $product->update([
-                'audio_urls' => json_encode($audioUrls)
+                'audio_urls' => json_encode([])
             ]);
 
             Log::info("Generated product from messages - Category: {$category['category']}, Messages: " . count($messages));
@@ -547,6 +595,38 @@ class TtsProductManager extends AdminComponent
         $this->showForm = true;
     }
 
+    public function syncExistingAudioUrls(int $productId): void
+    {
+        $product = TtsAudioProduct::findOrFail($productId);
+
+        try {
+            $audioUrls = $this->fetchAdminNodeAudioUrls($product);
+            if (empty($audioUrls)) {
+                session()->flash('error', 'No generated backend audio was found for this product/category yet.');
+                return;
+            }
+
+            $syncedCount = $this->secureAndPersistProductAudioUrls($product, $audioUrls);
+            if ($syncedCount === 0) {
+                session()->flash('error', 'Audio was found, but no local URLs could be created.');
+                return;
+            }
+
+            if ($this->editingProduct && $this->editingProduct->id === $product->id) {
+                $this->editingProduct->refresh();
+                $this->loadProductData();
+            }
+
+            session()->flash('success', "Synced {$syncedCount} local audio URL(s) for this product.");
+        } catch (\Throwable $e) {
+            session()->flash('error', 'Failed syncing local audio URLs: ' . $e->getMessage());
+            Log::error('syncExistingAudioUrls failed', [
+                'product_id' => $product->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
     protected function loadProductData()
     {
         if (!$this->editingProduct) return;
@@ -573,7 +653,9 @@ class TtsProductManager extends AdminComponent
         $this->meta_title = $this->editingProduct->meta_title ?? '';
         $this->meta_description = $this->editingProduct->meta_description ?? '';
         $this->meta_keywords = $this->editingProduct->meta_keywords ?? '';
+        $this->language = $this->editingProduct->language ?? 'en';
         $this->backend_category_id = $this->editingProduct->backend_category_id ?? '';
+        $this->backend_category_name = $this->editingProduct->backend_category_name ?? '';
         $this->total_messages_count = $this->editingProduct->total_messages_count ?? 0;
         
         // Audio settings
@@ -645,7 +727,7 @@ class TtsProductManager extends AdminComponent
                 'short_description' => $this->short_description,
                 'category' => $this->category ?: $this->name,
                 'audio_type' => 'tts',
-                'language' => 'en',
+                'language' => $this->editingProduct ? ($this->language ?: $this->editingProduct->language) : $this->language,
                 'price' => $this->price,
                 'tags' => $this->tags
                     ? (str_starts_with(trim($this->tags), '[')
@@ -682,6 +764,10 @@ class TtsProductManager extends AdminComponent
                 'audio_urls' => $this->audio_urls,
                 'preview_audio_url' => $this->preview_audio_url,
             ];
+            $data = $this->mergeBackendCategoryName(
+                $data,
+                $this->backend_category_name ?: ($this->backendCategory['category'] ?? null)
+            );
 
             // Debug: Log data being saved
             Log::info('TTS Product Save - Data Array:', $data);
@@ -710,6 +796,21 @@ class TtsProductManager extends AdminComponent
             Log::error('Product save error: ' . $e->getMessage());
             Log::error('Product save error trace: ' . $e->getTraceAsString());
         }
+    }
+
+    private function deriveCatalogFieldsFromBackendCategory(string $backendCategoryName): array
+    {
+        $backendCategoryName = trim($backendCategoryName);
+        if ($backendCategoryName === '') {
+            return ['', ''];
+        }
+
+        if (str_contains($backendCategoryName, ' - ')) {
+            [$catalogCategory, $productTitle] = explode(' - ', $backendCategoryName, 2);
+            return [trim($catalogCategory), trim($productTitle)];
+        }
+
+        return [$backendCategoryName, $backendCategoryName];
     }
 
     public function delete($productId)
@@ -771,7 +872,9 @@ class TtsProductManager extends AdminComponent
         $this->meta_title = '';
         $this->meta_description = '';
         $this->meta_keywords = '';
+        $this->language = 'en';
         $this->backend_category_id = '';
+        $this->backend_category_name = '';
         $this->total_messages_count = 0;
         $this->bg_music_volume = 0.30;
         $this->message_repeat_count = 2;
@@ -877,10 +980,12 @@ class TtsProductManager extends AdminComponent
                         ,'enforceTimeline' => true
                     ];
                     
-                    // Update the preview_audio_url field for future use (use first URL)
-                    $product->update([
-                        'preview_audio_url' => $audioUrls[0]
-                    ]);
+                    $previewUrl = $this->getPersistablePreviewUrl($audioUrls[0] ?? null, $product->preview_audio_url);
+                    if ($previewUrl !== $product->preview_audio_url) {
+                        $product->update([
+                            'preview_audio_url' => $previewUrl
+                        ]);
+                    }
                     
                     Log::info('Audio preview dispatch', [
                         'product_id' => $product->id,
@@ -969,6 +1074,12 @@ class TtsProductManager extends AdminComponent
         $this->generateAudioPreview($productId);
     }
 
+    #[On('quickPlayLivewire')]
+    public function quickPlayLivewire(int $id): void
+    {
+        $this->generateAudioPreview($id);
+    }
+
     /**
      * Normalise audio URL – replace legacy hostnames with the current server.
      */
@@ -1047,6 +1158,168 @@ class TtsProductManager extends AdminComponent
         return [];
     }
 
+    protected function secureAndPersistProductAudioUrls(TtsAudioProduct $product, array $audioUrls): int
+    {
+        $securedUrls = [];
+
+        foreach (array_values($audioUrls) as $index => $audioUrl) {
+            if (!is_string($audioUrl) || trim($audioUrl) === '') {
+                continue;
+            }
+
+            $normalizedUrl = $this->normalizeAdminAudioUrl($audioUrl);
+            if (str_contains($normalizedUrl, '/audio/signed-stream')) {
+                $securedUrls[] = $normalizedUrl;
+                continue;
+            }
+
+            $securedUrl = $this->mirrorProductTrackToSecureStorage($product, $index, $normalizedUrl);
+            if ($securedUrl) {
+                $securedUrls[] = $securedUrl;
+            }
+        }
+
+        $securedUrls = array_values(array_unique(array_filter($securedUrls)));
+        if (empty($securedUrls)) {
+            return 0;
+        }
+
+        $product->update([
+            'audio_urls' => $securedUrls,
+            'preview_audio_url' => $this->getPersistablePreviewUrl($securedUrls[0] ?? null, $product->preview_audio_url),
+        ]);
+
+        Log::info('Synced local product audio URLs', [
+            'product_id' => $product->id,
+            'count' => count($securedUrls),
+        ]);
+
+        return count($securedUrls);
+    }
+
+    private function getPersistablePreviewUrl(?string $candidate, ?string $fallback = null): ?string
+    {
+        if (!is_string($candidate) || trim($candidate) === '') {
+            return $fallback;
+        }
+
+        return strlen($candidate) <= self::PREVIEW_AUDIO_URL_MAX_LENGTH ? $candidate : $fallback;
+    }
+
+    private function mirrorProductTrackToSecureStorage(TtsAudioProduct $product, int $index, string $sourceUrl): ?string
+    {
+        try {
+            $extension = pathinfo(parse_url($sourceUrl, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION);
+            $extension = $extension !== '' ? strtolower($extension) : 'aac';
+            $originalRelative = $this->buildProductOriginalRelativePath($product, $index, $sourceUrl, $extension);
+            $originalStoragePath = 'audio/original/' . $originalRelative;
+
+            if (!Storage::disk('local')->exists($originalStoragePath)) {
+                $response = Http::timeout(90)->get($sourceUrl);
+                if (!$response->successful()) {
+                    Log::warning('Unable to mirror raw product audio from admin sync', [
+                        'product_id' => $product->id,
+                        'index' => $index,
+                        'status' => $response->status(),
+                        'source_url' => $sourceUrl,
+                    ]);
+                    return null;
+                }
+
+                Storage::disk('local')->put($originalStoragePath, $response->body());
+            }
+
+            /** @var AudioSecurityService $audioSecurityService */
+            $audioSecurityService = app(AudioSecurityService::class);
+            $encryptedPath = $audioSecurityService->encryptOriginalFile($originalRelative, $product->id);
+            return $audioSecurityService->generateSignedUrl($encryptedPath, null, 60 * 24);
+        } catch (\Throwable $e) {
+            Log::warning('Failed securing product track from admin sync', [
+                'product_id' => $product->id,
+                'index' => $index,
+                'source_url' => Str::limit($sourceUrl, 160),
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    private function buildProductOriginalRelativePath(TtsAudioProduct $product, int $index, string $sourceUrl, string $extension): string
+    {
+        $locale = $this->normalizeLocaleForStorage($product->backend_language ?: $product->language ?: 'en-US');
+        $category = Str::slug($product->category ?: 'default');
+        $productSlug = Str::slug($product->slug ?: $product->name ?: ('product-' . $product->id));
+        $speaker = $this->extractSpeakerFromSourceUrl($sourceUrl) ?: 'unknown-speaker';
+        $fileName = $this->buildTrackFileNameFromSourceUrl($sourceUrl, $index, $extension);
+
+        return sprintf(
+            'tts-products/%s/%s/%s/%s/%s',
+            $locale,
+            $category,
+            $productSlug,
+            $speaker,
+            $fileName
+        );
+    }
+
+    private function buildTrackFileNameFromSourceUrl(string $sourceUrl, int $index, string $extension): string
+    {
+        $path = parse_url($sourceUrl, PHP_URL_PATH) ?? '';
+        $baseName = pathinfo($path, PATHINFO_FILENAME);
+        $baseName = Str::limit(trim($baseName), 180, '');
+
+        if ($baseName !== '') {
+            $slugged = Str::slug($baseName, '-');
+            if ($slugged !== '') {
+                return $slugged . '.' . $extension;
+            }
+        }
+
+        return sprintf('track-%02d.%s', $index + 1, $extension);
+    }
+
+    private function normalizeLocaleForStorage(string $language): string
+    {
+        $normalized = trim(str_replace('-', '_', $language));
+        if ($normalized === '') {
+            return 'en_US';
+        }
+
+        $parts = array_values(array_filter(explode('_', $normalized)));
+        if (count($parts) === 1) {
+            $base = strtolower($parts[0]);
+            $region = $base === 'en' ? 'US' : strtoupper($parts[0]);
+            return $base . '_' . $region;
+        }
+
+        return strtolower($parts[0]) . '_' . strtoupper($parts[1]);
+    }
+
+    private function extractSpeakerFromSourceUrl(string $sourceUrl): ?string
+    {
+        $path = parse_url($sourceUrl, PHP_URL_PATH);
+        if (!is_string($path) || $path === '') {
+            return null;
+        }
+
+        $segments = array_values(array_filter(explode('/', trim($path, '/'))));
+        $storageRootIndex = array_search('audio-cache', $segments, true);
+        $speakerOffset = 3;
+        if ($storageRootIndex === false) {
+            $storageRootIndex = array_search('products-audio', $segments, true);
+            $speakerOffset = 4;
+        }
+
+        if ($storageRootIndex !== false) {
+            $speaker = $segments[$storageRootIndex + $speakerOffset] ?? null;
+            if (is_string($speaker) && $speaker !== '') {
+                return $speaker;
+            }
+        }
+
+        return null;
+    }
+
     protected function getViewData(): array
     {
         try {
@@ -1054,9 +1327,11 @@ class TtsProductManager extends AdminComponent
             
             $products = TtsAudioProduct::query()
                 ->when($this->search, function ($query) {
-                    $query->where('name', 'like', '%' . $this->search . '%')
+                    $query->where(function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%')
                           ->orWhere('description', 'like', '%' . $this->search . '%')
                           ->orWhere('tags', 'like', '%' . $this->search . '%');
+                    });
                 })
                 ->when($this->filterActive !== '', function ($query) {
                     $query->where('is_active', $this->filterActive);

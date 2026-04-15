@@ -1,0 +1,36 @@
+TIMESTAMP: 2026-04-06 13:38:28.357606
+DEVICE INFO: android BP2A.250605.031.A3.M536BXXSEGZB7
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2026-04-06 13:23:35] Log file cleared after successful upload
+[2026-04-06 13:36:00] EqualizerService: Initializing EqualizerService
+[2026-04-06 13:36:00] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-06 13:36:00] EqualizerService: EqualizerService initialized successfully
+[2026-04-06 13:36:03] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-06 13:36:03] [BG] Catalog loaded variants=2 tracks=17
+ody(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=xUUVaotJkA3nifOdVXmivEZ4FSFJCX7QWU0emoTUoTAATIezy8SI9aD9BUUI302K&expires=1775464563&signature=16076370ddeef324cd08f2e00464386a4e9dac8841ace6ba1920e406b6d875f9"}
+[2026-04-06 13:36:15] [TTS][GET] productDetail(71) -> https://mentalfitness.store/api/tts/products/71/detail
+[2026-04-06 13:36:16] [START] Total flat tracks: 35, sentenceRepeat=1, playlistLoop=false
+track(s) bg=https://mentalfitness.store/audio/stream?token=sWucZQ78R4hnBIBtEdPBbkhJ1asZesBkx6MSNWCfjSs6oiLW8XW9J1043ZU4dXeV&expires=1775464576&signature=d8f11c6a10542e35977810632d7dc07c16a4850a6e459d18525ba6c18224b217
+6e459d18525ba6c18224b217
+,"background_music_track":"https:\/\/mentalfitness.store\/audio\/stream?token=KCxbaVhelS8KOol73zROZXkd9Vn3hQ2xuL0OJVLXjN49tzVYy0fI9U7ulJwwUPYh&expi
+[2026-04-06 13:36:16] [SEQ] Normalized background music URL: https://mentalfitness.store/audio/stream?token=sWucZQ78R4hnBIBtEdPBbkhJ1asZesBkx6MSNWCfjSs6oiLW8XW9J1043ZU4dXeV&expires=1775464576&signature=d8f11c6a10542e35977810632d7dc07c16a4850a6e459d18525ba6c18224b217
+manual=false
+[2026-04-06 13:37:28] [SEQ] BG music started (looping): https://mentalfitness.store/audio/stream?token=sWucZQ78R4hnBIBtEdPBbkhJ1asZesBkx6MSNWCfjSs6oiLW8XW9J1043ZU4dXeV&expires=1775464576&signature=d8f11c6a10542e35977810632d7dc07c16a4850a6e459d18525ba6c18224b217 volume=0.5
+[2026-04-06 13:37:41] [START] Total flat tracks: 35, sentenceRepeat=1, playlistLoop=false
+track(s) bg=https://mentalfitness.store/audio/stream?token=sWucZQ78R4hnBIBtEdPBbkhJ1asZesBkx6MSNWCfjSs6oiLW8XW9J1043ZU4dXeV&expires=1775464576&signature=d8f11c6a10542e35977810632d7dc07c16a4850a6e459d18525ba6c18224b217
+[2026-04-06 13:37:41] [SEQ] playFlat: 35 tracks, sentenceRepeat=1, playlistLoop=false, msgInterval=2s
+token=sWucZQ78R4hnBIBtEdPBbkhJ1asZesBkx6MSNWCfjSs6oiLW8XW9J1043ZU4dXeV&expires=1775464576&signature=d8f11c6a10542e35977810632d7dc07c16a4850a6e459d18525ba6c18224b217 manual=false
+[2026-04-06 13:37:41] [SEQ] Normalized background music URL: https://mentalfitness.store/audio/stream?token=sWucZQ78R4hnBIBtEdPBbkhJ1asZesBkx6MSNWCfjSs6oiLW8XW9J1043ZU4dXeV&expires=1775464576&signature=d8f11c6a10542e35977810632d7dc07c16a4850a6e459d18525ba6c18224b217
+[2026-04-06 13:37:46] [SEQ] [playlist:1][track:1/35][repeat:1/1] Playing: "en-IN - Positive Attitude (English India - En US Ava  )" -> 3D%3D&signature=6b2c62d7ff4dd3f85358a78e4d088b1de26df3b5d49546215dc4e4e2f05f4fd8
+7c16a4850a6e459d18525ba6c18224b217 error=(0) Source error
+[2026-04-06 13:37:51] [SEQ] [playlist:1][track:1/35][repeat:1/1] Voice playback FAILED: https://mentalfitness.store/audio/signed-stream?expires=1775413275&path=YXVkaW8vZW5jcnlwdGVkL3RyYWNrLTAxLmVuYw%3D%3D&signature=6b2c62d7ff4dd3f85358a78e4d088b1de26df3b5d49546215dc4e4e2f05f4fd8  error=(0) Source error
+[2026-04-06 13:37:53] [SEQ] [playlist:1][track:2/35][repeat:1/1] Playing: "en-IN - Positive Attitude (English India - En US Ava  )" -> 3D%3D&signature=ecc66eefd668892506c6e839799c4b0925b69f70f9ee07878a7af301da945cd7
+[2026-04-06 13:37:59] [SEQ] [playlist:1][track:2/35][repeat:1/1] Voice playback FAILED: https://mentalfitness.store/audio/signed-stream?expires=1775413275&path=YXVkaW8vZW5jcnlwdGVkL3RyYWNrLTAyLmVuYw%3D%3D&signature=ecc66eefd668892506c6e839799c4b0925b69f70f9ee07878a7af301da945cd7  error=(0) Source error
+[2026-04-06 13:38:01] [SEQ] [playlist:1][track:3/35][repeat:1/1] Playing: "en-IN - Positive Attitude (English India - En US Ava  )" -> 3D%3D&signature=1062f800a00ae3679e3eea0ac6eac175b4d36080263e28054957639cf51aea6e
+[2026-04-06 13:38:06] [SEQ] [playlist:1][track:3/35][repeat:1/1] Voice playback FAILED: https://mentalfitness.store/audio/signed-stream?expires=1775413276&path=YXVkaW8vZW5jcnlwdGVkL3RyYWNrLTAzLmVuYw%3D%3D&signature=1062f800a00ae3679e3eea0ac6eac175b4d36080263e28054957639cf51aea6e  error=(0) Source error
+[2026-04-06 13:38:08] [SEQ] [playlist:1][track:4/35][repeat:1/1] Playing: "en-IN - Positive Attitude (English India - En US Ava  )" -> 3D%3D&signature=e15fce083decd74d8492c0942a8376a73aa985b699dbcaaf5e0c52abc44104dc
+[2026-04-06 13:38:13] [SEQ] [playlist:1][track:4/35][repeat:1/1] Voice playback FAILED: https://mentalfitness.store/audio/signed-stream?expires=1775413276&path=YXVkaW8vZW5jcnlwdGVkL3RyYWNrLTA0LmVuYw%3D%3D&signature=e15fce083decd74d8492c0942a8376a73aa985b699dbcaaf5e0c52abc44104dc  error=(0) Source error
+[2026-04-06 13:38:15] [SEQ] [playlist:1][track:5/35][repeat:1/1] Playing: "en-IN - Positive Attitude (English India - En US Ava  )" -> 3D%3D&signature=2504e8d383674b8e9439d166d28af3427c8438096bdcabf72e88b6bf35a3f531
+[2026-04-06 13:38:19] [SEQ] [playlist:1][track:5/35][repeat:1/1] Voice playback FAILED: https://mentalfitness.store/audio/signed-stream?expires=1775413276&path=YXVkaW8vZW5jcnlwdGVkL3RyYWNrLTA1LmVuYw%3D%3D&signature=2504e8d383674b8e9439d166d28af3427c8438096bdcabf72e88b6bf35a3f531  error=Connection aborted
+[2026-04-06 13:38:28] Sending debug logs to server...

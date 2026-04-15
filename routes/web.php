@@ -67,6 +67,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Audiobook Generator
     Route::get('/tts/audiobook', App\Livewire\Admin\AudioBookGenerator::class)->name('tts.audiobook');
 
+    // BG Music Manager
+    Route::get('/bg-music', [App\Http\Controllers\BgMusicStreamController::class, 'adminIndex'])->name('bg-music');
+    Route::post('/bg-music/upload', [App\Http\Controllers\BgMusicStreamController::class, 'adminUpload'])->name('bg-music.upload');
+    Route::post('/bg-music/delete', [App\Http\Controllers\BgMusicStreamController::class, 'adminDelete'])->name('bg-music.delete');
+
     // Store Management
     Route::get('/orders', App\Livewire\Admin\OrderManager::class)->name('orders');
     Route::get('/customers', App\Livewire\Admin\CustomerManager::class)->name('customers');

@@ -112,7 +112,16 @@ motivationMessageRouter.get('/admin-only', async (req, res) => {
     const messages = await MotivationMessage.find({
       userId: { $exists: false }
     }).populate('categoryId');
-    logger.info('Fetched admin-only motivation messages', { count: messages.length });
+    logger.info('Fetched admin-only motivation messages', {
+      count: messages.length,
+      sample: messages.slice(0, 5).map((message) => ({
+        id: message._id?.toString(),
+        categoryId: message.categoryId?._id?.toString?.() ?? message.categoryId?.toString?.(),
+        language: message.language,
+        speaker: message.speaker,
+        messagesCount: Array.isArray(message.messages) ? message.messages.length : 0,
+      })),
+    });
     console.log('Fetched admin-only motivation messages', { count: messages.length });
     res.status(200).json(messages);
   } catch (error) {
@@ -126,7 +135,17 @@ motivationMessageRouter.get('/category/:categoryId', async (req, res) => {
   const { categoryId } = req.params;
   try {
     const messages = await MotivationMessage.find({ categoryId }).populate('userId').populate('categoryId');
-    logger.info('Fetched motivation messages by category', { categoryId, count: messages.length });
+    logger.info('Fetched motivation messages by category', {
+      categoryId,
+      count: messages.length,
+      sample: messages.slice(0, 5).map((message) => ({
+        id: message._id?.toString(),
+        language: message.language,
+        speaker: message.speaker,
+        messagesCount: Array.isArray(message.messages) ? message.messages.length : 0,
+        firstMessage: Array.isArray(message.messages) && message.messages.length > 0 ? String(message.messages[0]).slice(0, 80) : null,
+      })),
+    });
     console.log('Fetched motivation messages by category', { categoryId, count: messages.length });
     res.status(200).json(messages);
   } catch (error) {

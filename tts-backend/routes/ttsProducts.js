@@ -121,6 +121,10 @@ router.post('/generate', async (req, res) => {
             language,
             speaker: voice,
             category: audioCategory,
+            storageType: 'products',
+            productId,
+            productName: category,
+            productSlug: category,
             speakerStyle,
             speakerPersonality,
             ssml,
@@ -387,7 +391,11 @@ router.post('/path', async (req, res) => {
             voice = 'en-US-AriaNeural',
             language = 'en-US',
             engine = 'azure',
-            category = 'preview'
+            category = 'preview',
+            productId = null,
+            productSlug = null,
+            productName = null,
+            storageType = null
         } = req.body;
 
         if (!text) {
@@ -401,7 +409,11 @@ router.post('/path', async (req, res) => {
             engine,
             language,
             speaker: voice,
-            category
+            category,
+            storageType,
+            productId,
+            productSlug,
+            productName
         };
 
         const paths = generateAudioPaths(text, options);

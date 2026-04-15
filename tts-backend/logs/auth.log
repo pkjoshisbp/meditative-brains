@@ -70,3 +70,15 @@
 2026-04-04 18:14:09.484 [INFO]: checkDevice middleware - Request received
 2026-04-04 18:14:09.484 [DEBUG]: checkDevice middleware - Searching for user
 2026-04-04 18:14:09.486 [WARN]: checkDevice middleware - User not found
+2026-04-06 13:20:55.905 [INFO]: checkDevice middleware - Request received
+2026-04-06 13:20:55.906 [DEBUG]: checkDevice middleware - Searching for user
+2026-04-06 13:20:55.908 [WARN]: checkDevice middleware - User not found
+2026-04-08 17:51:20.163 [INFO]: checkDevice middleware - Request received
+2026-04-08 17:51:20.164 [DEBUG]: checkDevice middleware - Searching for user
+2026-04-08 17:51:20.167 [WARN]: checkDevice middleware - User not found
+2026-04-09 01:25:36.753 [INFO]: checkDevice middleware - Request received
+2026-04-09 01:25:36.754 [DEBUG]: checkDevice middleware - Searching for user
+2026-04-09 01:25:36.757 [WARN]: checkDevice middleware - User not found
+2026-04-09 01:46:32.127 [INFO]: checkDevice middleware - Request received
+2026-04-09 01:46:32.128 [DEBUG]: checkDevice middleware - Searching for user
+2026-04-09 01:46:32.132 [WARN]: checkDevice middleware - User not found

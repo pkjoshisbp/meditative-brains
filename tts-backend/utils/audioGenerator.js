@@ -65,6 +65,32 @@ function formatProsodyRate(rate) {
 // Add base URL configuration
 const BASE_URL = process.env.BASE_URL || 'https://mentalfitness.store:3001';
 
+function normalizeLocaleTag(language, separator = '-') {
+  const fallback = 'en-US';
+  const input = typeof language === 'string' && language.trim() !== '' ? language.trim() : fallback;
+  const parts = input.replace(/-/g, '_').split('_').filter(Boolean);
+  if (parts.length === 1) {
+    const base = parts[0].toLowerCase();
+    const region = base === 'en' ? 'US' : base.toUpperCase();
+    return `${base}${separator}${region}`;
+  }
+
+  const locale = `${parts[0].toLowerCase()}${separator}${parts[1].toUpperCase()}`;
+  return locale;
+}
+
+function resolveProductStorageSegments(options = {}) {
+  const categorySegment = slugifyText(options.category || 'default');
+  const productSource = options.productSlug || options.productName || options.productId || categorySegment;
+  const productSegment = slugifyText(String(productSource || 'product'));
+
+  return {
+    localeSegment: normalizeLocaleTag(options.language, '_'),
+    categorySegment,
+    productSegment,
+  };
+}
+
 function generateAudioPaths(text, options = {}) {
   // Always use the category from options, fallback to 'default'
   const {
@@ -121,13 +147,26 @@ function generateAudioPaths(text, options = {}) {
   // Build path: en-US/category/model/filename
   const categoryPath = category ? slugifyText(category) : 'default';
   const storageBase = options && options.storageType === 'products' ? 'products-audio' : 'audio-cache';
-  const relativePath = path.join(
-    storageBase,
-    language,
-    categoryPath,
-    folderSpeaker, // Use the mapped speaker name
-    `${slug}-${hash}.${extension}`
-  ).replace(/\\/g, '/');
+  const pathSegments = options && options.storageType === 'products'
+    ? (() => {
+        const productSegments = resolveProductStorageSegments(options);
+        return [
+          storageBase,
+          productSegments.localeSegment,
+          productSegments.categorySegment,
+          productSegments.productSegment,
+          folderSpeaker,
+          `${slug}-${hash}.${extension}`
+        ];
+      })()
+    : [
+        storageBase,
+        language,
+        categoryPath,
+        folderSpeaker,
+        `${slug}-${hash}.${extension}`
+      ];
+  const relativePath = path.join(...pathSegments).replace(/\\/g, '/');
 
   return {
     relativePath,
@@ -572,16 +611,38 @@ async function generateAudioForMessage(text, options = {}) {
   const categoryPath = category ? slugifyText(category) : 'default';
   const storageBase2 = options && options.storageType === 'products' ? 'products-audio' : 'audio-cache';
   const storageBaseDir = options && options.storageType === 'products' ? PRODUCTS_AUDIO_BASE : AUDIO_CACHE_BASE;
-  relativePath = path.join(
-    storageBase2,
-    language,
-    categoryPath,
-    folderSpeaker, // Use the mapped speaker name
-    `${slug}-${hash}.${extension}`
-  ).replace(/\\/g, '/');
+  if (options && options.storageType === 'products') {
+    const productSegments = resolveProductStorageSegments(options);
+    relativePath = path.join(
+      storageBase2,
+      productSegments.localeSegment,
+      productSegments.categorySegment,
+      productSegments.productSegment,
+      folderSpeaker,
+      `${slug}-${hash}.${extension}`
+    ).replace(/\\/g, '/');
 
-  audioUrl = `${BASE_URL}/${relativePath}`;
-  filePath = path.join(storageBaseDir, language, categoryPath, folderSpeaker, `${slug}-${hash}.${extension}`);
+    audioUrl = `${BASE_URL}/${relativePath}`;
+    filePath = path.join(
+      storageBaseDir,
+      productSegments.localeSegment,
+      productSegments.categorySegment,
+      productSegments.productSegment,
+      folderSpeaker,
+      `${slug}-${hash}.${extension}`
+    );
+  } else {
+    relativePath = path.join(
+      storageBase2,
+      language,
+      categoryPath,
+      folderSpeaker,
+      `${slug}-${hash}.${extension}`
+    ).replace(/\\/g, '/');
+
+    audioUrl = `${BASE_URL}/${relativePath}`;
+    filePath = path.join(storageBaseDir, language, categoryPath, folderSpeaker, `${slug}-${hash}.${extension}`);
+  }
 
   // Check if audio file already exists
   if (fs.existsSync(filePath)) {

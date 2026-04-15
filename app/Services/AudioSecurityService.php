@@ -295,17 +295,25 @@ class AudioSecurityService
     public function encryptOriginalFile($originalPath, $productId)
     {
         // Build the full path to the original file
-        $fullOriginalPath = 'audio/original/' . ltrim($originalPath, '/');
+        $normalizedOriginalPath = ltrim($originalPath, '/');
+        $fullOriginalPath = 'audio/original/' . $normalizedOriginalPath;
         
         if (!Storage::disk('local')->exists($fullOriginalPath)) {
             throw new \Exception("Original file not found: {$originalPath}");
         }
 
         // Generate encrypted filename based on original filename
-        $originalName = basename($originalPath);
+        $originalName = basename($normalizedOriginalPath);
         $nameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
-        $encryptedFileName = $nameWithoutExt . '.enc';
-        $encryptedPath = 'audio/encrypted/' . $encryptedFileName;
+        $relativeDirectory = trim(pathinfo($normalizedOriginalPath, PATHINFO_DIRNAME), '.');
+        $encryptedRelative = $relativeDirectory !== ''
+            ? $relativeDirectory . '/' . $nameWithoutExt . '.enc'
+            : $nameWithoutExt . '.enc';
+        $encryptedPath = 'audio/encrypted/' . $encryptedRelative;
+
+        if (Storage::disk('local')->exists($encryptedPath)) {
+            return $encryptedPath;
+        }
 
         // Read original file
         $originalContent = Storage::disk('local')->get($fullOriginalPath);
@@ -355,7 +363,11 @@ class AudioSecurityService
             throw new \Exception("Background music original not found: {$filename}");
         }
         $baseName = pathinfo($filename, PATHINFO_FILENAME);
-        $encryptedPath = 'bg-music/encrypted/' . $baseName . '.enc';
+        $relativeDirectory = trim(pathinfo($filename, PATHINFO_DIRNAME), '.');
+        $encryptedRelative = $relativeDirectory !== ''
+            ? $relativeDirectory . '/' . $baseName . '.enc'
+            : $baseName . '.enc';
+        $encryptedPath = 'bg-music/encrypted/' . $encryptedRelative;
         if (Storage::disk('local')->exists($encryptedPath)) {
             return $encryptedPath; // already encrypted
         }
@@ -366,5 +378,43 @@ class AudioSecurityService
         $finalContent = $iv . $encryptedContent;
         Storage::disk('local')->put($encryptedPath, $finalContent);
         return $encryptedPath;
+    }
+
+    /**
+     * Encrypt a raw audio file that already exists on disk (absolute path),
+     * store the .enc under audio/encrypted/tts-messages/<relPath>.enc,
+     * and return a permanent signed stream URL.
+     *
+     * Used by MotivationMessageForm when generating per-message audio.
+     *
+     * @param string $absoluteAudioPath  Full path to the source MP3/AAC file
+     * @param string $relativeStoragePath  Relative key used to avoid collisions, e.g. "en-IN/category-slug/speaker/slug-hash"
+     * @param bool   $forceReEncrypt  Delete existing .enc and re-encrypt
+     * @return string  Signed stream URL
+     */
+    public function encryptRawAudioAndSign(string $absoluteAudioPath, string $relativeStoragePath, bool $forceReEncrypt = false): string
+    {
+        if (!file_exists($absoluteAudioPath)) {
+            throw new \Exception("Audio file not found: {$absoluteAudioPath}");
+        }
+
+        // Normalise extension to .enc
+        $encRelative = 'audio/encrypted/tts-messages/' .
+            preg_replace('/\.[^.]+$/', '', ltrim($relativeStoragePath, '/')) . '.enc';
+
+        if ($forceReEncrypt) {
+            Storage::disk('local')->delete($encRelative);
+        }
+
+        if (!Storage::disk('local')->exists($encRelative)) {
+            $content          = file_get_contents($absoluteAudioPath);
+            $key              = hash('sha256', config('app.key'), true);
+            $iv               = openssl_random_pseudo_bytes(16);
+            $encryptedContent = openssl_encrypt($content, 'AES-256-CBC', $key, OPENSSL_RAW_DATA, $iv);
+            Storage::disk('local')->put($encRelative, $iv . $encryptedContent);
+        }
+
+        // Long-lived signed URL (365 days) — re-run import to refresh if needed
+        return $this->generateSignedUrl($encRelative, null, 60 * 24 * 365);
     }
 }

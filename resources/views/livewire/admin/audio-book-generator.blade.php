@@ -79,10 +79,9 @@
                     <select class="form-control" wire:change="loadBook($event.target.value)">
                         <option value="">— Select a saved book —</option>
                         @foreach ($savedBooks as $sb)
-                            <option value="{{ $sb['_id'] }}"
-                                {{ ($savedBookId ?? '') === ($sb['_id'] ?? '') ? 'selected' : '' }}>
-                                {{ $sb['bookTitle'] ?? 'Untitled' }}
-                                ({{ count($sb['chapters'] ?? []) }} chapters)
+                            <option value="{{ $sb['id'] }}"
+                                {{ ($savedBookId ?? 0) === ($sb['id'] ?? 0) ? 'selected' : '' }}>
+                                {{ $sb['book_title'] ?? 'Untitled' }}
                             </option>
                         @endforeach
                     </select>

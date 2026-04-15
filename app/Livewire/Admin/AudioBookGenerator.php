@@ -3,8 +3,12 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use App\Models\TtsAudiobook;
+use App\Models\TtsAudiobookChapter;
+use App\Services\TtsAudioGeneratorService;
+use App\Services\AudioSecurityService;
 
 class AudioBookGenerator extends Component
 {
@@ -42,7 +46,7 @@ class AudioBookGenerator extends Component
     // ── Runtime state ────────────────────────────────────────────────
     public ?int   $generatingChapterId = null;
     public string $importStatus        = '';   // "success:msg" or "error:msg"
-    public ?string $savedBookId        = null; // MongoDB _id if saved
+    public ?int   $savedBookId         = null; // MySQL id of the saved book
 
     // ── Voice data ───────────────────────────────────────────────────
     public array $languages               = [];
@@ -52,15 +56,12 @@ class AudioBookGenerator extends Component
     public array $availableExpressionStyles = [];
     public array $savedBooks              = []; // list for load dropdown
 
-    private string $backendUrl = '';
-
     // ─────────────────────────────────────────────────────────────────
     // Lifecycle
     // ─────────────────────────────────────────────────────────────────
 
     public function mount(): void
     {
-        $this->backendUrl = rtrim(config('services.tts.base_url'), '/api');
         $this->loadVoices();
         $this->loadSavedBooksList();
         $this->chapters = [[
@@ -77,14 +78,10 @@ class AudioBookGenerator extends Component
 
     private function loadSavedBooksList(): void
     {
-        try {
-            $response = Http::timeout(10)->get("{$this->backendUrl}/api/audiobook");
-            if ($response->successful()) {
-                $this->savedBooks = $response->json('books') ?? [];
-            }
-        } catch (\Exception $e) {
-            // Silently fail — list is non-critical
-        }
+        $this->savedBooks = TtsAudiobook::select('id', 'book_title', 'book_author')
+            ->orderByDesc('updated_at')
+            ->get()
+            ->toArray();
     }
 
     // ─────────────────────────────────────────────────────────────────
@@ -307,36 +304,55 @@ class AudioBookGenerator extends Component
         $this->generatingChapterId        = $id;
 
         try {
-            $response = Http::timeout(300)->post("{$this->backendUrl}/api/tts/preview", [
-                'text'         => $content,
-                'voice'        => $this->speaker,
-                'engine'       => $this->engine,
-                'language'     => $this->language,
-                'prosodyRate'  => $this->prosodyRate,
-                'prosodyPitch' => $this->prosodyPitch,
-                'prosodyVolume'=> $this->prosodyVolume,
+            set_time_limit(300); // Allow up to 5 min for large chapters
+
+            // Auto-save the book to MySQL so we have a real book ID
+            $this->_persistBook();
+
+            $tts      = app(TtsAudioGeneratorService::class);
+            $security = app(AudioSecurityService::class);
+            $bookSlug = Str::slug($this->bookTitle);
+
+            $result = $tts->generateForMessage($content, [
+                'language'        => $this->language,
+                'speaker'         => $this->speaker,
+                'engine'          => $this->engine,
                 'speakerStyle'    => $this->speakerStyle ?: null,
                 'expressionStyle' => $this->expressionStyle ?: null,
+                'prosodyRate'     => $this->prosodyRate,
+                'prosodyPitch'    => $this->prosodyPitch,
+                'prosodyVolume'   => $this->prosodyVolume,
+                'storageType'     => 'audiobook',
+                'category'        => $bookSlug,
             ]);
 
-            if ($response->successful()) {
-                $data = $response->json();
-                $this->chapters[$index]['status']    = 'done';
-                $this->chapters[$index]['audio_url'] = $data['preview']['audio_url'] ?? null;
-                $this->chapters[$index]['error']     = null;
-            } else {
-                $this->chapters[$index]['status'] = 'error';
-                $this->chapters[$index]['error']  = 'Server responded with HTTP ' . $response->status();
-                \Log::error('AudioBook chapter generation failed', [
-                    'chapter_id' => $id,
-                    'status'     => $response->status(),
-                    'response'   => $response->body(),
-                ]);
+            // Encrypt and sign
+            $signedUrl   = $security->encryptRawAudioAndSign(
+                $result['absolutePath'],
+                $result['relativePath']
+            );
+            $encRelative = 'audio/encrypted/tts-messages/' .
+                preg_replace('/\.[^.]+$/', '', ltrim($result['relativePath'], '/')) . '.enc';
+
+            // Update Livewire state
+            $this->chapters[$index]['status']    = 'done';
+            $this->chapters[$index]['audio_url'] = $signedUrl;
+            $this->chapters[$index]['error']     = null;
+
+            // Persist chapter audio to MySQL
+            if ($this->savedBookId) {
+                TtsAudiobookChapter::where('audiobook_id', $this->savedBookId)
+                    ->where('chapter_number', $index + 1)
+                    ->update([
+                        'audio_path' => $encRelative,
+                        'audio_url'  => $signedUrl,
+                        'status'     => 'done',
+                    ]);
             }
         } catch (\Exception $e) {
             $this->chapters[$index]['status'] = 'error';
             $this->chapters[$index]['error']  = $e->getMessage();
-            \Log::error('AudioBook chapter generation exception', ['message' => $e->getMessage()]);
+            \Log::error('AudioBook chapter generation error', ['chapter_id' => $id, 'message' => $e->getMessage()]);
         } finally {
             $this->generatingChapterId = null;
         }
@@ -386,78 +402,79 @@ class AudioBookGenerator extends Component
             return;
         }
 
-        $payload = [
-            'bookTitle'      => $this->bookTitle,
-            'bookAuthor'     => $this->bookAuthor,
-            'language'       => $this->language,
-            'speaker'        => $this->speaker,
-            'engine'         => $this->engine,
-            'speakerStyle'   => $this->speakerStyle ?: null,
-            'expressionStyle'=> $this->expressionStyle ?: null,
-            'prosodyRate'    => $this->prosodyRate,
-            'prosodyPitch'   => $this->prosodyPitch,
-            'prosodyVolume'  => $this->prosodyVolume,
-            'chapters'       => collect($this->chapters)->map(fn($ch, $i) => [
-                'chapterNumber' => $i + 1,
-                'title'         => $ch['title'],
-                'plainContent'  => $ch['plain_content'],
-                'ssmlContent'   => $ch['ssml_content'],
-                'audioPath'     => '',
-                'audioUrl'      => $ch['audio_url'] ?? '',
-                'status'        => $ch['status'],
-            ])->toArray(),
-        ];
-
         try {
-            $response = Http::timeout(30)->post("{$this->backendUrl}/api/audiobook", $payload);
-            if ($response->successful()) {
-                $this->savedBookId = $response->json('book._id') ?? null;
-                $this->loadSavedBooksList();
-                $this->importStatus = 'success:Book saved successfully!';
-            } else {
-                $this->importStatus = 'error:Save failed: ' . $response->body();
-            }
+            $this->_persistBook();
+            $this->loadSavedBooksList();
+            $this->importStatus = 'success:Book saved successfully!';
         } catch (\Exception $e) {
             $this->importStatus = 'error:Save error: ' . $e->getMessage();
         }
     }
 
-    public function loadBook(string $bookId): void
+    /** Upsert the book + chapters into MySQL. Sets $this->savedBookId. */
+    private function _persistBook(): void
+    {
+        $book = TtsAudiobook::updateOrCreate(
+            ['book_title' => $this->bookTitle],
+            [
+                'book_author'      => $this->bookAuthor,
+                'language'         => $this->language,
+                'speaker'          => $this->speaker,
+                'engine'           => $this->engine,
+                'speaker_style'    => $this->speakerStyle ?: null,
+                'expression_style' => $this->expressionStyle ?: null,
+                'prosody_rate'     => $this->prosodyRate,
+                'prosody_pitch'    => $this->prosodyPitch,
+                'prosody_volume'   => $this->prosodyVolume,
+            ]
+        );
+        $this->savedBookId = $book->id;
+
+        foreach ($this->chapters as $i => $ch) {
+            TtsAudiobookChapter::updateOrCreate(
+                ['audiobook_id' => $book->id, 'chapter_number' => $i + 1],
+                [
+                    'title'         => $ch['title'],
+                    'plain_content' => $ch['plain_content'],
+                    'ssml_content'  => $ch['ssml_content'],
+                    'audio_path'    => '',
+                    'audio_url'     => $ch['audio_url'] ?? '',
+                    'status'        => $ch['status'] === 'done' ? 'done' : 'pending',
+                ]
+            );
+        }
+    }
+
+    public function loadBook(int $bookId): void
     {
         try {
-            $response = Http::timeout(15)->get("{$this->backendUrl}/api/audiobook/{$bookId}");
-            if (!$response->successful()) {
-                $this->importStatus = 'error:Could not load book.';
-                return;
-            }
-            $book = $response->json('book');
+            $book = TtsAudiobook::with(['chapters' => fn($q) => $q->orderBy('chapter_number')])->find($bookId);
             if (!$book) {
-                $this->importStatus = 'error:Book data is empty.';
+                $this->importStatus = 'error:Book not found.';
                 return;
             }
 
-            $this->savedBookId  = $book['_id'] ?? null;
-            $this->bookTitle    = $book['bookTitle'] ?? '';
-            $this->bookAuthor   = $book['bookAuthor'] ?? '';
-            $this->language     = $book['language'] ?? 'en-US';
-            $this->speaker      = $book['speaker'] ?? 'en-US-AriaNeural';
-            $this->engine       = $book['engine'] ?? 'azure';
-            $this->speakerStyle = $book['speakerStyle'] ?? '';
-            $this->expressionStyle = $book['expressionStyle'] ?? '';
-            $this->prosodyRate  = $book['prosodyRate'] ?? 'medium';
-            $this->prosodyPitch = $book['prosodyPitch'] ?? 'medium';
-            $this->prosodyVolume= $book['prosodyVolume'] ?? 'medium';
+            $this->savedBookId     = $book->id;
+            $this->bookTitle       = $book->book_title;
+            $this->bookAuthor      = $book->book_author;
+            $this->language        = $book->language;
+            $this->speaker         = $book->speaker;
+            $this->engine          = $book->engine;
+            $this->speakerStyle    = $book->speaker_style ?? '';
+            $this->expressionStyle = $book->expression_style ?? '';
+            $this->prosodyRate     = $book->prosody_rate;
+            $this->prosodyPitch    = $book->prosody_pitch;
+            $this->prosodyVolume   = $book->prosody_volume;
 
-            $this->chapters = collect($book['chapters'] ?? [])
-                ->sortBy('chapterNumber')
+            $this->chapters = $book->chapters
                 ->values()
                 ->map(fn($ch, $i) => [
                     'id'            => $i + 1,
-                    'title'         => $ch['title'] ?? '',
-                    'plain_content' => $ch['plainContent'] ?? '',
-                    'ssml_content'  => $ch['ssmlContent'] ?? '',
-                    'status'        => ($ch['status'] === 'done' && !empty($ch['audioUrl'])) ? 'done' : 'pending',
-                    'audio_url'     => $ch['audioUrl'] ?? null,
+                    'title'         => $ch->title,
+                    'plain_content' => $ch->plain_content ?? '',
+                    'ssml_content'  => $ch->ssml_content ?? '',
+                    'status'        => ($ch->status === 'done' && !empty($ch->audio_url)) ? 'done' : 'pending',
+                    'audio_url'     => $ch->audio_url ?? null,
                     'error'         => null,
                 ])
                 ->toArray();
@@ -486,6 +503,8 @@ class AudioBookGenerator extends Component
 
         return view('livewire.admin.audio-book-generator', compact(
             'activeIndex', 'doneCount', 'pendingCount', 'totalCount'
-        ))->layout('layouts.admin');
+        ))->layout('components.layouts.admin', [
+            'title' => 'Audiobook Generator',
+        ]);
     }
 }

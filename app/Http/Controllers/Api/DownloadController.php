@@ -16,12 +16,14 @@ class DownloadController extends Controller
         if(! $request->hasValidSignature()) abort(401);
 
         // Resolve file path
-        $path = null; $name='audio.mp3';
-        if ($download->product_id && $download->product) { $path = $download->product->full_file; $name = $download->product->slug.'.mp3'; }
-        if ($download->tts_audio_product_id && $download->ttsProduct) { $path = $download->ttsProduct->audio_urls[0] ?? null; $name = $download->ttsProduct->slug.'.mp3'; }
+        $path = null; $name='audio.aac';
+        if ($download->product_id && $download->product) { $path = $download->product->full_file; $name = $download->product->slug.'.aac'; }
+        if ($download->tts_audio_product_id && $download->ttsProduct) { $path = $download->ttsProduct->audio_urls[0] ?? null; $name = $download->ttsProduct->slug.'.aac'; }
         if(!$path) abort(404);
         $abs = storage_path('app/'.$path);
         if(!is_file($abs)) abort(404);
+        $downloadExt = strtolower(pathinfo($abs, PATHINFO_EXTENSION) ?: 'aac');
+        $name = preg_replace('/\.[^.]+$/', '', $name) . '.' . $downloadExt;
 
         $cfg = config('downloads');
         $chunk = (int)($cfg['base_chunk_size'] ?? 16384);
@@ -65,7 +67,7 @@ class DownloadController extends Controller
             }
             fclose($fp);
         });
-        $response->headers->set('Content-Type','audio/mpeg');
+        $response->headers->set('Content-Type', mime_content_type($abs) ?: 'application/octet-stream');
         $response->headers->set('Content-Disposition','attachment; filename="'.$name.'"');
         $response->headers->set('X-Download-Mode', $throttled? 'throttled':'normal');
         return $response;

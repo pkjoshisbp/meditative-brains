@@ -1,0 +1,32 @@
+TIMESTAMP: 2026-04-07 14:37:23.885766
+DEVICE INFO: android BP2A.250605.031.A3.M536BXXSEGZB7
+ADDITIONAL INFO: User initiated log sending from Home screen
+
+[2026-04-07 14:09:32] Log file cleared after successful upload
+[2026-04-07 14:35:45] EqualizerService: Initializing EqualizerService
+[2026-04-07 14:35:45] EqualizerService: Loaded equalizer settings - Enabled: true, Preset: flat
+[2026-04-07 14:35:45] EqualizerService: EqualizerService initialized successfully
+[2026-04-07 14:35:47] [TTS][GET] backgroundMusic -> https://mentalfitness.store/api/tts/background-music
+[2026-04-07 14:35:48] [TTS][RESP] backgroundMusic: status=200 body(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=s8RlySAC7z8oVk4tbju5vDAoaTubWxif3hv9LOAm3Glxw6XHZz0L4B7kuUfrKx0j&expires=1775554548&signature=8ced53c1d4fb72999ac878772cf83e19a4d2117c2b868ca91971424c400bf577"}
+[2026-04-07 14:36:16] [TTS][GET] productDetail(95) -> https://mentalfitness.store/api/tts/products/95/detail
+[2026-04-07 14:36:16] [TTS][GET] productDetail(93) -> https://mentalfitness.store/api/tts/products/93/detail
+[2026-04-07 14:36:17] [TTS][RESP] productDetail(93): status=200 body(first 400)={"success":true,"product":{"id":93,"name":"Quit Smoking - Respiratory Healing & Oxygenation","display_name":"en-IN - Quit Smoking - Respiratory Healing & Oxygenation","category":"Quit Smoking - Respiratory Healing & Oxygenation","language":"en-IN","total_tracks":30,"has_background_music":true,"background_music_track":"https:\/\/mentalfitness.store\/audio\/stream?token=hAUxiy9GfoJmKb06sQnBNLAKXQw18
+[2026-04-07 14:36:17] [START] Total flat tracks: 59, sentenceRepeat=1, playlistLoop=false
+ack(s) bg=NONE
+tps://mentalfitness.store/audio/stream?token=n9GN0kFqBtYMU7YdabxdpKiAPGiqwhj9zhp6H4p9s2d4IdbYz5tzfbE1Yf4Bfcpx&expires=1775554577&signature=099d94d10aa98ea7660c94b4a0804458c1c5a129c66c726b62d0884b18379d16
+":"en-IN","total_tracks":29,"has_background_music":false,"background_music_track":null,"background_music_track_name":null,"background_music_url":null},"tracks":[{"index":0
+[2026-04-07 14:36:17] [SEQ] playFlat: 59 tracks, sentenceRepeat=1, playlistLoop=false, msgInterval=2s
+token=euy9LOkRawgeFEQBbZbacq5FYULsjpORddN5E5WX94aCrr3Lhjob8od4bGQMMTsH&expires=1775554548&signature=f8ebd23e9bc6ae26fb2592c273b5ec10f509b85f9768c318acb976e0af28d133 manual=true
+[2026-04-07 14:36:17] [SEQ] Normalized background music URL: https://mentalfitness.store/audio/stream?token=euy9LOkRawgeFEQBbZbacq5FYULsjpORddN5E5WX94aCrr3Lhjob8od4bGQMMTsH&expires=1775554548&signature=f8ebd23e9bc6ae26fb2592c273b5ec10f509b85f9768c318acb976e0af28d133
+[2026-04-07 14:36:22] [SEQ] BG music failed: https://mentalfitness.store/audio/stream?token=euy9LOkRawgeFEQBbZbacq5FYULsjpORddN5E5WX94aCrr3Lhjob8od4bGQMMTsH&expires=1775554548&signature=f8ebd23e9bc6ae26fb2592c273b5ec10f509b85f9768c318acb976e0af28d133 error=(0) Source error
+[2026-04-07 14:36:27] [SEQ] [playlist:1][track:1/59][repeat:1/1] Playing: "en-IN - Quit Smoking - Brain & Nervous System Balance" -> 3D%3D&signature=bee64d933381d002de12c0cecd7267e9d54fb8276178615d26500ab9716918af
+[2026-04-07 14:36:38] [START] Total flat tracks: 59, sentenceRepeat=1, playlistLoop=false
+Interval=2s
+=https://mentalfitness.store/audio/stream?token=n9GN0kFqBtYMU7YdabxdpKiAPGiqwhj9zhp6H4p9s2d4IdbYz5tzfbE1Yf4Bfcpx&expires=1775554577&signature=099d94d10aa98ea7660c94b4a0804458c1c5a129c66c726b62d0884b18379d16
+[2026-04-07 14:36:38] [SEQ] [playlist:1][track:1/59][repeat:1/1] Playing: "en-IN - Quit Smoking - Brain & Nervous System Balance" -> 3D%3D&signature=bee64d933381d002de12c0cecd7267e9d54fb8276178615d26500ab9716918af
+[2026-04-07 14:36:45] [SEQ] [playlist:1][track:2/59][repeat:1/1] Playing: "en-IN - Quit Smoking - Brain & Nervous System Balance" -> 3D%3D&signature=c71c614880969476373ede59f12e16aec7a9bfa84a43af3930f9ebef737a9ee8
+[2026-04-07 14:36:52] [SEQ] [playlist:1][track:3/59][repeat:1/1] Playing: "en-IN - Quit Smoking - Brain & Nervous System Balance" -> 3D%3D&signature=2f581e2a7390c7669656a59db1ef34d9eea6efe41e36ed0a47894d5a55a6fdb0
+[2026-04-07 14:36:59] [SEQ] [playlist:1][track:4/59][repeat:1/1] Playing: "en-IN - Quit Smoking - Brain & Nervous System Balance" -> 3D%3D&signature=cb0887d843ee7dedba687a1490ea4007a34d92ab8fdd9195b71897041e73e660
+[2026-04-07 14:37:07] [SEQ] [playlist:1][track:5/59][repeat:1/1] Playing: "en-IN - Quit Smoking - Brain & Nervous System Balance" -> 3D%3D&signature=797739623ed2f855ade5fb5d262d33f5963388567769089f61a3ec31e4a46266
+[2026-04-07 14:37:14] [SEQ] [playlist:1][track:6/59][repeat:1/1] Playing: "en-IN - Quit Smoking - Brain & Nervous System Balance" -> 3D%3D&signature=c4fd4a0b279157a9cceb5beee97aa6bb570219dba9119f4a382a1b33afde698e
+[2026-04-07 14:37:23] Sending debug logs to server...

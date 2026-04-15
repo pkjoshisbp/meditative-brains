@@ -1,0 +1,14 @@
+DEVICE: android BP2A.250605.031.A3.M536BXXSEGZB7
+TIMESTAMP: 2026-04-10 13:20:25.319112
+DEVICE INFO: android BP2A.250605.031.A3.M536BXXSEGZB7
+ADDITIONAL INFO: Sent from MentalFitnessAudioScreen
+
+[2026-04-10 13:20:09] Log file cleared after successful upload
+[2026-04-10 13:20:19] [RESTORE] Starting restore from prefs (key v5)
+ness.store/api/tts/background-music
+[2026-04-10 13:20:20] [BG] Catalog loaded variants=2 tracks=17
+ody(first 400)={"success":true,"variants":{"original":[{"file":"hypnosis-for-supreme-confidence-back.mp3","variant":"original","path":"bg-music\/original\/hypnosis-for-supreme-confidence-back.mp3","url":"https:\/\/mentalfitness.store\/audio\/stream?token=P9dkuy4Mbyi7GCKInV9C03122hrQICh3EfhsNdTYLjQVHnVUQSXq0lWkH8yHxuah&expires=1775809220&signature=83173733b3e2c47cdeec0356ec0502a6659ebc573161064ab740a48890e7a960"}
+[2026-04-10 13:20:20] [LANG] Loaded 5 language(s): [en-GB, en-US, en-IN, hi-IN, en]
+[2026-04-10 13:20:23] [RESTORE] Restored state: language="en-IN" products=[71:en-IN - Positive Attitude (English India - En US Ava  ), 73:en-IN - Supreme Confidence (English India - Ada)] bgMusic=none
+[2026-04-10 13:20:23] [RESTORE] Resolved _selected: [71:en-IN - Positive Attitude (English India - En US Ava  ), 73:en-IN - Supreme Confidence (English India - Ada)]
+[2026-04-10 13:20:25] [DEBUG] User requested debug log send

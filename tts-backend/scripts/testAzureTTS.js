@@ -13,8 +13,10 @@ const OUTPUT_FILE = './test-output.mp3';
 
 // Change these to test different voices/languages/text
 const language = 'en-IN';
-const speaker = 'en-US-AvaMultilingualNeural';
-const text = 'Most of us were taught — in ways we never quite chose — that happiness is something that arrives';
+//const speaker = 'en-US-AvaMultilingualNeural';
+const speaker = 'en-GB-AdaMultilingualNeural';
+//const text = 'Most of us were taught — in ways we never quite chose — that happiness is something that arrives';
+const text = 'Without smoke, my body restores nitric oxide naturally.';
 const style = ''; // e.g. 'cheerful'
 const personality = ''; // e.g. 'Pleasant'
 

@@ -4,11 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class TtsAudioProduct extends Model
 {
     use HasFactory;
+
+    protected static ?bool $hasBackendCategoryNameColumn = null;
 
     protected $fillable = [
         'name',
@@ -35,6 +38,7 @@ class TtsAudioProduct extends Model
         'sample_messages',
         'total_messages_count',
         'backend_category_id',
+        'backend_category_name',
         'is_active',
         'short_description',
         'tags',
@@ -212,6 +216,15 @@ class TtsAudioProduct extends Model
         }
 
         return $this->sample_messages[array_rand($this->sample_messages)];
+    }
+
+    public static function supportsBackendCategoryName(): bool
+    {
+        if (static::$hasBackendCategoryNameColumn === null) {
+            static::$hasBackendCategoryNameColumn = Schema::hasColumn('tts_audio_products', 'backend_category_name');
+        }
+
+        return static::$hasBackendCategoryNameColumn;
     }
 
     // Ensure slug present when saving (basic auto-generation if missing)

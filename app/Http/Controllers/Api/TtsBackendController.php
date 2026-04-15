@@ -17,6 +17,8 @@ use Illuminate\Support\Str;
 
 class TtsBackendController extends Controller
 {
+    private const PREVIEW_AUDIO_URL_MAX_LENGTH = 65535;
+
     protected $accessControlService;
     protected $audioService;
     protected $audioSecurityService;
@@ -806,37 +808,6 @@ class TtsBackendController extends Controller
             $tracks = $this->ensureEncryptedProductTracks($product, $tracks);
         }
 
-        // Fallback: if no tracks in audio_urls, try fetching live audio from Node.js backend
-        $fetchedLanguage = null;
-        if (empty($tracks) && $product->backend_category_id) {
-            $nodeResult = $this->fetchBestNodeAudio($product);
-            $tracks = $nodeResult['tracks'];
-            if (!empty($tracks)) {
-                $tracks = $this->ensureEncryptedProductTracks($product, $tracks);
-            }
-            // If we got audio and the language differs from stored, update the product language
-            if (!empty($tracks) && !empty($nodeResult['language'])) {
-                $fetchedLanguage = $nodeResult['language'];
-                $detectedLang = ($nodeResult['engine'] ?? '') === 'vits'
-                    ? 'en'
-                    : $nodeResult['language'];
-                if ($product->language !== $detectedLang) {
-                    try {
-                        $product->update([
-                            'language'         => $detectedLang,
-                            'backend_language' => $nodeResult['language'],
-                            'backend_speaker'  => $nodeResult['speaker'] ?? $product->backend_speaker,
-                        ]);
-                    } catch (\Exception $e) {
-                        Log::warning('Could not auto-update product language', [
-                            'product_id' => $product->id,
-                            'error' => $e->getMessage(),
-                        ]);
-                    }
-                }
-            }
-        }
-
         return response()->json([
             'success' => true,
             'product' => [
@@ -950,19 +921,41 @@ class TtsBackendController extends Controller
     private function resolveBackgroundMusicPlaybackUrl(TtsAudioProduct $product): ?string
     {
         if (!$product->has_background_music) {
+            Log::info('Product detail background music disabled', [
+                'product_id' => $product->id,
+                'background_music_track' => $product->background_music_track,
+            ]);
             return null;
         }
 
         if (!empty($product->background_music_track)) {
             $signedUrl = $this->issueBackgroundMusicSecureUrl($product->background_music_track);
             if ($signedUrl) {
+                Log::info('Resolved product background music from track', [
+                    'product_id' => $product->id,
+                    'track' => $product->background_music_track,
+                    'url_length' => strlen($signedUrl),
+                ]);
                 return $signedUrl;
             }
         }
 
         if (!empty($product->background_music_url) && str_starts_with($product->background_music_url, 'http')) {
-            return $this->normalizeAudioUrl($product->background_music_url);
+            $normalized = $this->normalizeAudioUrl($product->background_music_url);
+            Log::info('Resolved product background music from stored URL', [
+                'product_id' => $product->id,
+                'background_music_url' => $product->background_music_url,
+                'normalized_background_music_url' => $normalized,
+            ]);
+            return $normalized;
         }
+
+        Log::warning('Unable to resolve product background music playback URL', [
+            'product_id' => $product->id,
+            'background_music_track' => $product->background_music_track,
+            'background_music_url' => $product->background_music_url,
+            'has_background_music' => $product->has_background_music,
+        ]);
 
         return null;
     }
@@ -979,6 +972,7 @@ class TtsBackendController extends Controller
 
         $dir = storage_path('app/bg-music/original');
         if (!is_dir($dir)) {
+            Log::warning('Background music directory missing', ['dir' => $dir]);
             return null;
         }
 
@@ -995,12 +989,23 @@ class TtsBackendController extends Controller
         }
 
         if (!$candidate) {
+            Log::warning('Background music track file not found for secure URL', [
+                'track' => $track,
+                'dir' => $dir,
+            ]);
             return null;
         }
 
         try {
             $encryptedPath = $this->audioSecurityService->encryptBgMusicFile($candidate);
-            return $this->audioSecurityService->generateSecureUrl($encryptedPath, null, 30);
+            $url = $this->audioSecurityService->generateSecureUrl($encryptedPath, null, 30);
+            Log::info('Issued background music secure URL', [
+                'track' => $track,
+                'candidate' => $candidate,
+                'encrypted_path' => $encryptedPath,
+                'url_length' => strlen($url),
+            ]);
+            return $url;
         } catch (\Throwable $e) {
             Log::warning('Failed issuing background music secure URL', [
                 'track' => $track,
@@ -1030,9 +1035,13 @@ class TtsBackendController extends Controller
 
             $normalizedUrl = $this->normalizeAudioUrl($url);
             if (str_contains($normalizedUrl, '/audio/signed-stream')) {
-                $track['url'] = $normalizedUrl;
+                $refreshedSignedUrl = $this->refreshSignedProductTrackUrl($normalizedUrl);
+                $track['url'] = $refreshedSignedUrl ?? $normalizedUrl;
                 $secured[] = $track;
-                $updatedUrls[] = $normalizedUrl;
+                $updatedUrls[] = $track['url'];
+                if ($track['url'] !== $normalizedUrl) {
+                    $changed = true;
+                }
                 continue;
             }
 
@@ -1060,7 +1069,7 @@ class TtsBackendController extends Controller
             try {
                 $product->update([
                     'audio_urls' => array_values($updatedUrls),
-                    'preview_audio_url' => $updatedUrls[0] ?? $product->preview_audio_url,
+                    'preview_audio_url' => $this->getPersistablePreviewUrl($updatedUrls[0] ?? null, $product->preview_audio_url),
                 ]);
             } catch (\Throwable $e) {
                 Log::warning('Failed persisting secured product audio URLs', [
@@ -1073,17 +1082,69 @@ class TtsBackendController extends Controller
         return $secured;
     }
 
+    private function refreshSignedProductTrackUrl(string $signedUrl): ?string
+    {
+        try {
+            $query = parse_url($signedUrl, PHP_URL_QUERY);
+            if (!is_string($query) || $query === '') {
+                return null;
+            }
+
+            parse_str($query, $params);
+            $encodedPath = $params['path'] ?? null;
+            if (!is_string($encodedPath) || trim($encodedPath) === '') {
+                return null;
+            }
+
+            $encryptedPath = base64_decode($encodedPath, true);
+            if (!is_string($encryptedPath) || trim($encryptedPath) === '') {
+                return null;
+            }
+
+            if (!Storage::disk('local')->exists($encryptedPath)) {
+                Log::warning('Unable to refresh signed product track URL because encrypted file is missing', [
+                    'signed_url' => Str::limit($signedUrl, 220),
+                    'encrypted_path' => $encryptedPath,
+                ]);
+                return null;
+            }
+
+            $previewLength = $params['preview'] ?? null;
+            $previewLength = is_numeric($previewLength) ? (int) $previewLength : null;
+
+            $refreshedUrl = $this->audioSecurityService->generateSignedUrl($encryptedPath, $previewLength, 60 * 24);
+
+            Log::info('Refreshed signed product track URL for product detail response', [
+                'encrypted_path' => $encryptedPath,
+                'old_url_length' => strlen($signedUrl),
+                'new_url_length' => strlen($refreshedUrl),
+            ]);
+
+            return $refreshedUrl;
+        } catch (\Throwable $e) {
+            Log::warning('Failed refreshing signed product track URL', [
+                'signed_url' => Str::limit($signedUrl, 220),
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    private function getPersistablePreviewUrl(?string $candidate, ?string $fallback = null): ?string
+    {
+        if (!is_string($candidate) || trim($candidate) === '') {
+            return $fallback;
+        }
+
+        return strlen($candidate) <= self::PREVIEW_AUDIO_URL_MAX_LENGTH ? $candidate : $fallback;
+    }
+
     private function mirrorProductTrackToSecureStorage(TtsAudioProduct $product, int $index, string $sourceUrl): ?string
     {
         try {
             $extension = pathinfo(parse_url($sourceUrl, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION);
-            $extension = $extension !== '' ? strtolower($extension) : 'mp3';
-            $originalRelative = sprintf(
-                'tts-products/product-%d/track-%02d.%s',
-                $product->id,
-                $index + 1,
-                $extension
-            );
+            $extension = $extension !== '' ? strtolower($extension) : 'aac';
+            $originalRelative = $this->buildProductOriginalRelativePath($product, $index, $sourceUrl, $extension);
             $originalStoragePath = 'audio/original/' . $originalRelative;
 
             if (!Storage::disk('local')->exists($originalStoragePath)) {
@@ -1114,104 +1175,80 @@ class TtsBackendController extends Controller
         }
     }
 
-    /**
-     * Fetch the best available audio tracks for a product from the Node.js backend.
-     * Returns an array with keys: tracks[], language, speaker, engine.
-     */
-    private function fetchBestNodeAudio(TtsAudioProduct $product): array
+    private function buildProductOriginalRelativePath(TtsAudioProduct $product, int $index, string $sourceUrl, string $extension): string
     {
-        $nodeBaseUrl = rtrim($this->ttsBackendUrl, '/');
-        // strip trailing /api if present so we can add it ourselves
-        if (str_ends_with($nodeBaseUrl, '/api')) {
-            $nodeBaseUrl = substr($nodeBaseUrl, 0, -4);
-        }
-        $categoryId   = $product->backend_category_id;
-        $preferredLang = $product->backend_language ?: null;
+        $locale = $this->normalizeLocaleForStorage($product->backend_language ?: $product->language ?: 'en-US');
+        $category = Str::slug($product->category ?: 'default');
+        $productSlug = Str::slug($product->slug ?: $product->name ?: ('product-' . $product->id));
+        $speaker = $this->extractSpeakerFromSourceUrl($sourceUrl) ?: 'unknown-speaker';
+        $fileName = $this->buildTrackFileNameFromSourceUrl($sourceUrl, $index, $extension);
 
-        try {
-            // 1. If we already know the preferred language, use the flat per-message endpoint.
-            if ($preferredLang) {
-                $uri = $nodeBaseUrl . '/api/motivationMessage/language/' . urlencode($preferredLang) . '/category/' . $categoryId;
-                $resp = Http::timeout(15)->get($uri);
-                if ($resp->successful()) {
-                    $messages = $resp->json();
-                    $firstMsg = is_array($messages) && count($messages) > 0 ? $messages[0] : [];
-                    $tracks = [];
-                    foreach ((array)$messages as $msg) {
-                        $audioUrl = $msg['audioUrl'] ?? null;
-                        if ($audioUrl) {
-                            $tracks[] = [
-                                'index' => count($tracks),
-                                'url'   => $this->normalizeAudioUrl($audioUrl),
-                                'title' => ($product->name ?? 'Track') . ' #' . (count($tracks) + 1),
-                            ];
-                        }
-                    }
-                    if (!empty($tracks)) {
-                        return [
-                            'tracks'   => $tracks,
-                            'language' => $firstMsg['language'] ?? $preferredLang,
-                            'speaker'  => $firstMsg['speaker']  ?? '',
-                            'engine'   => $firstMsg['engine']   ?? 'azure',
-                        ];
-                    }
-                }
-            }
-
-            // 2. Fallback: fetch all variants for the category and pick the one with most audio.
-            $uri  = $nodeBaseUrl . '/api/motivationMessage/category/' . $categoryId;
-            $resp = Http::timeout(15)->get($uri);
-            if (!$resp->successful()) {
-                return ['tracks' => []];
-            }
-
-            $variants = $resp->json();
-            if (!is_array($variants) || empty($variants)) {
-                return ['tracks' => []];
-            }
-
-            // Sort variants so Azure with most audio comes first (prefer Azure over VITS for locale accuracy).
-            usort($variants, function ($a, $b) {
-                $aCount = count($a['audioUrls'] ?? []);
-                $bCount = count($b['audioUrls'] ?? []);
-                if ($aCount !== $bCount) return $bCount - $aCount;
-                // Secondary: prefer non-vits
-                $aVits = ($a['engine'] ?? '') === 'vits' ? 1 : 0;
-                $bVits = ($b['engine'] ?? '') === 'vits' ? 1 : 0;
-                return $aVits - $bVits;
-            });
-
-            foreach ($variants as $variant) {
-                $audioUrls = $variant['audioUrls'] ?? [];
-                if (empty($audioUrls)) continue;
-
-                $tracks = [];
-                foreach ($audioUrls as $i => $url) {
-                    if (is_string($url)) {
-                        $tracks[] = [
-                            'index' => $i,
-                            'url'   => $this->normalizeAudioUrl($url),
-                            'title' => ($product->name ?? 'Track') . ' #' . ($i + 1),
-                        ];
-                    }
-                }
-                if (!empty($tracks)) {
-                    return [
-                        'tracks'   => $tracks,
-                        'language' => $variant['language'] ?? 'en',
-                        'speaker'  => $variant['speaker']  ?? '',
-                        'engine'   => $variant['engine']   ?? 'azure',
-                    ];
-                }
-            }
-        } catch (\Exception $e) {
-            Log::warning('fetchBestNodeAudio failed', [
-                'product_id'  => $product->id,
-                'category_id' => $categoryId,
-                'error'       => $e->getMessage(),
-            ]);
-        }
-
-        return ['tracks' => []];
+        return sprintf(
+            'tts-products/%s/%s/%s/%s/%s',
+            $locale,
+            $category,
+            $productSlug,
+            $speaker,
+            $fileName
+        );
     }
+
+    private function buildTrackFileNameFromSourceUrl(string $sourceUrl, int $index, string $extension): string
+    {
+        $path = parse_url($sourceUrl, PHP_URL_PATH) ?? '';
+        $baseName = pathinfo($path, PATHINFO_FILENAME);
+        $baseName = Str::limit(trim($baseName), 180, '');
+
+        if ($baseName !== '') {
+            $slugged = Str::slug($baseName, '-');
+            if ($slugged !== '') {
+                return $slugged . '.' . $extension;
+            }
+        }
+
+        return sprintf('track-%02d.%s', $index + 1, $extension);
+    }
+
+    private function normalizeLocaleForStorage(string $language): string
+    {
+        $normalized = trim(str_replace('-', '_', $language));
+        if ($normalized === '') {
+            return 'en_US';
+        }
+
+        $parts = array_values(array_filter(explode('_', $normalized)));
+        if (count($parts) === 1) {
+            $base = strtolower($parts[0]);
+            $region = $base === 'en' ? 'US' : strtoupper($parts[0]);
+            return $base . '_' . $region;
+        }
+
+        return strtolower($parts[0]) . '_' . strtoupper($parts[1]);
+    }
+
+    private function extractSpeakerFromSourceUrl(string $sourceUrl): ?string
+    {
+        $path = parse_url($sourceUrl, PHP_URL_PATH);
+        if (!is_string($path) || $path === '') {
+            return null;
+        }
+
+        $segments = array_values(array_filter(explode('/', trim($path, '/'))));
+        $storageRootIndex = array_search('audio-cache', $segments, true);
+        $speakerOffset = 3;
+        if ($storageRootIndex === false) {
+            $storageRootIndex = array_search('products-audio', $segments, true);
+            $speakerOffset = 4;
+        }
+
+        if ($storageRootIndex !== false) {
+            $speaker = $segments[$storageRootIndex + $speakerOffset] ?? null;
+            if (is_string($speaker) && $speaker !== '') {
+                return $speaker;
+            }
+        }
+
+        return null;
+    }
+
 }

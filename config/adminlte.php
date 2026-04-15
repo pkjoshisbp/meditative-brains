@@ -357,6 +357,11 @@ return [
             'url' => 'admin/tts/audiobook',
             'icon' => 'fas fa-fw fa-book-open',
         ],
+        [
+            'text' => 'BG Music Manager',
+            'url' => 'admin/bg-music',
+            'icon' => 'fas fa-fw fa-music',
+        ],
         ['header' => 'STORE MANAGEMENT'],
         [
             'text' => 'Orders',
