@@ -8,6 +8,8 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\On;
 use App\Models\TtsAudioProduct;
+use App\Models\TtsSourceCategory;
+use App\Models\TtsMotivationMessage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -115,16 +117,14 @@ class TtsProductManager extends AdminComponent
     {
         try {
             Log::info('TtsProductManager: Starting mount()');
-            $this->checkBackendConnection();
-            Log::info('TtsProductManager: Backend connection checked, connected: ' . ($this->backendConnected ? 'YES' : 'NO'));
+            // MySQL is always available — no Node connection needed
+            $this->backendConnected = true;
             $this->autoSyncCategories();
             Log::info('TtsProductManager: Auto-sync completed');
             $this->loadBgMusicFiles();
         } catch (\Exception $e) {
             Log::error('TtsProductManager mount error: ' . $e->getMessage());
             Log::error('TtsProductManager mount trace: ' . $e->getTraceAsString());
-            // Don't let mount errors break the component
-            $this->backendConnected = false;
         }
     }
 
@@ -203,15 +203,10 @@ class TtsProductManager extends AdminComponent
         }
     }
 
+    /** MySQL is always available — Node no longer used. */
     public function checkBackendConnection()
     {
-        try {
-            $response = Http::timeout(5)->get('https://mentalfitness.store:3001/api/category');
-            $this->backendConnected = $response->successful();
-        } catch (\Exception $e) {
-            $this->backendConnected = false;
-            Log::warning('TTS Backend connection failed: ' . $e->getMessage());
-        }
+        $this->backendConnected = true;
     }
 
     protected function supportsBackendCategoryName(): bool
@@ -228,276 +223,161 @@ class TtsProductManager extends AdminComponent
         return $data;
     }
 
+    /**
+     * Sync TtsAudioProducts from MySQL tts_source_categories + tts_motivation_messages.
+     * No Node dependency.
+     */
     public function autoSyncCategories()
     {
-        if (!$this->backendConnected) {
-            return;
-        }
-
-        // Always refresh message counts when syncing (runs on every mount when connected)
         $this->refreshMessageCounts();
 
-        try {
-            $response = Http::get('https://mentalfitness.store:3001/api/category');
+        $syncCount = 0;
+        $this->syncMessages = [];
 
-            if ($response->successful()) {
-                $categories = $response->json();
-                $syncCount = 0;
-                $this->syncMessages = [];
+        $categories = TtsSourceCategory::withCount('messages')->get();
 
-                // Pre-fetch all messages once to avoid N+1 calls and build counts map
-                $messageCounts = $this->fetchBackendMessageCounts();
+        foreach ($categories as $category) {
+            $messageCount = $category->messages_count;
+            [$catalogCategory, $productTitle] = $this->deriveCatalogFieldsFromBackendCategory($category->category);
 
-                foreach ($categories as $category) {
-                    $existing = TtsAudioProduct::where('backend_category_id', $category['_id'])->first();
-                    $messageCount = $messageCounts[$category['_id']] ?? 0;
-                    [$catalogCategory, $productTitle] = $this->deriveCatalogFieldsFromBackendCategory($category['category'] ?? '');
+            $existing = TtsAudioProduct::where('backend_category_id', $category->mongo_id ?: $category->id)->first();
 
-                    if (!$existing) {
-                        $productData = [
-                            'name' => $productTitle,
-                            'description' => $category['description'] ?? '',
-                            'short_description' => substr($category['description'] ?? '', 0, 200),
-                            'category' => $catalogCategory,
-                            'audio_type' => 'tts',
-                            'language' => 'en',
-                            'price' => 9.99,
-                            'sale_price' => null,
-                            'tags' => json_encode(['tts', 'audio', 'motivation']),
-                            'preview_duration' => 30,
-                            'sort_order' => 0,
-                            'is_active' => true,
-                            'is_featured' => false,
-                            'backend_category_id' => $category['_id'],
-                            'total_messages_count' => $messageCount,
-                        ];
-                        TtsAudioProduct::create($this->mergeBackendCategoryName($productData, $category['category'] ?? null));
-                        $syncCount++;
-                        $this->syncMessages[] = "Auto-synced category: {$category['category']} ({$messageCount} messages)";
-                    } else {
-                        $updates = [
-                            'total_messages_count' => $messageCount,
-                        ];
-                        if ($this->supportsBackendCategoryName() && empty($existing->backend_category_name)) {
-                            $updates['backend_category_name'] = $category['category'] ?? null;
-                        }
-                        if ($existing->name === ($category['category'] ?? '') || $existing->name === (($category['category'] ?? '') . ' - Motivational Audio Pack')) {
-                            $updates['name'] = $productTitle;
-                        }
-                        if (empty($existing->category) || $existing->category === ($category['category'] ?? '')) {
-                            $updates['category'] = $catalogCategory;
-                        }
-                        $existing->update($updates);
-                    }
+            if (!$existing) {
+                $productData = [
+                    'name'                  => $productTitle,
+                    'description'           => '',
+                    'short_description'     => '',
+                    'category'              => $catalogCategory,
+                    'audio_type'            => 'tts',
+                    'language'              => 'en',
+                    'price'                 => 9.99,
+                    'tags'                  => json_encode(['tts', 'audio', 'motivation']),
+                    'preview_duration'      => 30,
+                    'sort_order'            => 0,
+                    'is_active'             => true,
+                    'is_featured'           => false,
+                    'backend_category_id'   => $category->mongo_id ?: (string)$category->id,
+                    'total_messages_count'  => $messageCount,
+                ];
+                TtsAudioProduct::create($this->mergeBackendCategoryName($productData, $category->category));
+                $syncCount++;
+                $this->syncMessages[] = "Auto-synced category: {$category->category} ({$messageCount} messages)";
+            } else {
+                $updates = ['total_messages_count' => $messageCount];
+                if ($this->supportsBackendCategoryName() && empty($existing->backend_category_name)) {
+                    $updates['backend_category_name'] = $category->category;
                 }
-
-                if ($syncCount > 0) {
-                    session()->flash('success', "Auto-synced {$syncCount} new categories from TTS backend.");
-                }
+                $existing->update($updates);
             }
-        } catch (\Exception $e) {
-            Log::error('Auto-sync failed: ' . $e->getMessage());
+        }
+
+        if ($syncCount > 0) {
+            session()->flash('success', "Auto-synced {$syncCount} new categories from MySQL.");
         }
     }
 
     /**
-     * Fetch all messages from backend and return an associative array of counts keyed by category id.
+     * Count messages per source category from MySQL.
      */
     protected function fetchBackendMessageCounts(): array
     {
+        // Group by source_category_id, sum individual message text rows
+        $rows = TtsMotivationMessage::selectRaw('source_category_id, SUM(JSON_LENGTH(messages)) as cnt')
+            ->groupBy('source_category_id')
+            ->get();
+
         $counts = [];
-        if (!$this->backendConnected) return $counts;
-
-        try {
-            $endpoints = [
-                'https://mentalfitness.store:3001/api/messages',
-                'https://mentalfitness.store:3001/api/motivationMessage'
-            ];
-
-            $messages = [];
-            foreach ($endpoints as $ep) {
-                try {
-                    $resp = Http::timeout(10)->get($ep);
-                    if (!$resp->successful()) continue;
-                    $json = $resp->json();
-                    if (is_array($json) && isset($json['data']) && is_array($json['data'])) {
-                        $json = $json['data'];
-                    }
-                    if (is_array($json)) {
-                        // Basic heuristic: ensure first element looks like a message doc
-                        if (empty($json) || (isset($json[0]) && is_array($json[0]))) {
-                            $messages = $json;
-                            break;
-                        }
-                    }
-                } catch (\Exception $inner) {
-                    Log::warning('Message endpoint failed: ' . $inner->getMessage());
-                }
-            }
-
-            foreach ($messages as $m) {
-                if (!is_array($m)) continue; // skip malformed
-
-                // Determine category id (product linkage key)
-                $catId = $m['categoryId'] ?? $m['category_id'] ?? null;
-
-                // categoryId may be a populated MongoDB object: {_id: '...', category: '...', __v: 0}
-                if (is_array($catId)) {
-                    $catId = $catId['_id'] ?? $catId['id'] ?? null;
-                }
-
-                if (!$catId && isset($m['category'])) {
-                    if (is_array($m['category'])) {
-                        $catId = $m['category']['_id'] ?? $m['category']['id'] ?? null;
-                    } elseif (is_string($m['category'])) {
-                        $catId = $m['category'];
-                    }
-                }
-                // Ensure catId is scalar (string/int) else skip to avoid Illegal offset type
-                if (!is_scalar($catId)) continue;
-
-                // Count logic:
-                // 1. If a message document contains an array of message segments (e.g. messages, lines, items) count its length.
-                // 2. Else if it has audio_urls (array) count those.
-                // 3. Else count the document as 1.
-                $increment = 1;
-                foreach (['messages','message_list','items','lines'] as $segKey) {
-                    if (isset($m[$segKey]) && is_array($m[$segKey]) && count($m[$segKey]) > 0) {
-                        $increment = count($m[$segKey]);
-                        break;
-                    }
-                }
-                if ($increment === 1 && isset($m['audio_urls']) && is_array($m['audio_urls']) && count($m['audio_urls']) > 0) {
-                    $increment = count($m['audio_urls']);
-                }
-
-                $catIdKey = (string)$catId; // safe key
-                $counts[$catIdKey] = ($counts[$catIdKey] ?? 0) + $increment;
-            }
-
-            Log::info('Fetched backend message counts (expanded) for ' . count($counts) . ' categories');
-            return $counts;
-        } catch (\Exception $e) {
-            Log::error('Failed fetching backend message counts: ' . $e->getMessage());
-            return $counts;
+        foreach ($rows as $row) {
+            $cat = TtsSourceCategory::find($row->source_category_id);
+            if (!$cat) continue;
+            $key = $cat->mongo_id ?: (string)$cat->id;
+            $counts[$key] = (int)$row->cnt;
         }
+        return $counts;
     }
 
+    /**
+     * Create/update a TtsAudioProduct from MySQL source category + messages.
+     */
     public function generateProductFromMessages($categoryId)
     {
-        if (!$this->backendConnected) {
-            session()->flash('error', 'Backend connection required to generate products from messages.');
-            return;
-        }
-
         try {
-            // Get category details
-            $categoryResponse = Http::get('https://mentalfitness.store:3001/api/category');
-            if (!$categoryResponse->successful()) {
-                session()->flash('error', 'Failed to fetch categories from backend.');
-                return;
-            }
-
-            $categories = $categoryResponse->json();
-            $category = collect($categories)->firstWhere('_id', $categoryId);
-            
-            if (!$category) {
-                session()->flash('error', 'Category not found in backend.');
-                return;
-            }
-
-            // Get messages for this category
-            $messageResponse = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/category/{$categoryId}");
-            if (!$messageResponse->successful()) {
-                session()->flash('error', 'Failed to fetch messages for this category.');
-                return;
-            }
-
-            $messages = $messageResponse->json();
-            
-            if (empty($messages)) {
-                session()->flash('error', 'No messages found for this category.');
-                return;
-            }
-
-            // Create or update the product with proper message data
-            [$catalogCategory, $productTitle] = $this->deriveCatalogFieldsFromBackendCategory($category['category'] ?? '');
-            $existingProduct = TtsAudioProduct::where('backend_category_id', $categoryId)
-                ->where(function ($query) use ($productTitle, $category) {
-                    $sourceCategory = $category['category'] ?? '';
-                    $query->where('name', $productTitle)
-                        ->orWhere('name', $sourceCategory)
-                        ->orWhere('name', $sourceCategory . ' - Motivational Audio Pack');
-                })
+            // $categoryId may be a mongo_id string or a MySQL numeric id
+            $category = TtsSourceCategory::where('mongo_id', $categoryId)
+                ->orWhere('id', is_numeric($categoryId) ? $categoryId : 0)
                 ->first();
-            
-            $productData = [
-                'name' => $productTitle,
-                'description' => "A collection of " . count($messages) . " motivational messages in the " . $category['category'] . " category. " . ($category['description'] ?? ''),
-                'short_description' => "Motivational audio pack with " . count($messages) . " inspiring messages",
-                'category' => $catalogCategory,
-                'audio_type' => 'tts',
-                'language' => 'en',
-                'price' => 9.99,
-                'sale_price' => null,
-                'tags' => json_encode(['tts', 'audio', 'motivation', strtolower(str_replace(' ', '-', $category['category']))]),
 
-                'preview_duration' => 30,
-                'sort_order' => 0,
-                'is_active' => true,
-                'is_featured' => false,
-                'backend_category_id' => $categoryId,
-                'total_messages_count' => count($messages),
-                
-                // Default audio settings
-                'bg_music_volume' => 0.30,
-                'message_repeat_count' => 2,
-                'repeat_interval' => 2.00,
-                'message_interval' => 10.00,
-                'fade_in_duration' => 0.5,
-                'fade_out_duration' => 0.5,
-                'enable_silence_padding' => true,
-                'silence_start' => 1.0,
-                'silence_end' => 1.0,
-                'has_background_music' => false,
+            if (!$category) {
+                session()->flash('error', 'Category not found in MySQL. Please run the import first.');
+                return;
+            }
+
+            $messages = TtsMotivationMessage::where('source_category_id', $category->id)->get();
+            $totalMessages = $messages->sum(fn($m) => count($m->messages ?? []));
+
+            if ($totalMessages === 0) {
+                session()->flash('error', 'No messages found for this category in MySQL. Import messages first.');
+                return;
+            }
+
+            [$catalogCategory, $productTitle] = $this->deriveCatalogFieldsFromBackendCategory($category->category);
+            $backendCatId = $category->mongo_id ?: (string)$category->id;
+
+            $existingProduct = TtsAudioProduct::where('backend_category_id', $backendCatId)->first();
+
+            $productData = [
+                'name'                  => $productTitle,
+                'description'           => "A collection of {$totalMessages} motivational messages in the {$category->category} category.",
+                'short_description'     => "Motivational audio pack with {$totalMessages} inspiring messages",
+                'category'              => $catalogCategory,
+                'audio_type'            => 'tts',
+                'language'              => 'en',
+                'price'                 => 9.99,
+                'tags'                  => json_encode(['tts', 'audio', 'motivation', strtolower(str_replace(' ', '-', $category->category))]),
+                'preview_duration'      => 30,
+                'sort_order'            => 0,
+                'is_active'             => true,
+                'is_featured'           => false,
+                'backend_category_id'   => $backendCatId,
+                'total_messages_count'  => $totalMessages,
+                'bg_music_volume'       => 0.30,
+                'message_repeat_count'  => 2,
+                'repeat_interval'       => 2.00,
+                'message_interval'      => 10.00,
+                'fade_in_duration'      => 0.5,
+                'fade_out_duration'     => 0.5,
+                'enable_silence_padding'=> true,
+                'silence_start'         => 1.0,
+                'silence_end'           => 1.0,
+                'has_background_music'  => false,
                 'background_music_type' => 'relaxing',
             ];
-            $productData = $this->mergeBackendCategoryName($productData, $category['category'] ?? null);
+            $productData = $this->mergeBackendCategoryName($productData, $category->category);
 
             if ($existingProduct) {
                 $existingProduct->update($productData);
-                $product = $existingProduct;
-                session()->flash('success', "Product updated with {$productData['total_messages_count']} messages from backend.");
+                session()->flash('success', "Product updated with {$totalMessages} messages from MySQL.");
             } else {
-                $product = TtsAudioProduct::create($productData);
-                session()->flash('success', "New product created with {$productData['total_messages_count']} messages from category: {$category['category']}");
+                TtsAudioProduct::create($productData);
+                session()->flash('success', "New product created with {$totalMessages} messages: {$category->category}");
             }
 
-            $product->update([
-                'audio_urls' => json_encode([])
-            ]);
-
-            Log::info("Generated product from messages - Category: {$category['category']}, Messages: " . count($messages));
-            
+            Log::info('Generated product from MySQL messages', ['category' => $category->category, 'messages' => $totalMessages]);
         } catch (\Exception $e) {
-            session()->flash('error', 'Error generating product from messages: ' . $e->getMessage());
-            Log::error('Generate product from messages error: ' . $e->getMessage());
+            session()->flash('error', 'Error generating product: ' . $e->getMessage());
+            Log::error('generateProductFromMessages error: ' . $e->getMessage());
         }
     }
 
     public function manualSync()
     {
-        $this->checkBackendConnection();
+        $this->backendConnected = true;
         $this->autoSyncCategories();
         $this->dispatch('refreshPage');
     }
 
     public function refreshMessageCounts()
     {
-        if (!$this->backendConnected) {
-            session()->flash('error', 'Backend not connected.');
-            return;
-        }
         try {
             $counts = $this->fetchBackendMessageCounts();
             $updated = 0;
@@ -505,69 +385,49 @@ class TtsProductManager extends AdminComponent
                 $updated += TtsAudioProduct::where('backend_category_id', $catId)
                     ->update(['total_messages_count' => $count]);
             }
-            session()->flash('success', 'Refreshed message counts for ' . $updated . ' products.');
+            if ($updated) {
+                Log::info('Refreshed message counts for ' . $updated . ' products from MySQL.');
+            }
         } catch (\Exception $e) {
             session()->flash('error', 'Failed refreshing counts: ' . $e->getMessage());
         }
     }
 
     /**
-     * Scan all products that have language='en' (generic) and a backend_category_id.
-     * For each, fetch the best available language variant from Node.js and update
-     * the language/backend_language/backend_speaker fields.
-     * VITS products keep language='en'.
+     * Scan all products and update language/speaker fields from MySQL message records.
      */
     public function fixLanguageCodes(): void
     {
-        $ttsBase = rtrim(config('services.tts.base_url'), '/');
-        if (str_ends_with($ttsBase, '/api')) {
-            $ttsBase = substr($ttsBase, 0, -4);
-        }
-
-        $products = TtsAudioProduct::where('language', 'en')
-            ->whereNotNull('backend_category_id')
-            ->get();
+        $products = TtsAudioProduct::whereNotNull('backend_category_id')->get();
 
         $updated = 0;
         $skipped = 0;
 
         foreach ($products as $product) {
             try {
-                $resp = Http::timeout(10)->get($ttsBase . '/api/motivationMessage/category/' . $product->backend_category_id);
-                if (!$resp->successful()) { $skipped++; continue; }
+                $cat = $this->findSourceCategory(
+                    (string) $product->backend_category_id,
+                    $product->name
+                );
 
-                $variants = $resp->json();
-                if (!is_array($variants)) { $skipped++; continue; }
+                if (!$cat) { $skipped++; continue; }
 
-                // Sort: most audio URLs first, prefer Azure over VITS
-                usort($variants, function ($a, $b) {
-                    $aCount = count($a['audioUrls'] ?? []);
-                    $bCount = count($b['audioUrls'] ?? []);
-                    if ($aCount !== $bCount) return $bCount - $aCount;
-                    $aVits = ($a['engine'] ?? '') === 'vits' ? 1 : 0;
-                    $bVits = ($b['engine'] ?? '') === 'vits' ? 1 : 0;
-                    return $aVits - $bVits;
-                });
-
-                $best = null;
-                foreach ($variants as $v) {
-                    if (!empty($v['audioUrls'])) { $best = $v; break; }
-                }
+                $best = TtsMotivationMessage::where('source_category_id', $cat->id)
+                    ->whereNotNull('audio_urls')
+                    ->where('engine', '!=', 'vits')
+                    ->orderByRaw('JSON_LENGTH(audio_urls) DESC')
+                    ->first();
 
                 if (!$best) { $skipped++; continue; }
 
-                $engine      = $best['engine']   ?? 'azure';
-                $rawLang     = $best['language']  ?? 'en';
-                $newLang     = ($engine === 'vits') ? 'en' : $rawLang;
-                $newSpeaker  = $best['speaker']   ?? '';
+                $newLang    = $best->language ?? 'en';
+                $newSpeaker = $best->speaker  ?? '';
 
-                if ($product->language === $newLang && $product->backend_language === $rawLang) {
-                    $skipped++; continue;
-                }
+                if ($product->language === $newLang) { $skipped++; continue; }
 
                 $product->update([
                     'language'         => $newLang,
-                    'backend_language' => $rawLang,
+                    'backend_language' => $newLang,
                     'backend_speaker'  => $newSpeaker ?: $product->backend_speaker,
                 ]);
                 $updated++;
@@ -577,7 +437,7 @@ class TtsProductManager extends AdminComponent
             }
         }
 
-        session()->flash('success', "Language codes fixed: {$updated} updated, {$skipped} skipped (no audio or already correct).");
+        session()->flash('success', "Language codes fixed: {$updated} updated, {$skipped} skipped.");
     }
 
     public function create()
@@ -600,9 +460,9 @@ class TtsProductManager extends AdminComponent
         $product = TtsAudioProduct::findOrFail($productId);
 
         try {
-            $audioUrls = $this->fetchAdminNodeAudioUrls($product);
+            $audioUrls = $this->fetchAudioUrlsFromMysql($product);
             if (empty($audioUrls)) {
-                session()->flash('error', 'No generated backend audio was found for this product/category yet.');
+                session()->flash('error', 'No generated audio was found in MySQL for this product/category yet.');
                 return;
             }
 
@@ -685,22 +545,23 @@ class TtsProductManager extends AdminComponent
 
     protected function loadBackendData()
     {
-        if (!$this->backend_category_id || !$this->backendConnected) {
-            return;
-        }
+        if (!$this->backend_category_id) return;
 
         try {
-            // Load category details
-            $categoryResponse = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/category");
-            if ($categoryResponse->successful()) {
-                $categories = $categoryResponse->json();
-                $this->backendCategory = collect($categories)->firstWhere('_id', $this->backend_category_id);
-            }
+            $cat = $this->findSourceCategory(
+                $this->backend_category_id,
+                $this->editingProduct?->name
+            );
 
-            // Load messages (limited to 5 for preview)
-            $messageResponse = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/category/{$this->backend_category_id}");
-            if ($messageResponse->successful()) {
-                $this->backendMessages = array_slice($messageResponse->json(), 0, 5);
+            if ($cat) {
+                $this->backendCategory = ['_id' => $cat->mongo_id ?: $cat->id, 'category' => $cat->category];
+                $msgs = TtsMotivationMessage::where('source_category_id', $cat->id)->limit(5)->get();
+                $this->backendMessages = $msgs->map(fn($m) => [
+                    'messages'  => $m->messages ?? [],
+                    'language'  => $m->language,
+                    'speaker'   => $m->speaker,
+                    'audioUrls' => $m->audio_urls ?? [],
+                ])->toArray();
             }
         } catch (\Exception $e) {
             Log::error('Failed to load backend data: ' . $e->getMessage());
@@ -958,6 +819,8 @@ class TtsProductManager extends AdminComponent
                 if (!empty($audioUrls)) {
                     // Normalize legacy domains to new domain for playback
                     $audioUrls = array_map([$this, 'normalizeAdminAudioUrl'], $audioUrls);
+                    // Refresh any expired signed URLs before playing
+                    $audioUrls = $this->refreshExpiredSignedUrls($product, $audioUrls);
                     // Prepare audio configuration for the frontend
                     $audioConfig = [
                         'audioUrls' => $audioUrls,
@@ -1004,7 +867,7 @@ class TtsProductManager extends AdminComponent
             if ($product->preview_audio_url) {
                 $previewUrl = $this->normalizeAdminAudioUrl($product->preview_audio_url);
                 if (!str_starts_with($previewUrl, 'http')) {
-                    $previewUrl = 'https://mentalfitness.store:3001/' . ltrim($previewUrl, '/');
+                    $previewUrl = url($previewUrl);
                 }
                 
                 // Simple single audio preview (fallback)
@@ -1022,9 +885,9 @@ class TtsProductManager extends AdminComponent
                 return;
             }
 
-            // Third priority: Try fetching audio from Node.js backend (backend_category_id fallback)
+            // Third priority: Try fetching audio from MySQL message records (backend_category_id fallback)
             if ($product->backend_category_id) {
-                $audioUrls = $this->fetchAdminNodeAudioUrls($product);
+                $audioUrls = $this->fetchAudioUrlsFromMysql($product);
                 if (!empty($audioUrls)) {
                     $audioConfig = [
                         'audioUrls' => $audioUrls,
@@ -1103,59 +966,158 @@ class TtsProductManager extends AdminComponent
     }
 
     /**
-     * Fetch audio URLs from Node.js backend for admin preview.
-     * Returns a flat array of normalised audio URL strings.
+     * Fetch audio URLs from MySQL tts_motivation_messages for a product.
      */
-    protected function fetchAdminNodeAudioUrls(TtsAudioProduct $product): array
+    /**
+     * Check if a signed URL has expired.
+     */
+    private function isSignedUrlExpired(string $url): bool
     {
-        $ttsBase = rtrim(config('services.tts.base_url'), '/');
-        if (str_ends_with($ttsBase, '/api')) {
-            $ttsBase = substr($ttsBase, 0, -4);
-        }
-        $categoryId    = $product->backend_category_id;
-        $preferredLang = $product->backend_language ?: null;
+        if (!str_contains($url, '/audio/signed-stream')) return false;
+        parse_str((string) parse_url($url, PHP_URL_QUERY), $params);
+        $expires = isset($params['expires']) ? (int) $params['expires'] : 0;
+        return $expires > 0 && $expires < time();
+    }
 
+    /**
+     * Refresh expired signed URLs in a list by re-signing from the stored encrypted file path.
+     */
+    private function refreshExpiredSignedUrls(TtsAudioProduct $product, array $urls): array
+    {
+        $anyRefreshed = false;
+        $refreshed = array_map(function (string $url) use (&$anyRefreshed) {
+            if (!$this->isSignedUrlExpired($url)) return $url;
+            $newUrl = $this->resignStoredUrl($url);
+            if ($newUrl) { $anyRefreshed = true; return $newUrl; }
+            return $url;
+        }, $urls);
+
+        // Persist refreshed URLs back to DB so next play is instant
+        if ($anyRefreshed) {
+            try {
+                $product->update(['audio_urls' => array_values($refreshed)]);
+            } catch (\Throwable $e) {
+                Log::warning('refreshExpiredSignedUrls: failed to persist', ['product_id' => $product->id, 'error' => $e->getMessage()]);
+            }
+        }
+        return $refreshed;
+    }
+
+    /**
+     * Extract encrypted path from a signed URL and generate a fresh 5-year signed URL.
+     */
+    private function resignStoredUrl(string $signedUrl): ?string
+    {
         try {
-            // Try preferred language first (flat per-message endpoint)
-            if ($preferredLang) {
-                $resp = Http::timeout(15)->get(
-                    $ttsBase . '/api/motivationMessage/language/' . urlencode($preferredLang) . '/category/' . $categoryId
-                );
-                if ($resp->successful()) {
-                    $msgs = $resp->json();
-                    $urls = array_filter(array_map(
-                        fn($m) => isset($m['audioUrl']) ? $this->normalizeAdminAudioUrl($m['audioUrl']) : null,
-                        (array)$msgs
-                    ));
-                    if (!empty($urls)) return array_values($urls);
+            parse_str((string) parse_url($signedUrl, PHP_URL_QUERY), $params);
+            $encodedPath = $params['path'] ?? null;
+            if (!is_string($encodedPath) || $encodedPath === '') return null;
+            $encryptedPath = base64_decode($encodedPath, true);
+            if (!is_string($encryptedPath) || $encryptedPath === '') return null;
+            if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($encryptedPath)) return null;
+            $preview = isset($params['preview']) && is_numeric($params['preview']) ? (int) $params['preview'] : null;
+            return app(AudioSecurityService::class)->generateSignedUrl($encryptedPath, $preview, 60 * 24 * 365 * 5);
+        } catch (\Throwable $e) {
+            Log::warning('resignStoredUrl failed', ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    /**
+     * Admin action: refresh all expired signed URLs across every product.
+     */
+    public function refreshSignedUrls(): void
+    {
+        $products = TtsAudioProduct::whereNotNull('audio_urls')->get();
+        $refreshedProducts = 0;
+        $refreshedUrls = 0;
+        $skipped = 0;
+
+        foreach ($products as $product) {
+            $raw = $product->audio_urls;
+            if (is_string($raw)) $raw = json_decode($raw, true) ?? [];
+            if (!is_array($raw) || empty($raw)) { $skipped++; continue; }
+
+            $newUrls = [];
+            $changed = false;
+            foreach ($raw as $url) {
+                if (!is_string($url)) { $newUrls[] = $url; continue; }
+                if ($this->isSignedUrlExpired($url)) {
+                    $fresh = $this->resignStoredUrl($url);
+                    if ($fresh) { $newUrls[] = $fresh; $changed = true; $refreshedUrls++; continue; }
                 }
+                $newUrls[] = $url;
             }
 
-            // Fallback: all variants for category – pick the one with most audio
-            $resp = Http::timeout(15)->get($ttsBase . '/api/motivationMessage/category/' . $categoryId);
-            if (!$resp->successful()) return [];
-
-            $variants = $resp->json();
-            if (!is_array($variants)) return [];
-
-            usort($variants, fn($a, $b) => count($b['audioUrls'] ?? []) - count($a['audioUrls'] ?? []));
-
-            foreach ($variants as $variant) {
-                $audioUrls = $variant['audioUrls'] ?? [];
-                if (empty($audioUrls)) continue;
-                return array_values(array_map(
-                    fn($u) => is_string($u) ? $this->normalizeAdminAudioUrl($u) : null,
-                    array_filter($audioUrls, 'is_string')
-                ));
+            if ($changed) {
+                try {
+                    $product->update(['audio_urls' => array_values($newUrls)]);
+                    $refreshedProducts++;
+                } catch (\Throwable $e) {
+                    Log::warning('refreshSignedUrls: failed to update product', ['id' => $product->id, 'error' => $e->getMessage()]);
+                }
+            } else {
+                $skipped++;
             }
-        } catch (\Exception $e) {
-            Log::warning('fetchAdminNodeAudioUrls failed', [
-                'product_id' => $product->id,
-                'error' => $e->getMessage(),
-            ]);
         }
 
-        return [];
+        session()->flash('success', "Refreshed {$refreshedUrls} URL(s) across {$refreshedProducts} product(s). {$skipped} product(s) had no expired URLs.");
+    }
+
+    /**
+     * Resolve a TtsSourceCategory from a backend_category_id.
+     * Falls back to product-name-based lookup when the mongo_id no longer
+     * matches (e.g. after a backend re-sync that issued new IDs).
+     */
+    private function findSourceCategory(string $backendCatId, ?string $productName = null): ?TtsSourceCategory
+    {
+        // 1. Exact mongo_id or numeric id match
+        $cat = TtsSourceCategory::where('mongo_id', $backendCatId)
+            ->orWhere('id', is_numeric($backendCatId) ? (int) $backendCatId : 0)
+            ->first();
+        if ($cat) return $cat;
+
+        // 2. Name-based fallback — extract base name before any parenthesis
+        if ($productName) {
+            $baseName = trim(preg_replace('/\s*\(.*$/s', '', $productName));
+            if ($baseName !== '') {
+                $cat = TtsSourceCategory::where('category', $baseName)
+                    ->orWhere('category', 'LIKE', $baseName . ' %')
+                    ->first();
+                if ($cat) return $cat;
+            }
+        }
+
+        return null;
+    }
+
+    protected function fetchAudioUrlsFromMysql(TtsAudioProduct $product): array
+    {
+        $cat = $this->findSourceCategory(
+            (string) $product->backend_category_id,
+            $product->name
+        );
+
+        if (!$cat) return [];
+
+        $preferredLang = $product->backend_language ?: $product->language ?: 'en';
+
+        // Try preferred language first, then any available
+        $record = TtsMotivationMessage::where('source_category_id', $cat->id)
+            ->where('language', $preferredLang)
+            ->whereNotNull('audio_urls')
+            ->orderByRaw('JSON_LENGTH(audio_urls) DESC')
+            ->first();
+
+        if (!$record) {
+            $record = TtsMotivationMessage::where('source_category_id', $cat->id)
+                ->whereNotNull('audio_urls')
+                ->orderByRaw('JSON_LENGTH(audio_urls) DESC')
+                ->first();
+        }
+
+        $urls = $record?->audio_urls ?? [];
+        return array_values(array_filter($urls, fn($u) => is_string($u) && trim($u) !== ''));
     }
 
     protected function secureAndPersistProductAudioUrls(TtsAudioProduct $product, array $audioUrls): int
@@ -1232,7 +1194,8 @@ class TtsProductManager extends AdminComponent
             /** @var AudioSecurityService $audioSecurityService */
             $audioSecurityService = app(AudioSecurityService::class);
             $encryptedPath = $audioSecurityService->encryptOriginalFile($originalRelative, $product->id);
-            return $audioSecurityService->generateSignedUrl($encryptedPath, null, 60 * 24);
+            // Use 5-year expiry for URLs stored in the database
+            return $audioSecurityService->generateSignedUrl($encryptedPath, null, 60 * 24 * 365 * 5);
         } catch (\Throwable $e) {
             Log::warning('Failed securing product track from admin sync', [
                 'product_id' => $product->id,

@@ -187,6 +187,9 @@
                         TTS Backend Status: {{ $backendConnected ? 'Connected' : 'Disconnected' }}
                     </h3>
                     <div class="card-tools">
+                        <button wire:click="refreshSignedUrls" class="btn btn-sm btn-warning mr-1" title="Re-sign expired audio URLs for all products">
+                            <i class="fas fa-key"></i> Refresh URLs
+                        </button>
                         <button wire:click="manualSync" class="btn btn-sm btn-primary">
                             <i class="fas fa-sync"></i> Manual Sync
                         </button>

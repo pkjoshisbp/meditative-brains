@@ -3,7 +3,8 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
-use Illuminate\Support\Facades\Http;
+use App\Services\TtsAudioGeneratorService;
+use Illuminate\Support\Facades\Log;
 
 class AudioGenerator extends Component
 {
@@ -81,33 +82,44 @@ class AudioGenerator extends Component
         $this->generationResult = null;
 
         try {
-            $payload = [
-                'text' => $this->messages,
-                'category' => $this->category,
-                'language' => $this->language,
-                'speaker' => $this->speaker,
-                'engine' => $this->engine,
-                'prosodyRate' => $this->prosodyRate,
-                'prosodyPitch' => $this->prosodyPitch,
-                'prosodyVolume' => $this->prosodyVolume,
-                'backgroundMusic' => $this->backgroundMusic,
-                'musicVolume' => $this->musicVolume
-            ];
+            /** @var TtsAudioGeneratorService $generator */
+            $generator = app(TtsAudioGeneratorService::class);
 
-            $response = Http::timeout(180)->post('https://mentalfitness.store:3001/api/attentionGuide/audio', $payload);
+            $messages = array_values(array_filter(array_map('trim', explode("\n", $this->messages))));
 
-            if ($response->successful()) {
-                $this->generationResult = $response->json();
-                session()->flash('success', 'Audio generated successfully!');
-            } else {
-                \Log::error('Audio generation failed', [
-                    'payload' => $payload,
-                    'response' => $response->body()
+            if (empty($messages)) {
+                session()->flash('error', 'Please enter at least one message.');
+                $this->isGenerating = false;
+                return;
+            }
+
+            $results = [];
+            foreach ($messages as $text) {
+                $result = $generator->generateForMessage($text, [
+                    'engine'       => $this->engine,
+                    'language'     => $this->language,
+                    'speaker'      => $this->speaker,
+                    'prosodyRate'  => $this->prosodyRate,
+                    'prosodyPitch' => $this->prosodyPitch,
+                    'prosodyVolume'=> $this->prosodyVolume,
+                    'category'     => $this->category ?: 'attention-guide',
                 ]);
-                session()->flash('error', 'Audio generation failed: ' . $response->body());
+                if (!empty($result['audioUrl'])) {
+                    $results[] = $result;
+                }
+            }
+
+            if (!empty($results)) {
+                $this->generationResult = [
+                    'audioUrl' => $results[0]['audioUrl'],
+                    'files'    => $results,
+                ];
+                session()->flash('success', 'Audio generated successfully! ' . count($results) . ' file(s) created.');
+            } else {
+                session()->flash('error', 'Audio generation returned no files.');
             }
         } catch (\Exception $e) {
-            \Log::error('Audio generation exception: ' . $e->getMessage());
+            Log::error('Audio generation exception: ' . $e->getMessage());
             session()->flash('error', 'Error generating audio: ' . $e->getMessage());
         } finally {
             $this->isGenerating = false;

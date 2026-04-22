@@ -207,10 +207,53 @@ class ImportMongoToMysql extends Command
     }
 
     /**
-     * Use Node.js (already on this server) to dump a MongoDB collection as a JSON array.
-     * This avoids needing the MongoDB PHP extension.
+     * Export a MongoDB collection using mongoexport (no Node dependency).
+     * Falls back to Node.js if mongoexport is unavailable.
      */
     private function exportCollection(string $collection): array
+    {
+        $jsonFile = sys_get_temp_dir() . '/mongo_export_' . $collection . '_' . uniqid() . '.json';
+
+        $cmd = sprintf(
+            'mongoexport --host 127.0.0.1 --port 27017 --db motivation --username %s --password %s --authenticationDatabase motivation --collection %s --out %s --jsonArray 2>/dev/null',
+            escapeshellarg('pawan'),
+            escapeshellarg('pragati123..'),
+            escapeshellarg($collection),
+            escapeshellarg($jsonFile)
+        );
+
+        exec($cmd, $ignored, $exitCode);
+
+        if ($exitCode === 0 && file_exists($jsonFile) && filesize($jsonFile) > 2) {
+            $raw = file_get_contents($jsonFile);
+            @unlink($jsonFile);
+        } else {
+            @unlink($jsonFile);
+            // Fallback: Node.js (if still on server)
+            return $this->exportCollectionViaNode($collection);
+        }
+
+        $data = json_decode($raw, true);
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
+            throw new \RuntimeException("Invalid JSON from mongoexport ({$collection}): " . json_last_error_msg());
+        }
+
+        // Normalize $oid objects to plain strings
+        return array_map(function ($doc) {
+            if (isset($doc['_id']['$oid'])) {
+                $doc['_id'] = $doc['_id']['$oid'];
+            }
+            if (isset($doc['categoryId']['$oid'])) {
+                $doc['categoryId'] = $doc['categoryId']['$oid'];
+            }
+            return $doc;
+        }, $data);
+    }
+
+    /**
+     * Fallback: use Node.js if still available on the server.
+     */
+    private function exportCollectionViaNode(string $collection): array
     {
         $js = implode('', [
             'const mongoose = require("mongoose");',
@@ -227,8 +270,8 @@ class ImportMongoToMysql extends Command
         ]);
 
         $nodeDir = base_path('tts-backend');
-        $tmpFile  = sys_get_temp_dir() . '/mongo_export_' . $collection . '.js';
-        $outFile  = sys_get_temp_dir() . '/mongo_export_' . $collection . '.json';
+        $tmpFile = sys_get_temp_dir() . '/mongo_export_' . $collection . '.js';
+        $outFile = sys_get_temp_dir() . '/mongo_export_' . $collection . '.json';
         file_put_contents($tmpFile, $js);
 
         $cmd = "NODE_PATH=" . escapeshellarg($nodeDir . '/node_modules') .
@@ -239,7 +282,7 @@ class ImportMongoToMysql extends Command
 
         if ($exitCode !== 0 || !file_exists($outFile) || filesize($outFile) === 0) {
             @unlink($outFile);
-            throw new \RuntimeException("Failed to export MongoDB collection: {$collection}.");
+            throw new \RuntimeException("Failed to export MongoDB collection '{$collection}' via mongoexport or Node.js.");
         }
 
         $output = file_get_contents($outFile);
@@ -247,7 +290,7 @@ class ImportMongoToMysql extends Command
 
         $data = json_decode(trim($output), true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException("Invalid JSON from MongoDB export ({$collection}): " . json_last_error_msg());
+            throw new \RuntimeException("Invalid JSON from Node export ({$collection}): " . json_last_error_msg());
         }
 
         return $data;

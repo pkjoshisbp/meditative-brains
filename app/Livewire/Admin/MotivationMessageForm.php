@@ -86,8 +86,37 @@ class MotivationMessageForm extends Component
             $this->initializeLanguagesAndSpeakers();
 
             if (is_string($requestedCategoryId) && $requestedCategoryId !== '') {
-                $this->categoryId = $requestedCategoryId;
-                $this->fetchMessagesForCategory($requestedCategoryId);
+                // If the ID looks like a MongoDB ObjectId (24-char hex), resolve to MySQL id
+                $mysqlCategoryId = $requestedCategoryId;
+                if (preg_match('/^[0-9a-f]{24}$/i', $requestedCategoryId)) {
+                    $cat = TtsSourceCategory::where('mongo_id', $requestedCategoryId)->first();
+                    if ($cat) {
+                        $mysqlCategoryId = (string) $cat->id;
+                    } else {
+                        // Not found by mongo_id — if no category_name passed, try the linked product name
+                        if (!$requestedCategoryName) {
+                            $linkedProduct = \App\Models\TtsAudioProduct::where('backend_category_id', $requestedCategoryId)->first();
+                            if ($linkedProduct) {
+                                $requestedCategoryName = trim(preg_replace('/\s*\(.*$/s', '', $linkedProduct->name));
+                            }
+                        }
+                        if ($requestedCategoryName) {
+                            // Try existing record by name first
+                            $cat = TtsSourceCategory::where('category', $requestedCategoryName)
+                                ->orWhere('category', 'LIKE', $requestedCategoryName . ' %')
+                                ->first();
+                            if (!$cat) {
+                                $cat = TtsSourceCategory::firstOrCreate(
+                                    ['category' => $requestedCategoryName],
+                                    ['mongo_id' => $requestedCategoryId]
+                                );
+                            }
+                            $mysqlCategoryId = (string) $cat->id;
+                        }
+                    }
+                }
+                $this->categoryId = $mysqlCategoryId;
+                $this->fetchMessagesForCategory($mysqlCategoryId);
                 $this->autoLoadExistingRecordForCategory();
             }
             

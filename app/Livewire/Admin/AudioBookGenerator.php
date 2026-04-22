@@ -39,9 +39,14 @@ class AudioBookGenerator extends Component
     public string $language    = 'en-IN';
     public string $speaker     = 'en-GB-AdaMultilingualNeural';
     public string $speakerStyle = '';
+    public string $speakerPersonality = '';
     public string $prosodyRate  = 'medium';
     public string $prosodyPitch = 'medium';
     public string $prosodyVolume = 'medium';
+    // Custom values for rate/pitch/volume when set to 'custom'
+    public string $customRate  = '';
+    public string $customPitch = '';
+    public string $customVolume = '';
 
     // ── Runtime state ────────────────────────────────────────────────
     public ?int   $generatingChapterId = null;
@@ -54,6 +59,7 @@ class AudioBookGenerator extends Component
     public array $availableStyles         = [];
     public string $expressionStyle        = '';
     public array $availableExpressionStyles = [];
+    public array $availablePersonalities  = [];
     public array $savedBooks              = []; // list for load dropdown
 
     // ─────────────────────────────────────────────────────────────────
@@ -130,6 +136,12 @@ class AudioBookGenerator extends Component
         if (!in_array($this->expressionStyle, $this->availableExpressionStyles)) {
             $this->expressionStyle = $this->availableExpressionStyles[0] ?? '';
         }
+        // Personalities
+        $personalities = $voice['VoiceTag']['VoicePersonalities'] ?? ($voice['RolePlayList'] ?? []);
+        $this->availablePersonalities = $personalities;
+        if (!in_array($this->speakerPersonality, $this->availablePersonalities)) {
+            $this->speakerPersonality = '';
+        }
     }
 
     public function updatedLanguage(): void
@@ -155,6 +167,11 @@ class AudioBookGenerator extends Component
         $this->availableExpressionStyles = $voice['VoiceTag']['TailoredScenarios'] ?? [];
         if (!in_array($this->expressionStyle, $this->availableExpressionStyles)) {
             $this->expressionStyle = $this->availableExpressionStyles[0] ?? '';
+        }
+        $personalities = $voice['VoiceTag']['VoicePersonalities'] ?? ($voice['RolePlayList'] ?? []);
+        $this->availablePersonalities = $personalities;
+        if (!in_array($this->speakerPersonality, $this->availablePersonalities)) {
+            $this->speakerPersonality = '';
         }
     }
 
@@ -314,16 +331,17 @@ class AudioBookGenerator extends Component
             $bookSlug = Str::slug($this->bookTitle);
 
             $result = $tts->generateForMessage($content, [
-                'language'        => $this->language,
-                'speaker'         => $this->speaker,
-                'engine'          => $this->engine,
-                'speakerStyle'    => $this->speakerStyle ?: null,
-                'expressionStyle' => $this->expressionStyle ?: null,
-                'prosodyRate'     => $this->prosodyRate,
-                'prosodyPitch'    => $this->prosodyPitch,
-                'prosodyVolume'   => $this->prosodyVolume,
-                'storageType'     => 'audiobook',
-                'category'        => $bookSlug,
+                'language'           => $this->language,
+                'speaker'            => $this->speaker,
+                'engine'             => $this->engine,
+                'speakerStyle'       => $this->speakerStyle ?: null,
+                'speakerPersonality' => $this->speakerPersonality ?: null,
+                'expressionStyle'    => $this->expressionStyle ?: null,
+                'prosodyRate'        => $this->prosodyRate === 'custom' ? $this->customRate  : $this->prosodyRate,
+                'prosodyPitch'       => $this->prosodyPitch === 'custom' ? $this->customPitch : $this->prosodyPitch,
+                'prosodyVolume'      => $this->prosodyVolume === 'custom' ? $this->customVolume : $this->prosodyVolume,
+                'storageType'        => 'audiobook',
+                'category'           => $bookSlug,
             ]);
 
             // Encrypt and sign
@@ -368,6 +386,16 @@ class AudioBookGenerator extends Component
             if (in_array($chapter['status'], ['pending', 'error'])) {
                 $this->generateChapter($chapter['id']);
             }
+        }
+    }
+
+    /**
+     * Regenerate audio for ALL chapters, even those already done (overwrite).
+     */
+    public function generateAllForce(): void
+    {
+        foreach ($this->chapters as $chapter) {
+            $this->generateChapter($chapter['id']);
         }
     }
 
@@ -417,15 +445,16 @@ class AudioBookGenerator extends Component
         $book = TtsAudiobook::updateOrCreate(
             ['book_title' => $this->bookTitle],
             [
-                'book_author'      => $this->bookAuthor,
-                'language'         => $this->language,
-                'speaker'          => $this->speaker,
-                'engine'           => $this->engine,
-                'speaker_style'    => $this->speakerStyle ?: null,
-                'expression_style' => $this->expressionStyle ?: null,
-                'prosody_rate'     => $this->prosodyRate,
-                'prosody_pitch'    => $this->prosodyPitch,
-                'prosody_volume'   => $this->prosodyVolume,
+                'book_author'         => $this->bookAuthor,
+                'language'            => $this->language,
+                'speaker'             => $this->speaker,
+                'engine'              => $this->engine,
+                'speaker_style'       => $this->speakerStyle ?: null,
+                'speaker_personality' => $this->speakerPersonality ?: null,
+                'expression_style'    => $this->expressionStyle ?: null,
+                'prosody_rate'        => $this->prosodyRate,
+                'prosody_pitch'       => $this->prosodyPitch,
+                'prosody_volume'      => $this->prosodyVolume,
             ]
         );
         $this->savedBookId = $book->id;
@@ -460,11 +489,12 @@ class AudioBookGenerator extends Component
             $this->language        = $book->language;
             $this->speaker         = $book->speaker;
             $this->engine          = $book->engine;
-            $this->speakerStyle    = $book->speaker_style ?? '';
-            $this->expressionStyle = $book->expression_style ?? '';
-            $this->prosodyRate     = $book->prosody_rate;
-            $this->prosodyPitch    = $book->prosody_pitch;
-            $this->prosodyVolume   = $book->prosody_volume;
+            $this->speakerStyle       = $book->speaker_style       ?? '';
+            $this->speakerPersonality = $book->speaker_personality ?? '';
+            $this->expressionStyle    = $book->expression_style    ?? '';
+            $this->prosodyRate        = $book->prosody_rate;
+            $this->prosodyPitch       = $book->prosody_pitch;
+            $this->prosodyVolume      = $book->prosody_volume;
 
             $this->chapters = $book->chapters
                 ->values()

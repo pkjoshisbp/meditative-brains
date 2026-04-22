@@ -10,7 +10,8 @@ class TtsAudiobook extends Model
 
     protected $fillable = [
         'mongo_id', 'book_title', 'book_author', 'language', 'speaker', 'engine',
-        'speaker_style', 'expression_style', 'prosody_rate', 'prosody_pitch', 'prosody_volume',
+        'speaker_style', 'speaker_personality', 'expression_style',
+        'prosody_rate', 'prosody_pitch', 'prosody_volume',
     ];
 
     public function chapters()

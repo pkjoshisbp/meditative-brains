@@ -3,6 +3,10 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use App\Models\TtsSourceCategory;
+use App\Models\TtsMotivationMessage;
+use App\Services\TtsAudioGeneratorService;
 use Symfony\Component\Process\Process;
 
 class MotivationMessageFormWorking extends Component
@@ -45,44 +49,73 @@ class MotivationMessageFormWorking extends Component
 
     public function mount()
     {
-        // Load categories with logging
-        \Log::info('Fetching categories...');
-        $response = Http::get('https://mentalfitness.store:3001/api/category');
-        
-        if ($response->successful()) {
-            $this->categories = $response->json();
-            \Log::info('Categories fetched successfully', [
-                'count' => count($this->categories),
-                'data' => $this->categories
-            ]);
-        } else {
-            \Log::error('Failed to fetch categories', [
-                'status' => $response->status(),
-                'body' => $response->body()
-            ]);
-            $this->categories = [];
-        }
+        // Load categories from MySQL — no Node dependency
+        $this->categories = TtsSourceCategory::orderBy('category')
+            ->get()
+            ->map(fn($c) => ['_id' => $c->mongo_id ?: (string)$c->id, 'category' => $c->category])
+            ->toArray();
 
         // Load Azure voices from JSON
         $this->azureVoices = collect(json_decode(file_get_contents(config_path('azure-voices.json')), true));
         $this->languages = $this->azureVoices->pluck('Locale')->unique()->values()->all();
-        $this->language = $this->languages[0] ?? '';
+        $this->language = 'en-US';
         $this->updateSpeakersFromJson();
 
-        // Fetch all system-level messages (not user-submitted)
+        // Fetch all system-level messages
         $this->fetchAdminMessages();
     }
 
     private function fetchMessagesForCategory($categoryId)
     {
-        $response = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/category/{$categoryId}");
-        $this->existingRecords = $response->successful() ? $response->json() : [];
+        // Resolve the MySQL source_category by mongo_id or numeric id
+        $cat = TtsSourceCategory::where('mongo_id', $categoryId)
+            ->orWhere('id', is_numeric($categoryId) ? $categoryId : 0)
+            ->first();
+
+        if (!$cat) {
+            $this->existingRecords = [];
+            return;
+        }
+
+        $this->existingRecords = TtsMotivationMessage::where('source_category_id', $cat->id)
+            ->orderBy('created_at')
+            ->get()
+            ->map(fn($m) => $this->messageToArray($m))
+            ->toArray();
     }
 
     public function fetchAdminMessages()
     {
-        $response = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/admin-only");
-        $this->existingRecords = $response->successful() ? $response->json() : [];
+        $this->existingRecords = TtsMotivationMessage::with('sourceCategory')
+            ->where('editable', true)
+            ->orderBy('updated_at', 'desc')
+            ->get()
+            ->map(fn($m) => $this->messageToArray($m))
+            ->toArray();
+    }
+
+    /** Convert a TtsMotivationMessage model to the array shape the view expects */
+    private function messageToArray(TtsMotivationMessage $m): array
+    {
+        return [
+            '_id'              => (string) $m->id,
+            'categoryId'       => $m->sourceCategory ? ['_id' => $m->sourceCategory->mongo_id ?: (string)$m->source_category_id, 'category' => $m->sourceCategory->category] : $m->source_category_id,
+            'messages'         => $m->messages ?? [],
+            'ssmlMessages'     => $m->ssml_messages ?? [],
+            'ssml'             => $m->ssml ?? [],
+            'engine'           => $m->engine,
+            'language'         => $m->language,
+            'speaker'          => $m->speaker,
+            'speakerStyle'     => $m->speaker_style,
+            'speakerPersonality' => $m->speaker_personality,
+            'prosodyRate'      => $m->prosody_rate,
+            'prosodyPitch'     => $m->prosody_pitch,
+            'prosodyVolume'    => $m->prosody_volume,
+            'expressionStyle'  => $m->speaker_style,
+            'audio_urls'       => $m->audio_urls ?? [],
+            'audio_paths'      => $m->audio_paths ?? [],
+            'editable'         => $m->editable,
+        ];
     }
 
 
@@ -453,47 +486,46 @@ class MotivationMessageFormWorking extends Component
 
     public function save()
     {
-        $messagesArray = array_filter(explode("\n", $this->messages));
-        $ssmlArray = array_filter(explode("\n", $this->ssmlMessages));
+        $messagesArray = array_values(array_filter(array_map('trim', explode("\n", $this->messages))));
+        $ssmlArray     = array_values(array_filter(array_map('trim', explode("\n", $this->ssmlMessages))));
 
-        $payload = [
-            'categoryId' => $this->categoryId,
-            'messages' => $messagesArray,
-            'ssmlMessages' => $ssmlArray,
-            'ssml' => array_map([$this, 'convertToSSML'], $ssmlArray),
-            'engine' => $this->engine,
-            'language' => $this->language, // accent
-            'speaker' => $this->speaker,   // voice name
-            'speakerStyle' => $this->speakerStyle ?: $this->expressionStyle, // Use speakerStyle first, fallback to expressionStyle
-            'speakerPersonality' => $this->speakerPersonality,
-            'prosodyRate' => $this->prosodyRate,
-            'prosodyPitch' => $this->prosodyPitch,
-            'prosodyVolume' => $this->prosodyVolume,
-            'expressionStyle' => $this->expressionStyle, // Keep this for backward compatibility
+        // Resolve source category by mongo_id or numeric id
+        $cat = TtsSourceCategory::where('mongo_id', $this->categoryId)
+            ->orWhere('id', is_numeric($this->categoryId) ? $this->categoryId : 0)
+            ->first();
+
+        if (!$cat) {
+            session()->flash('error', 'Category not found. Please select a valid category.');
+            return;
+        }
+
+        $data = [
+            'source_category_id' => $cat->id,
+            'messages'           => $messagesArray,
+            'ssml_messages'      => $ssmlArray ?: $messagesArray,
+            'ssml'               => array_map([$this, 'convertToSSML'], $ssmlArray ?: $messagesArray),
+            'engine'             => $this->engine,
+            'language'           => $this->language,
+            'speaker'            => $this->speaker,
+            'speaker_style'      => $this->speakerStyle ?: $this->expressionStyle,
+            'speaker_personality'=> $this->speakerPersonality,
+            'prosody_rate'       => $this->prosodyRate,
+            'prosody_pitch'      => $this->prosodyPitch,
+            'prosody_volume'     => $this->prosodyVolume,
+            'editable'           => true,
         ];
 
-        // Only add userId for non-admin users
-        if (auth()->check() && method_exists(auth()->user(), 'is_admin') && !auth()->user()->is_admin) {
-            $payload['userId'] = auth()->id();
-        }
-        // If you use a different admin check, adjust the above condition accordingly.
-
-        // If savingAsNew is true, always create a new record
         if ($this->savingAsNew || !$this->editingRecordId) {
-            $response = Http::post('https://mentalfitness.store:3001/api/motivationMessage', $payload);
+            TtsMotivationMessage::create($data);
+            session()->flash('success', 'Saved as new successfully.');
         } else {
-            $response = Http::put(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/{$this->editingRecordId}", $payload);
+            TtsMotivationMessage::where('id', $this->editingRecordId)->update($data);
+            session()->flash('success', 'Updated successfully.');
         }
 
-        if ($response->successful()) {
-            session()->flash('success', ($this->savingAsNew || !$this->editingRecordId) ? 'Saved as new successfully.' : 'Updated successfully.');
-            $this->resetForm();
-            $this->fetchAdminMessages();
-        } else {
-            session()->flash('error', 'Failed to save. ' . $response->body());
-            \Log::error('API Error:', ['response' => $response->json()]);
-        }
-        $this->savingAsNew = false; // Reset after save
+        $this->savingAsNew = false;
+        $this->resetForm();
+        $this->fetchAdminMessages();
     }
 
     // Add this property to control translation
@@ -615,27 +647,22 @@ class MotivationMessageFormWorking extends Component
 
     public function updateRecord($recordId, $engine, $language, $speaker, $messages)
     {
-        $messagesForApi = explode("\n", $messages);
-        
-        $response = Http::put(rtrim(config("services.tts.base_url"), "/api") . "/api/motivationMessage/{$recordId}", [
-            'engine' => $engine,
+        $messagesArray = array_values(array_filter(array_map('trim', explode("\n", $messages))));
+        TtsMotivationMessage::where('id', $recordId)->update([
+            'engine'   => $engine,
             'language' => $language,
-            'speaker' => $speaker,
-            'messages' => $messagesForApi,
+            'speaker'  => $speaker,
+            'messages' => $messagesArray,
         ]);
-
-        if ($response->successful()) {
-            session()->flash('success', 'Record updated.');
-            $this->fetchMessagesForCategory($this->categoryId);
-        } else {
-            session()->flash('error', 'Update failed.');
-        }
+        session()->flash('success', 'Record updated.');
+        $this->fetchMessagesForCategory($this->categoryId);
     }
     public function editCategory($recordId)
     {
         try {
-            $record = collect($this->existingRecords)->firstWhere('_id', $recordId);
-            
+            // Support lookup by MySQL id (string or int)
+            $record = collect($this->existingRecords)->firstWhere('_id', (string)$recordId);
+
             if (!$record) {
                 throw new \Exception("Record not found");
             }
@@ -707,57 +734,108 @@ class MotivationMessageFormWorking extends Component
 
     public function generateAudio()
     {
-        if (!$this->editingRecordId) {
-            session()->flash('error', 'Please select a category first');
+        if (!$this->categoryId) {
+            session()->flash('error', 'Please select a category first.');
+            return;
+        }
+
+        $cat = TtsSourceCategory::where('mongo_id', $this->categoryId)
+            ->orWhere('id', is_numeric($this->categoryId) ? $this->categoryId : 0)
+            ->first();
+
+        if (!$cat) {
+            session()->flash('error', 'Category not found.');
+            return;
+        }
+
+        $records = TtsMotivationMessage::where('source_category_id', $cat->id)
+            ->where('language', $this->language)
+            ->where('speaker', $this->speaker)
+            ->get();
+
+        if ($records->isEmpty()) {
+            session()->flash('error', 'No message records for this category/language/speaker.');
             return;
         }
 
         try {
-            $response = Http::post('https://mentalfitness.store:3001/api/generate-category-audio', [
-                'categoryId' => $this->categoryId,
-                'language' => $this->language,
-                'speaker' => $this->speaker,
-                'engine' => $this->engine
-            ]);
+            $generator = app(TtsAudioGeneratorService::class);
+            $generated = 0;
 
-            if ($response->successful()) {
-                $result = $response->json();
-                $message = isset($result['filesGenerated']) 
-                    ? "Audio generation started: {$result['filesGenerated']} files queued" 
-                    : 'Audio generation started';
-                session()->flash('success', $message);
-            } else {
-                session()->flash('error', 'Audio generation failed: ' . $response->body());
-                \Log::error('Audio generation API failed:', ['response' => $response->json()]);
+            foreach ($records as $record) {
+                $audioUrls = [];
+                foreach (($record->messages ?? []) as $text) {
+                    if (!trim($text)) continue;
+                    $result = $generator->generateForMessage($text, [
+                        'engine'              => $this->engine,
+                        'language'            => $this->language,
+                        'speaker'             => $this->speaker,
+                        'speakerStyle'        => $this->speakerStyle,
+                        'speakerPersonality'  => $this->speakerPersonality,
+                        'prosodyRate'         => $this->prosodyRate,
+                        'prosodyPitch'        => $this->prosodyPitch,
+                        'prosodyVolume'       => $this->prosodyVolume,
+                        'category'            => $cat->category,
+                    ]);
+                    if (!empty($result['audioUrl'])) {
+                        $audioUrls[] = $result['audioUrl'];
+                        $generated++;
+                    }
+                }
+                if (!empty($audioUrls)) {
+                    $existing = is_array($record->audio_urls) ? $record->audio_urls : [];
+                    $record->update(['audio_urls' => array_values(array_unique(array_merge($existing, $audioUrls)))]);
+                }
             }
+
+            session()->flash('success', "Audio generation complete: {$generated} file(s) generated.");
         } catch (\Exception $e) {
+            Log::error('Audio generation failed: ' . $e->getMessage());
             session()->flash('error', 'Error: ' . $e->getMessage());
-            \Log::error('Audio generation failed:', ['error' => $e->getMessage()]);
         }
     }
 
     public function generateAudioForRecord($recordId)
     {
-        try {
-            \Log::info('Triggering audio generation for record', ['recordId' => $recordId]);
-            $response = Http::get(rtrim(config("services.tts.base_url"), "/api") . "/api/generate-category-audio/{$recordId}");
+        $record = TtsMotivationMessage::find($recordId);
+        if (!$record) {
+            session()->flash('error', 'Record not found.');
+            return;
+        }
 
-            if ($response->successful()) {
-                $result = $response->json();
-                \Log::info('Audio generation triggered successfully', ['response' => $result]);
-                $message = isset($result['filesGenerated'])
-                    ? "Audio generation started: {$result['filesGenerated']} files queued"
-                    : 'Audio generation started';
-                session()->flash('success', $message);
-            } else {
-                \Log::error('Audio generation API failed:', [
-                    'status' => $response->status(),
-                    'body' => $response->body()
+        try {
+            $generator = app(TtsAudioGeneratorService::class);
+            $cat = $record->sourceCategory;
+            $audioUrls = [];
+
+            foreach (($record->messages ?? []) as $text) {
+                if (!trim($text)) continue;
+                $result = $generator->generateForMessage($text, [
+                    'engine'              => $record->engine,
+                    'language'            => $record->language,
+                    'speaker'             => $record->speaker,
+                    'speakerStyle'        => $record->speaker_style,
+                    'speakerPersonality'  => $record->speaker_personality,
+                    'prosodyRate'         => $record->prosody_rate,
+                    'prosodyPitch'        => $record->prosody_pitch,
+                    'prosodyVolume'       => $record->prosody_volume,
+                    'category'            => $cat?->category ?? 'motivation',
                 ]);
-                session()->flash('error', 'Audio generation failed: ' . $response->body());
+                if (!empty($result['audioUrl'])) {
+                    $audioUrls[] = $result['audioUrl'];
+                }
             }
+
+            if (!empty($audioUrls)) {
+                $existing = is_array($record->audio_urls) ? $record->audio_urls : [];
+                $record->update(['audio_urls' => array_values(array_unique(array_merge($existing, $audioUrls)))]);
+            }
+
+            session()->flash('success', 'Audio generated: ' . count($audioUrls) . ' file(s).');
+            Log::info('Audio generated for record', ['id' => $recordId, 'count' => count($audioUrls)]);
+            $this->fetchAdminMessages();
         } catch (\Exception $e) {
-            \Log::error('Audio generation exception', ['error' => $e->getMessage()]);
+            Log::error('Audio generation exception', ['error' => $e->getMessage()]);
             session()->flash('error', 'Error: ' . $e->getMessage());
         }
     }

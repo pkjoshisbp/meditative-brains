@@ -67,6 +67,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Audiobook Generator
     Route::get('/tts/audiobook', App\Livewire\Admin\AudioBookGenerator::class)->name('tts.audiobook');
 
+    // Attention Guide Manager
+    Route::get('/tts/attention-guides', App\Livewire\Admin\AttentionGuideManager::class)->name('tts.attention-guides');
+
     // BG Music Manager
     Route::get('/bg-music', [App\Http\Controllers\BgMusicStreamController::class, 'adminIndex'])->name('bg-music');
     Route::post('/bg-music/upload', [App\Http\Controllers\BgMusicStreamController::class, 'adminUpload'])->name('bg-music.upload');

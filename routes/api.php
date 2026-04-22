@@ -30,7 +30,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Basic auth endpoints (Sanctum token issuance)
 Route::post('/login', [AuthController::class,'login']);
-Route::middleware('auth:sanctum')->get('/me', [AuthController::class,'user']);
+Route::post('/register', [AuthController::class,'register']);
+Route::post('/otp/send', [AuthController::class,'sendOtp']);
+Route::post('/otp/verify', [AuthController::class,'verifyOtp']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', [AuthController::class,'user']);
+    Route::put('/me', [AuthController::class,'updateProfile']);
+    Route::post('/me/change-password', [AuthController::class,'changePassword']);
+    Route::get('/me/subscription-status', [AuthController::class,'subscriptionStatus']);
+});
 
 // Music Library API Routes for Flutter
 Route::prefix('music-library')->group(function () {
@@ -134,3 +142,6 @@ Route::middleware(['auth:sanctum','device.limit'])->get('/secure/download/{downl
 // Trial status endpoint (after auth setup)
 Route::middleware('auth:sanctum')->get('/trial/status', [\App\Http\Controllers\Api\TrialController::class,'status']);
 Route::middleware(['auth:sanctum','role:trial,admin'])->get('/trial/analytics', [TrialAnalyticsController::class,'summary']);
+
+// Attention Guide sync (authenticated; returns active server-defined guides)
+Route::middleware('auth:sanctum')->get('/attention-guides', [\App\Http\Controllers\Api\AttentionGuideController::class,'index']);

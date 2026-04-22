@@ -10,6 +10,12 @@ class TtsAttentionGuide extends Model
 
     protected $fillable = [
         'mongo_id', 'text', 'language', 'speaker', 'engine',
-        'speaker_style', 'category', 'speed', 'audio_path', 'audio_url',
+        'speaker_style', 'category', 'speed', 'interval_ms', 'is_active',
+        'audio_path', 'audio_url',
+    ];
+
+    protected $casts = [
+        'interval_ms' => 'integer',
+        'is_active'   => 'boolean',
     ];
 }

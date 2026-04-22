@@ -99,6 +99,12 @@
                                     <p>Audiobook Generator</p>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.tts.attention-guides') }}" class="nav-link {{ request()->routeIs('admin.tts.attention-guides') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-bell"></i>
+                                    <p>Attention Guides</p>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 </ul>

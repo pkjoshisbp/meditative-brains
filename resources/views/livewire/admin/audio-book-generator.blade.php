@@ -57,12 +57,21 @@
                     </span>
                 </button>
                 <button class="btn btn-sm btn-success" wire:click="generateAll"
-                        wire:loading.attr="disabled" wire:confirm="Generate audio for all pending chapters? This may take several minutes.">
+                        wire:loading.attr="disabled" wire:confirm="Generate audio for all PENDING/errored chapters? Already-done chapters will be skipped.">
                     <span wire:loading.remove wire:target="generateAll">
-                        <i class="fas fa-play-circle"></i> Generate All
+                        <i class="fas fa-play-circle"></i> Generate Pending
                     </span>
                     <span wire:loading wire:target="generateAll">
                         <i class="fas fa-spinner fa-spin"></i> Generating…
+                    </span>
+                </button>
+                <button class="btn btn-sm btn-warning ml-1" wire:click="generateAllForce"
+                        wire:loading.attr="disabled" wire:confirm="Regenerate ALL chapters (including already-done)? This OVERWRITES existing audio. Continue?">
+                    <span wire:loading.remove wire:target="generateAllForce">
+                        <i class="fas fa-redo"></i> Regenerate All
+                    </span>
+                    <span wire:loading wire:target="generateAllForce">
+                        <i class="fas fa-spinner fa-spin"></i> Regenerating…
                     </span>
                 </button>
             </div>
@@ -374,37 +383,67 @@ Supported: [pause:800]  [silence:500]  [personality:Warm]…[/personality]  **bo
                         <div class="col-md-3">
                             <div class="form-group mb-2">
                                 <label class="mb-1 small font-weight-bold">Rate</label>
-                                <select wire:model="prosodyRate" class="form-control form-control-sm">
+                                <select wire:model.live="prosodyRate" class="form-control form-control-sm">
+                                    <option value="default">Default</option>
                                     <option value="x-slow">X-Slow</option>
                                     <option value="slow">Slow</option>
                                     <option value="medium">Medium</option>
                                     <option value="fast">Fast</option>
                                     <option value="x-fast">X-Fast</option>
+                                    <option value="85%">85% Speed</option>
+                                    <option value="90%">90% Speed</option>
+                                    <option value="110%">110% Speed</option>
+                                    <option value="120%">120% Speed</option>
+                                    <option value="130%">130% Speed</option>
+                                    <option value="custom">Custom…</option>
                                 </select>
+                                @if($prosodyRate === 'custom')
+                                    <input type="text" wire:model="customRate"
+                                           class="form-control form-control-sm mt-1"
+                                           placeholder="e.g. 95% or 1.1">
+                                @endif
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group mb-2">
                                 <label class="mb-1 small font-weight-bold">Pitch</label>
-                                <select wire:model="prosodyPitch" class="form-control form-control-sm">
+                                <select wire:model.live="prosodyPitch" class="form-control form-control-sm">
                                     <option value="x-low">X-Low</option>
                                     <option value="low">Low</option>
                                     <option value="medium">Medium</option>
                                     <option value="high">High</option>
                                     <option value="x-high">X-High</option>
+                                    <option value="+5Hz">+5Hz</option>
+                                    <option value="+10Hz">+10Hz</option>
+                                    <option value="-5Hz">-5Hz</option>
+                                    <option value="-10Hz">-10Hz</option>
+                                    <option value="custom">Custom…</option>
                                 </select>
+                                @if($prosodyPitch === 'custom')
+                                    <input type="text" wire:model="customPitch"
+                                           class="form-control form-control-sm mt-1"
+                                           placeholder="e.g. +5Hz or high">
+                                @endif
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group mb-2">
                                 <label class="mb-1 small font-weight-bold">Volume</label>
-                                <select wire:model="prosodyVolume" class="form-control form-control-sm">
+                                <select wire:model.live="prosodyVolume" class="form-control form-control-sm">
                                     <option value="x-soft">X-Soft</option>
                                     <option value="soft">Soft</option>
                                     <option value="medium">Medium</option>
                                     <option value="loud">Loud</option>
                                     <option value="x-loud">X-Loud</option>
+                                    <option value="+10dB">+10 dB</option>
+                                    <option value="-10dB">-10 dB</option>
+                                    <option value="custom">Custom…</option>
                                 </select>
+                                @if($prosodyVolume === 'custom')
+                                    <input type="text" wire:model="customVolume"
+                                           class="form-control form-control-sm mt-1"
+                                           placeholder="e.g. +10dB or loud">
+                                @endif
                             </div>
                         </div>
                         @if (!empty($availableStyles))
@@ -415,6 +454,19 @@ Supported: [pause:800]  [silence:500]  [personality:Warm]…[/personality]  **bo
                                         <option value="">— default —</option>
                                         @foreach ($availableStyles as $style)
                                             <option value="{{ $style }}">{{ ucfirst($style) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        @endif
+                        @if (!empty($availablePersonalities))
+                            <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                    <label class="mb-1 small font-weight-bold">Personality</label>
+                                    <select wire:model="speakerPersonality" class="form-control form-control-sm">
+                                        <option value="">— default —</option>
+                                        @foreach ($availablePersonalities as $p)
+                                            <option value="{{ $p }}">{{ ucfirst($p) }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -436,17 +488,32 @@ Supported: [pause:800]  [silence:500]  [personality:Warm]…[/personality]  **bo
                     </div>
                 </div>
                 <div class="card-footer py-2">
-                    <button wire:click="generateChapter({{ $ch['id'] }})"
-                            wire:loading.attr="disabled"
-                            wire:target="generateChapter({{ $ch['id'] }})"
-                            class="btn btn-primary mr-2">
-                        <span wire:loading.remove wire:target="generateChapter({{ $ch['id'] }})">
-                            <i class="fas fa-play"></i> Generate This Chapter
-                        </span>
-                        <span wire:loading wire:target="generateChapter({{ $ch['id'] }})">
-                            <i class="fas fa-spinner fa-spin"></i> Generating…
-                        </span>
-                    </button>
+                    @if ($ch['status'] === 'done')
+                        <button wire:click="generateChapter({{ $ch['id'] }})"
+                                wire:loading.attr="disabled"
+                                wire:target="generateChapter({{ $ch['id'] }})"
+                                wire:confirm="This chapter already has audio. Regenerate and OVERWRITE?"
+                                class="btn btn-warning mr-2">
+                            <span wire:loading.remove wire:target="generateChapter({{ $ch['id'] }})">
+                                <i class="fas fa-redo"></i> Regenerate (Overwrite)
+                            </span>
+                            <span wire:loading wire:target="generateChapter({{ $ch['id'] }})">
+                                <i class="fas fa-spinner fa-spin"></i> Generating…
+                            </span>
+                        </button>
+                    @else
+                        <button wire:click="generateChapter({{ $ch['id'] }})"
+                                wire:loading.attr="disabled"
+                                wire:target="generateChapter({{ $ch['id'] }})"
+                                class="btn btn-primary mr-2">
+                            <span wire:loading.remove wire:target="generateChapter({{ $ch['id'] }})">
+                                <i class="fas fa-play"></i> Generate This Chapter
+                            </span>
+                            <span wire:loading wire:target="generateChapter({{ $ch['id'] }})">
+                                <i class="fas fa-spinner fa-spin"></i> Generating…
+                            </span>
+                        </button>
+                    @endif
                     <small class="text-muted">
                         Settings apply to all chapters. Each chapter generates its own audio file.
                     </small>

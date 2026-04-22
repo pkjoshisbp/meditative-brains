@@ -432,7 +432,17 @@ class TtsWebSocketServer implements MessageComponentInterface
             'ssml'     => $ssml,
         ]);
 
-        $this->send($conn, ['event' => 'audio.attentionGuide', 'data' => $result]);
+        // Encrypt the generated audio and produce a signed download URL for the Flutter client.
+        // buildPaths() leaves audioUrl empty intentionally; callers must sign via AudioSecurityService.
+        $signedUrl = $this->security->encryptRawAudioAndSign(
+            $result['absolutePath'],
+            $result['relativePath']
+        );
+
+        $this->send($conn, ['event' => 'audio.attentionGuide', 'data' => [
+            'relativePath' => $result['relativePath'],
+            'audioUrl'     => $signedUrl,
+        ]]);
     }
 
     private function handleReminderAudio(ConnectionInterface $conn, array $payload): void
@@ -783,6 +793,14 @@ class TtsWebSocketServer implements MessageComponentInterface
             $response   = $controller->getTtsProductDetail(new \Illuminate\Http\Request(), $productId);
             $data       = json_decode($response->getContent(), true) ?? [];
             $data['event'] = 'tts.product.detail';
+            // Debug: log keys present on the first track so the Flutter log
+            // can confirm whether message_text is being delivered.
+            $firstTrack = $data['tracks'][0] ?? null;
+            if ($firstTrack) {
+                Log::info('[WS][tts.product.detail] first track keys: ' . implode(', ', array_keys($firstTrack))
+                    . ' | title=' . substr($firstTrack['title'] ?? '', 0, 60)
+                    . ' | message_text=' . substr($firstTrack['message_text'] ?? 'MISSING', 0, 80));
+            }
             $this->send($conn, $data);
         } catch (\Throwable $e) {
             Log::error("[WS] tts.product.detail error", ['id' => $productId, 'err' => $e->getMessage()]);

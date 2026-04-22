@@ -794,18 +794,63 @@ class TtsBackendController extends Controller
         }
         $audioUrls = array_values(array_unique(array_filter($audioUrls)));
 
-        // Map to tracks payload (no per-track text currently; placeholder uses product name + index)
+        // If this language-variant product has no audio, fall back to the 'en' product
+        // in the same category that does have audio (transparent fallback for the Flutter app).
+        $fallbackProductId = null;
+        if (empty($audioUrls) && $product->language !== 'en') {
+            $fallback = TtsAudioProduct::active()
+                ->where('category', $product->category)
+                ->where('language', 'en')
+                ->whereNotNull('audio_urls')
+                ->where('audio_urls', '!=', '[]')
+                ->where('audio_urls', '!=', 'null')
+                ->orderByDesc('total_messages_count')
+                ->first();
+            if ($fallback) {
+                $fallbackRaw = $fallback->audio_urls;
+                if (is_string($fallbackRaw)) {
+                    $fallbackRaw = json_decode($fallbackRaw, true) ?? [];
+                }
+                foreach (($fallbackRaw ?: []) as $item) {
+                    if (is_string($item)) { $audioUrls[] = $this->normalizeAudioUrl($item); continue; }
+                    if (is_array($item)) {
+                        $c = $item['url'] ?? $item['audio_url'] ?? $item['src'] ?? $item['path'] ?? null;
+                        if (is_string($c)) { $audioUrls[] = $this->normalizeAudioUrl($c); }
+                    }
+                }
+                $audioUrls = array_values(array_unique(array_filter($audioUrls)));
+                $fallbackProductId = $fallback->id;
+                Log::info('getTtsProductDetail: using en fallback tracks', [
+                    'requested_product' => $product->id,
+                    'fallback_product'  => $fallback->id,
+                    'track_count'       => count($audioUrls),
+                ]);
+            }
+        }
+
+        // Load full message texts from tts_motivation_messages (keyed by slug for lookup)
+        $messageTextMap = $this->buildProductMessageTextMap($product);
+
+        // Map to tracks payload — extract message text from audio filename slug
         $tracks = [];
         foreach ($audioUrls as $i => $url) {
+            $urlSlug  = $this->extractSlugFromUrl($url);
+            $fullText = $urlSlug ? $this->findMessageTextForSlug($urlSlug, $messageTextMap) : null;
+            $title    = $this->extractMessageTextFromUrl($url) ?: ($product->name . ' #' . ($i + 1));
             $tracks[] = [
-                'index' => $i,
-                'url' => $url,
-                'title' => $product->name . ' #' . ($i+1),
+                'index'        => $i,
+                'url'          => $url,
+                'title'        => $title,
+                'message_text' => $fullText ?? $title,
             ];
         }
 
         if (!empty($tracks)) {
-            $tracks = $this->ensureEncryptedProductTracks($product, $tracks);
+            // Use the fallback product for encryption look-ups if we're serving its tracks
+            $encryptionProduct = $fallbackProductId
+                ? (TtsAudioProduct::find($fallbackProductId) ?? $product)
+                : $product;
+            $tracks = $this->ensureEncryptedProductTracks($encryptionProduct, $tracks);
         }
 
         return response()->json([
@@ -891,6 +936,163 @@ class TtsBackendController extends Controller
     }
 
     // ─── Private helpers ─────────────────────────────────────────────────────
+
+    /**
+     * Extract human-readable message text from an audio file URL.
+     *
+     * Audio filenames are slugified message texts with a trailing MD5 hash.
+     * e.g. "a-positive-attitude-can-really-make-dreams-come-true-<md5hash>.enc"
+     * → "A positive attitude can really make dreams come true"
+     *
+     * Works with both signed Laravel URLs (base64-encoded path param) and
+     * direct Node backend URLs.
+     */
+
+    /**
+     * Build a slug → full message text map for a product by looking up its
+     * corresponding tts_motivation_messages record.
+     */
+    private function buildProductMessageTextMap(TtsAudioProduct $product): array
+    {
+        if (empty($product->backend_category_id)) {
+            return [];
+        }
+
+        $sourceCategory = \DB::table('tts_source_categories')
+            ->where('mongo_id', $product->backend_category_id)
+            ->first();
+
+        if (!$sourceCategory) {
+            return [];
+        }
+
+        // Prefer a record that matches the product's speaker; fall back to any record
+        $msgRecord = \DB::table('tts_motivation_messages')
+            ->where('source_category_id', $sourceCategory->id)
+            ->when($product->backend_speaker, fn($q) => $q->where('speaker', $product->backend_speaker))
+            ->first();
+
+        if (!$msgRecord) {
+            $msgRecord = \DB::table('tts_motivation_messages')
+                ->where('source_category_id', $sourceCategory->id)
+                ->first();
+        }
+
+        if (!$msgRecord || empty($msgRecord->messages)) {
+            return [];
+        }
+
+        $messages = json_decode($msgRecord->messages, true);
+        if (!is_array($messages)) {
+            return [];
+        }
+
+        $map = [];
+        foreach ($messages as $msg) {
+            $slug = $this->slugifyMessage((string) $msg);
+            if ($slug !== '') {
+                $map[$slug] = (string) $msg;
+            }
+        }
+        return $map;
+    }
+
+    /**
+     * Normalise a message string into a URL-filename-compatible slug so it
+     * can be matched against the slug extracted from an audio file path.
+     */
+    private function slugifyMessage(string $text): string
+    {
+        $text = strtolower($text);
+        // Remove characters that are neither alphanumeric nor whitespace
+        $text = preg_replace('/[^a-z0-9\s]/', '', $text);
+        // Collapse whitespace and trim
+        $text = preg_replace('/\s+/', ' ', trim($text));
+        return str_replace(' ', '-', $text);
+    }
+
+    /**
+     * Extract only the filename slug (no hash, no extension) from an audio URL.
+     * Returns an empty string when the URL cannot be parsed.
+     */
+    private function extractSlugFromUrl(string $url): string
+    {
+        $parsed = parse_url($url);
+        $filePath = '';
+        if (!empty($parsed['query'])) {
+            parse_str($parsed['query'], $q);
+            if (!empty($q['path'])) {
+                $filePath = base64_decode($q['path'], true) ?: '';
+            }
+        }
+        if (empty($filePath)) {
+            $filePath = $parsed['path'] ?? '';
+        }
+
+        $basename = pathinfo($filePath, PATHINFO_FILENAME);
+        if (empty($basename)) {
+            return '';
+        }
+
+        // Strip trailing MD5 hash (32 hex chars preceded by a hyphen)
+        $slug = preg_replace('/-[0-9a-f]{32}$/i', '', $basename);
+        return strtolower($slug);
+    }
+
+    /**
+     * Find the full message text for a given URL slug by checking the message
+     * map. Handles the case where filenames were truncated at generation time
+     * (the message slug will be longer than the URL slug).
+     */
+    private function findMessageTextForSlug(string $urlSlug, array $messageMap): ?string
+    {
+        if (isset($messageMap[$urlSlug])) {
+            return $messageMap[$urlSlug];
+        }
+
+        // The file slug may be a truncated prefix of the full message slug
+        foreach ($messageMap as $msgSlug => $text) {
+            if (str_starts_with($msgSlug, $urlSlug)) {
+                return $text;
+            }
+        }
+
+        return null;
+    }
+
+    private function extractMessageTextFromUrl(string $url): string
+    {
+        // Try to get the file path – signed URLs encode it in ?path=<base64>
+        $parsed = parse_url($url);
+        $filePath = '';
+        if (!empty($parsed['query'])) {
+            parse_str($parsed['query'], $q);
+            if (!empty($q['path'])) {
+                $filePath = base64_decode($q['path'], true) ?: '';
+            }
+        }
+        if (empty($filePath)) {
+            $filePath = $parsed['path'] ?? '';
+        }
+
+        // Get just the filename without directory
+        $basename = pathinfo($filePath, PATHINFO_FILENAME);
+
+        if (empty($basename)) {
+            return '';
+        }
+
+        // Strip trailing MD5 hash (32 hex chars) preceded by a hyphen
+        $text = preg_replace('/-[0-9a-f]{32}$/i', '', $basename);
+
+        if (empty($text)) {
+            return '';
+        }
+
+        // Convert slug to sentence: hyphens → spaces, capitalise first letter
+        $text = str_replace('-', ' ', $text);
+        return ucfirst($text);
+    }
 
     /**
      * Normalise audio URLs – replace legacy hostnames with the current domain.
@@ -1112,7 +1314,8 @@ class TtsBackendController extends Controller
             $previewLength = $params['preview'] ?? null;
             $previewLength = is_numeric($previewLength) ? (int) $previewLength : null;
 
-            $refreshedUrl = $this->audioSecurityService->generateSignedUrl($encryptedPath, $previewLength, 60 * 24);
+            // Use 5-year expiry for URLs served to the app to prevent silent playback failures
+            $refreshedUrl = $this->audioSecurityService->generateSignedUrl($encryptedPath, $previewLength, 60 * 24 * 365 * 5);
 
             Log::info('Refreshed signed product track URL for product detail response', [
                 'encrypted_path' => $encryptedPath,
