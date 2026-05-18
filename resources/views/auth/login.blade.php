@@ -61,6 +61,12 @@
             <h2 class="fw-bold text-white mb-1">Welcome back</h2>
             <p style="color:#94a3b8;" class="mb-4">Sign in to continue your wellness journey</p>
 
+            @if (session('status'))
+                <div class="alert alert-info">
+                    {{ session('status') }}
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="alert alert-danger">
                     {{ $errors->first() }}
@@ -121,6 +127,43 @@
                     Don't have an account?
                     <a href="{{ route('register') }}" class="text-info fw-semibold text-decoration-none">Create one free</a>
                 </p>
+            </form>
+
+            <div class="d-flex align-items-center my-4">
+                <div class="flex-grow-1" style="height:1px;background:rgba(148,163,184,0.25);"></div>
+                <span class="px-3 small text-uppercase" style="color:#94a3b8;letter-spacing:0.12em;">or use OTP</span>
+                <div class="flex-grow-1" style="height:1px;background:rgba(148,163,184,0.25);"></div>
+            </div>
+
+            <form method="POST" action="{{ route('login.otp.request') }}">
+                @csrf
+
+                <div class="mb-3">
+                    <label for="otp_identifier" class="form-label text-light">Email address or mobile number</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-secondary" style="background:#2d3748;color:#94a3b8;">
+                            <i class="fas fa-comment-dots"></i>
+                        </span>
+                        <input id="otp_identifier" type="text"
+                            class="form-control bg-dark border-secondary text-white @error('otp_identifier') is-invalid @enderror"
+                            name="identifier" value="{{ old('identifier') }}" autocomplete="username"
+                            placeholder="your@email.com or +15551234567">
+                        @error('otp_identifier')
+                            <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="mb-4 d-flex align-items-center">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="trust_device" id="trust_device" value="1" {{ old('trust_device') ? 'checked' : '' }}>
+                        <label class="form-check-label text-muted" for="trust_device">Remember this browser for OTP login</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-outline-info w-100 btn-lg fw-semibold">
+                    <i class="fas fa-key me-2"></i>Send one-time code
+                </button>
             </form>
         </div>
     </div>

@@ -89,6 +89,21 @@
                                     @if($plan->price > 0)
                                         <div class="small text-muted">${{ number_format($plan->price, 2) }}</div>
                                     @endif
+                                    @if($plan->yearly_inr_price || $plan->yearly_price)
+                                        <div class="small text-primary mt-1">
+                                            Yearly:
+                                            @if($plan->yearly_inr_price)
+                                                ₹{{ number_format($plan->yearly_inr_price, 0) }}
+                                            @elseif($plan->yearly_price)
+                                                ${{ number_format($plan->yearly_price, 2) }}
+                                            @endif
+                                        </div>
+                                    @endif
+                                    @if($plan->student_inr_price || $plan->student_price)
+                                        <div class="small text-success mt-1">
+                                            Student: @if($plan->student_inr_price)₹{{ number_format($plan->student_inr_price, 0) }}@elseif($plan->student_price)${{ number_format($plan->student_price, 2) }}@endif
+                                        </div>
+                                    @endif
                                 </td>
                                 <td>
                                     <div class="small">
@@ -207,6 +222,73 @@
                                     class="form-control @error('price') is-invalid @enderror"
                                     placeholder="0.00" min="0" step="0.01">
                                 @error('price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Student Price INR (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" wire:model="student_inr_price"
+                                    class="form-control @error('student_inr_price') is-invalid @enderror"
+                                    placeholder="0" min="0" step="1">
+                                @error('student_inr_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Student Price USD ($)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" wire:model="student_price"
+                                    class="form-control @error('student_price') is-invalid @enderror"
+                                    placeholder="0.00" min="0" step="0.01">
+                                @error('student_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="alert alert-light border small mb-0">
+                                Yearly billing: if you leave yearly prices blank, the storefront will use 10x the monthly price.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Yearly Price INR (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" wire:model="yearly_inr_price"
+                                    class="form-control @error('yearly_inr_price') is-invalid @enderror"
+                                    placeholder="Uses 10x monthly if blank" min="0" step="1">
+                                @error('yearly_inr_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Yearly Price USD ($)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" wire:model="yearly_price"
+                                    class="form-control @error('yearly_price') is-invalid @enderror"
+                                    placeholder="Uses 10x monthly if blank" min="0" step="0.01">
+                                @error('yearly_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Yearly Student Price INR (₹)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" wire:model="yearly_student_inr_price"
+                                    class="form-control @error('yearly_student_inr_price') is-invalid @enderror"
+                                    placeholder="Optional" min="0" step="1">
+                                @error('yearly_student_inr_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Yearly Student Price USD ($)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" wire:model="yearly_student_price"
+                                    class="form-control @error('yearly_student_price') is-invalid @enderror"
+                                    placeholder="Optional" min="0" step="0.01">
+                                @error('yearly_student_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                         </div>
 

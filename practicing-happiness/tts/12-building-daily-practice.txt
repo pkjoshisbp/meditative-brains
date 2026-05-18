@@ -54,17 +54,17 @@ Over years, this nightly curation produces a meaningfully different landscape of
 
 Three voices on the architecture of daily change. [pause:600]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "Motivation gets you started. Habit keeps you going."
 [/rate][/personality] [pause:900]
 Jim Ryun — Olympic athlete — knew that the daily grind of consistent training exists on most days without inspiration or exceptional motivation. Habit holds where mood cannot. [pause:800]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "Excellence is an art won by training and habituation. We do not act rightly because we have virtue, but we have virtue because we have acted rightly."
 [/rate][/personality] [pause:900]
 Aristotle identified what neuroscience now confirms: character is built through the consistent practice of the relevant behaviours, until those behaviours become the automatic expression of who you are. The direction runs from behaviour to character, not the other way around. [pause:800]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "We do not rise to the level of our goals. We fall to the level of our systems."
 [/rate][/personality] [pause:900]
 James Clear's formulation in Atomic Habits names the most important mechanism: the goal is the direction, but the system — the daily practice — is what actually produces the outcome. [pause:800]

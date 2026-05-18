@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\UserDownload;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DownloadController extends Controller
@@ -16,13 +17,17 @@ class DownloadController extends Controller
         if(! $request->hasValidSignature()) abort(401);
 
         // Resolve file path
-        $path = null; $name='audio.aac';
-        if ($download->product_id && $download->product) { $path = $download->product->full_file; $name = $download->product->slug.'.aac'; }
-        if ($download->tts_audio_product_id && $download->ttsProduct) { $path = $download->ttsProduct->audio_urls[0] ?? null; $name = $download->ttsProduct->slug.'.aac'; }
+        $disk = null; $path = null; $name = 'download.pdf';
+        if ($download->product_id && $download->product) {
+            [$disk, $path, $name] = $this->resolveProductDownload($download->product);
+        }
+        if ($download->tts_audio_product_id && $download->ttsProduct) {
+            [$disk, $path, $name] = $this->resolveTtsDownload($download->ttsProduct);
+        }
         if(!$path) abort(404);
-        $abs = storage_path('app/'.$path);
+        $abs = Storage::disk($disk)->path($path);
         if(!is_file($abs)) abort(404);
-        $downloadExt = strtolower(pathinfo($abs, PATHINFO_EXTENSION) ?: 'aac');
+        $downloadExt = strtolower(pathinfo($abs, PATHINFO_EXTENSION) ?: 'pdf');
         $name = preg_replace('/\.[^.]+$/', '', $name) . '.' . $downloadExt;
 
         $cfg = config('downloads');
@@ -71,5 +76,31 @@ class DownloadController extends Controller
         $response->headers->set('Content-Disposition','attachment; filename="'.$name.'"');
         $response->headers->set('X-Download-Mode', $throttled? 'throttled':'normal');
         return $response;
+    }
+
+    private function resolveProductDownload($product): array
+    {
+        if (!$product->pdf_file_path) {
+            return [null, null, null];
+        }
+
+        return [
+            'public',
+            $product->pdf_file_path,
+            ($product->slug ?: 'product-' . $product->id) . '.pdf',
+        ];
+    }
+
+    private function resolveTtsDownload($product): array
+    {
+        if (!$product->pdf_file_path) {
+            return [null, null, null];
+        }
+
+        return [
+            'public',
+            $product->pdf_file_path,
+            ($product->slug ?: 'tts-product-' . $product->id) . '.pdf',
+        ];
     }
 }

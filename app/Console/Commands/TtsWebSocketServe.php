@@ -34,7 +34,8 @@ class TtsWebSocketServe extends Command
         $key    = $this->option('key')  ?: self::DEFAULT_KEY;
 
         $loop = Loop::get();
-        $wsApp = new HttpServer(new WsServer(new TtsWebSocketServer()));
+        $wsHandler = new TtsWebSocketServer();
+        $wsApp = new HttpServer(new WsServer($wsHandler));
 
         if ($noTls) {
             // Plain ws:// — local development only
@@ -82,6 +83,33 @@ class TtsWebSocketServe extends Command
         }
 
         $this->line('Press Ctrl+C to stop.');
+
+        // ── Internal TCP push channel (127.0.0.1:8092) ───────────────────────
+        // AuthController writes newline-delimited JSON here; this loop
+        // reads it and forwards to the SMS gateway WebSocket connection.
+        $pushPort = (int) env('SMS_PUSH_PORT', 8092);
+        try {
+            $pushTcp = new TcpServer("127.0.0.1:{$pushPort}", $loop);
+            $pushTcp->on('connection', function (\React\Socket\ConnectionInterface $pushConn) use ($wsHandler) {
+                $buffer = '';
+                $pushConn->on('data', function (string $chunk) use ($wsHandler, $pushConn, &$buffer) {
+                    $buffer .= $chunk;
+                    while (($pos = strpos($buffer, "\n")) !== false) {
+                        $line   = substr($buffer, 0, $pos);
+                        $buffer = substr($buffer, $pos + 1);
+                        $decoded = json_decode(trim($line), true);
+                        if (is_array($decoded)) {
+                            $wsHandler->pushSmsEvent($decoded);
+                        }
+                    }
+                    $pushConn->close();
+                });
+            });
+            $this->line("SMS push channel listening on 127.0.0.1:{$pushPort}");
+        } catch (\RuntimeException $e) {
+            $this->warn("Could not bind SMS push port {$pushPort}: " . $e->getMessage());
+        }
+
         $server->run();
 
         return self::SUCCESS;

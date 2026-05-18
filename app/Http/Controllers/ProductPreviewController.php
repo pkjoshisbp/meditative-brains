@@ -24,21 +24,17 @@ class ProductPreviewController extends Controller
             'product_id' => 'required|exists:products,id'
         ]);
 
-        $product = Product::findOrFail($request->product_id);
-        
-        if (!$product->audio_path) {
+        $product = Product::with(['linkedAudiobook.chapters'])->findOrFail($request->product_id);
+
+        $previewUrl = $product->resolvePreviewUrl();
+        if (!$previewUrl) {
             return response()->json(['error' => 'No audio file available'], 404);
         }
 
         try {
-            $previewUrl = $this->audioSecurityService->generateSignedUrl(
-                $product->audio_path, 
-                $product->preview_duration
-            );
-
             return response()->json([
                 'preview_url' => $previewUrl,
-                'duration' => $product->preview_duration,
+                'duration' => $product->previewDisplayDuration(),
                 'product_name' => $product->name
             ]);
         } catch (\Exception $e) {

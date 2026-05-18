@@ -56,17 +56,17 @@ Every rep builds something that persists. [pause:700]
 
 Three voices on the relationship with pain. [pause:600]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "Out of suffering have emerged the strongest souls; the most massive characters are seared with scars."
 [/rate][/personality] [pause:900]
 Kahlil Gibran identifies what the post-traumatic growth research confirms: the experience of genuine difficulty, genuinely engaged with, produces a depth and solidity of character that cannot be produced by a life of unbroken comfort. [pause:800]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "Even a happy life cannot be without a measure of darkness, and the word happy would lose its meaning if it were not balanced by sadness."
 [/rate][/personality] [pause:900]
 Carl Jung recognised that the full range of human experience — including its darker textures — is not an obstacle to genuine happiness but a condition of it. The person who can sit with sadness knows joy in a way that constant comfort does not permit. [pause:800]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "Fall seven times, stand up eight."
 [/rate][/personality] [pause:900]
 This Japanese proverb captures the mechanics of resilience: not the elimination of falling, but the reliable practice of returning. Every time you stand up, the standing becomes more available. [pause:800]

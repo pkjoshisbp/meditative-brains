@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TtsAudioProduct;
 use App\Models\Product;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
 class EntitlementController extends Controller
@@ -72,18 +73,18 @@ class EntitlementController extends Controller
         if (!$data['product_id'] && !$data['tts_audio_product_id']) {
             return response()->json(['error'=>'missing_target'],422);
         }
-        $filePath = null; $size = null; $sha256 = null;
+        $disk = null; $filePath = null; $downloadName = null; $size = null; $sha256 = null;
         if ($data['product_id']) {
             $product = Product::findOrFail($data['product_id']);
             if (!$product->canUserAccessFull($user)) return response()->json(['error'=>'no_access'],403);
-            $filePath = $product->full_file;
+            [$disk, $filePath, $downloadName] = $this->resolveProductDownload($product);
         } else {
             $tts = TtsAudioProduct::active()->findOrFail($data['tts_audio_product_id']);
             if (!$user->hasTtsProductAccess($tts->id) && !$user->hasActiveSubscription()) return response()->json(['error'=>'no_access'],403);
-            $filePath = $tts->audio_urls[0] ?? null;
+            [$disk, $filePath, $downloadName] = $this->resolveTtsDownload($tts);
         }
         if (!$filePath) return response()->json(['error'=>'file_missing'],404);
-        $abs = storage_path('app/'.$filePath);
+        $abs = Storage::disk($disk)->path($filePath);
         if (is_file($abs)) {
             $size = filesize($abs);
             $sha256 = hash_file('sha256',$abs);
@@ -102,9 +103,37 @@ class EntitlementController extends Controller
             'download_id' => $download->id,
             'url' => $signedUrl,
             'expires_at' => $expires->toIso8601String(),
+            'type' => 'pdf',
+            'filename' => $downloadName,
             'bytes' => $size,
             'sha256' => $sha256
         ]);
+    }
+
+    private function resolveProductDownload(Product $product): array
+    {
+        if (!$product->pdf_file_path) {
+            return [null, null, null];
+        }
+
+        return [
+            'public',
+            $product->pdf_file_path,
+            ($product->slug ?: 'product-' . $product->id) . '.pdf',
+        ];
+    }
+
+    private function resolveTtsDownload(TtsAudioProduct $product): array
+    {
+        if (!$product->pdf_file_path) {
+            return [null, null, null];
+        }
+
+        return [
+            'public',
+            $product->pdf_file_path,
+            ($product->slug ?: 'tts-product-' . $product->id) . '.pdf',
+        ];
     }
 
     public function completeDownload(Request $request)

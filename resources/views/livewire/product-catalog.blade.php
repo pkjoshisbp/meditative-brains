@@ -70,7 +70,7 @@
         <!-- Products Grid -->
         <div class="col-lg-9">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Music Catalog</h2>
+                <h2>Audio Catalog</h2>
                 <span class="text-muted">{{ $products->total() }} products found</span>
             </div>
 
@@ -80,8 +80,9 @@
                         <div class="card h-100 product-card">
                             <!-- Product Image -->
                             <div class="position-relative">
-                                @if($product->getFirstMediaUrl('images'))
-                                    <img src="{{ $product->getFirstMediaUrl('images', 'cover') }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
+                                <a href="{{ route('products.show', $product->slug) }}" class="text-decoration-none text-dark">
+                                @if($product->productImageUrl('cover'))
+                                    <img src="{{ $product->productImageUrl('cover') }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
                                 @else
                                     @php
                                         $cn = strtolower($product->category->name ?? $product->category ?? '');
@@ -107,6 +108,7 @@
                                     @endphp
                                     <img src="{{ asset('images/categories/' . $p_img) }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
                                 @endif
+                                </a>
                                 
                                 @if($product->hasDiscount())
                                     <span class="badge bg-danger position-absolute top-0 end-0 m-2">
@@ -122,7 +124,11 @@
                             </div>
 
                             <div class="card-body d-flex flex-column">
-                                <h6 class="card-title">{{ $product->name }}</h6>
+                                <h6 class="card-title">
+                                    <a href="{{ route('products.show', $product->slug) }}" class="text-decoration-none text-dark">
+                                        {{ $product->name }}
+                                    </a>
+                                </h6>
                                 <p class="card-text text-muted small mb-2">{{ $product->category->name }}</p>
                                 
                                 @if($product->short_description)
@@ -143,22 +149,32 @@
                                     <div class="mb-2">
                                         @php
                                             $isIndia = session('user_currency') === 'INR';
-                                            $hasDiscount = $product->hasDiscount();
+                                            $pricing = $product->getStudentPriceData(auth()->user());
+                                            $hasDiscount = $pricing['student_applied'] || $product->hasDiscount();
+                                            $priceInr = $pricing['base_inr'];
+                                            $salePriceInr = $pricing['final_inr'];
                                         @endphp
                                         @if($isIndia)
-                                            @if($hasDiscount && $product->inr_sale_price)
-                                                <span class="h6 text-primary">&#8377;{{ number_format($product->inr_sale_price, 0) }}</span>
-                                                <span class="text-muted text-decoration-line-through ms-1">&#8377;{{ number_format($product->inr_price ?: $product->price * 100, 0) }}</span>
+                                            @if($hasDiscount)
+                                                <span class="h6 text-primary">&#8377;{{ number_format($salePriceInr, 0) }}</span>
+                                                <span class="text-muted text-decoration-line-through ms-1">&#8377;{{ number_format($priceInr, 0) }}</span>
                                             @else
-                                                <span class="h6 text-primary">&#8377;{{ number_format($product->inr_price ?: $product->price * 100, 0) }}</span>
+                                                <span class="h6 text-primary">&#8377;{{ number_format($priceInr, 0) }}</span>
                                             @endif
                                         @else
                                             @if($hasDiscount)
-                                                <span class="h6 text-primary">${{ number_format($product->sale_price, 2) }}</span>
-                                                <span class="text-muted text-decoration-line-through ms-1">${{ number_format($product->price, 2) }}</span>
+                                                <span class="h6 text-primary">${{ number_format($pricing['final_usd'], 2) }}</span>
+                                                <span class="text-muted text-decoration-line-through ms-1">${{ number_format($pricing['base_usd'], 2) }}</span>
                                             @else
-                                                <span class="h6 text-primary">${{ number_format($product->price, 2) }}</span>
+                                                <span class="h6 text-primary">${{ number_format($pricing['final_usd'], 2) }}</span>
                                             @endif
+                                        @endif
+                                        @if($pricing['student_applied'])
+                                            <div class="small text-success mt-1">Student pricing applied</div>
+                                        @elseif($pricing['student_available'])
+                                            <div class="small text-info mt-1">
+                                                <i class="fas fa-user-graduate me-1"></i>Student pricing available
+                                            </div>
                                         @endif
                                     </div>
 
@@ -172,6 +188,9 @@
                                         <button class="btn btn-outline-primary btn-sm" onclick="playPreview({{ $product->id }})">
                                             <i class="fas fa-play"></i> Preview
                                         </button>
+                                        <a href="{{ route('products.show', $product->slug) }}" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-eye"></i> Details
+                                        </a>
                                         <button wire:click="addToCart({{ $product->id }})" class="btn btn-primary btn-sm">
                                             <i class="fas fa-cart-plus"></i> Add to Cart
                                         </button>

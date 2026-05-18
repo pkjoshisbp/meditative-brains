@@ -11,6 +11,11 @@ class TtsProductPurchase extends Model
 
     protected $fillable = [
         'user_id',
+        'affiliate_profile_id',
+        'affiliate_click_id',
+        'affiliate_referral_code',
+        'affiliate_commission_rate',
+        'affiliate_commission_amount',
         'tts_audio_product_id',
         'order_id',
         'amount',
@@ -18,11 +23,17 @@ class TtsProductPurchase extends Model
         'status',
         'paypal_order_id',
         'paypal_capture_id',
-        'purchased_at'
+        'purchased_at',
+        'payment_method',
+        'transaction_id',
+        'product_type',
+        'version_id',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'affiliate_commission_rate' => 'decimal:2',
+        'affiliate_commission_amount' => 'decimal:2',
         'purchased_at' => 'datetime'
     ];
 
@@ -32,6 +43,16 @@ class TtsProductPurchase extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function affiliateProfile()
+    {
+        return $this->belongsTo(AffiliateProfile::class);
+    }
+
+    public function affiliateClick()
+    {
+        return $this->belongsTo(AffiliateClick::class);
     }
 
     /**

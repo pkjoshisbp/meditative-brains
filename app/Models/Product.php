@@ -9,6 +9,11 @@ use Spatie\Sluggable\SlugOptions;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Models\TtsAudiobook;
+use App\Services\AudioSecurityService;
+use App\Services\StudentPricingService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model implements HasMedia
 {
@@ -21,13 +26,18 @@ class Product extends Model implements HasMedia
         'short_description',
         'price',
         'sale_price',
+        'student_price',
+        'student_inr_price',
         'type',
         'audio_type',
         'audio_features',
         'audio_path',
+        'linked_audiobook_id',
         'preview_duration',
         'preview_file',
         'full_file',
+        'pdf_file_path',
+        'pdf_file_url',
         'tags',
         'meta_title',
         'meta_description',
@@ -43,10 +53,13 @@ class Product extends Model implements HasMedia
 
     protected $casts = [
         'audio_features' => 'array',
+        'linked_audiobook_id' => 'integer',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
         'price' => 'decimal:2',
         'sale_price' => 'decimal:2',
+        'student_price' => 'decimal:2',
+        'student_inr_price' => 'decimal:2',
         'average_rating' => 'decimal:2',
     ];
 
@@ -62,14 +75,68 @@ class Product extends Model implements HasMedia
         return $this->belongsTo(ProductCategory::class);
     }
 
+    public function linkedAudiobook()
+    {
+        return $this->belongsTo(TtsAudiobook::class, 'linked_audiobook_id');
+    }
+
     public function cartItems()
     {
         return $this->hasMany(Cart::class);
     }
 
-    public function getCurrentPrice()
+    public function getCurrentPrice($user = null)
     {
-        return $this->sale_price ?: $this->price;
+        $pricing = app(StudentPricingService::class)->forRegularProduct($this, $user ?: Auth::user());
+
+        return $pricing['final_usd'];
+    }
+
+    public function getStudentPriceData($user = null): array
+    {
+        return app(StudentPricingService::class)->forRegularProduct($this, $user ?: Auth::user());
+    }
+
+    public function productImageUrl(string $conversion = ''): ?string
+    {
+        $mediaUrl = $conversion !== ''
+            ? $this->getFirstMediaUrl('images', $conversion)
+            : $this->getFirstMediaUrl('images');
+
+        if ($mediaUrl) {
+            return $mediaUrl;
+        }
+
+        if ($this->preview_file) {
+            return Storage::disk('public')->url($this->preview_file);
+        }
+
+        return null;
+    }
+
+    public function resolvePreviewUrl(): ?string
+    {
+        if ($this->audio_path) {
+            return app(AudioSecurityService::class)->generateSignedUrl(
+                $this->audio_path,
+                $this->preview_duration
+            );
+        }
+
+        $audiobook = $this->relationLoaded('linkedAudiobook')
+            ? $this->linkedAudiobook
+            : $this->linkedAudiobook()->with('chapters')->first();
+
+        if (!$audiobook) {
+            return null;
+        }
+
+        return $audiobook->resolvePreviewUrl() ?: null;
+    }
+
+    public function previewDisplayDuration(): ?int
+    {
+        return $this->preview_duration ?: null;
     }
 
     public function hasDiscount()

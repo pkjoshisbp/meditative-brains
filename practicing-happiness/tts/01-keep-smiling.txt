@@ -1,5 +1,5 @@
 **Chapter One. Keep Smiling.** [pause:800]
-*The Simplest Powerful Habit That Changes Everything.* [pause:1000]
+*The Simplest Habit That Starts the Change.* [pause:1000]
 
 [silence:500]
 
@@ -11,9 +11,9 @@ But inside, she was running a near-constant low-level tension that she had stopp
 A permanent tightness in the jaw. A slight furrow between the brows. [pause:400]
 An expression that said "life is serious business" without her ever consciously choosing it. [pause:700]
 She woke each morning and checked her phone before her feet touched the floor. [pause:500]
-By the time the kettle boiled she had already catalogued the day's likely problems. [pause:500]
+By the time the kettle boiled she had already listed the day's likely problems. [pause:500]
 By the time she arrived at her desk she was already tired. [pause:700]
-Not from lack of sleep. From the effort of being perpetually braced. [pause:900]
+Not from lack of sleep. From the effort of being *always tense.* [pause:900]
 
 [silence:400]
 
@@ -36,10 +36,10 @@ She sat alone in her kitchen and, quite deliberately, lifted the corners of her 
 No reason. No cause. [pause:400]
 It felt absurd at first. [pause:300]
 Then strange. [pause:400]
-Then, for a reason she could not quite explain — slightly lighter. [pause:600]
+Then, for no clear reason, she felt slightly lighter. [pause:600]
 Her shoulders, which she hadn't noticed were tense, released a fraction. [pause:500]
 Her breathing deepened without any effort at all. [pause:600]
-She sat there for a full minute, just being someone who was, inexplicably, smiling. [pause:800]
+She sat there for a full minute, just being someone who was smiling *before life gave her a reason.* [pause:800]
 
 She did it again the next morning. And the one after that. [pause:600]
 Three weeks later, a friend said to her: [pause:300]
@@ -87,12 +87,12 @@ The body's biochemical return from the full expression is measurably richer. [pa
 [silence:400]
 
 Charles Darwin, writing in 1872, observed something that anticipated all of this: [pause:500]
-[rate:slow]"The free expression by outward signs of an emotion intensifies it."[/rate] [pause:700]
+[rate:"-5%"]"The free expression by outward signs of an emotion intensifies it."[/rate] [pause:700]
 Not: feel it, then show it. [pause:400]
 Show it — and intensify the feeling. [pause:700]
 
 William James, the founding father of American psychology, stated the same principle more directly: [pause:600]
-[rate:slow]"Action seems to follow feeling, but really action and feeling go together; and by regulating the action, which is under the more direct control of the will, we can indirectly regulate the feeling."[/rate] [pause:900]
+[rate:"-5%"]"Action seems to follow feeling, but really action and feeling go together; and by regulating the action, which is under the more direct control of the will, we can indirectly regulate the feeling."[/rate] [pause:900]
 
 The action is under the more direct control of the will. [pause:500]
 Your face is an action. [pause:400]
@@ -128,7 +128,7 @@ And ease is available every moment through this most basic of physical tools. [p
 [silence:500]
 
 Thich Nhat Hanh, who survived war and exile and decades of displacement, wrote: [pause:500]
-[rate:slow][personality:Warm]"Sometimes your joy is the source of your smile, but sometimes your smile can be the source of your joy."[/personality][/rate] [pause:900]
+[rate:"-5%"][personality:Warm]"Sometimes your joy is the source of your smile, but sometimes your smile can be the source of your joy."[/personality][/rate] [pause:900]
 
 That sentence contains the entire principle of this first chapter. [pause:500]
 You do not need to wait for the right conditions. [pause:400]
@@ -203,7 +203,7 @@ The structure is rising, even when you cannot see it yet. [pause:900]
 
 [silence:700]
 
-[personality:Warm][rate:slow]"Sometimes your joy is the source of your smile,
+[personality:Warm][rate:"-5%"]"Sometimes your joy is the source of your smile,
 but sometimes your smile can be the source of your joy."[/rate][/personality] [pause:700]
 
 That is where this begins. [pause:400]

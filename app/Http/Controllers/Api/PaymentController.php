@@ -10,6 +10,7 @@ use App\Models\TtsAudioProduct;
 use App\Models\TtsProductPurchase;
 use App\Services\PayPalService;
 use App\Services\AccessControlService;
+use App\Services\StudentPricingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,11 +20,13 @@ class PaymentController extends Controller
 {
     protected $paypalService;
     protected $accessControlService;
+    protected $studentPricing;
 
-    public function __construct(PayPalService $paypalService, AccessControlService $accessControlService)
+    public function __construct(PayPalService $paypalService, AccessControlService $accessControlService, StudentPricingService $studentPricing)
     {
         $this->paypalService = $paypalService;
         $this->accessControlService = $accessControlService;
+        $this->studentPricing = $studentPricing;
     }
 
     /**
@@ -56,6 +59,7 @@ class PaymentController extends Controller
         $result = $this->paypalService->createProductOrder($user, $product);
 
         if ($result['success']) {
+            $pricing = $this->studentPricing->forRegularProduct($product, $user);
             return response()->json([
                 'success' => true,
                 'paypal_order_id' => $result['paypal_order_id'],
@@ -63,7 +67,8 @@ class PaymentController extends Controller
                 'product' => [
                     'id' => $product->id,
                     'name' => $product->name,
-                    'price' => $product->sale_price ?? $product->price
+                    'price' => $pricing['final_usd'],
+                    'student_pricing' => $pricing['student_applied'],
                 ]
             ]);
         }
@@ -103,6 +108,7 @@ class PaymentController extends Controller
         $result = $this->paypalService->createSubscriptionOrder($user, $plan);
 
         if ($result['success']) {
+            $pricing = $this->studentPricing->forSubscriptionPlan($plan, $user);
             return response()->json([
                 'success' => true,
                 'paypal_order_id' => $result['paypal_order_id'],
@@ -110,7 +116,8 @@ class PaymentController extends Controller
                 'plan' => [
                     'id' => $plan->id,
                     'name' => $plan->name,
-                    'price' => $plan->price,
+                    'price' => $pricing['final_usd'],
+                    'student_pricing' => $pricing['student_applied'],
                     'billing_cycle' => $plan->billing_cycle
                 ]
             ]);
@@ -300,7 +307,7 @@ class PaymentController extends Controller
                     'name' => $plan->name,
                     'slug' => $plan->slug,
                     'description' => $plan->description,
-                    'price' => $plan->price,
+                    'price' => $this->studentPricing->forSubscriptionPlan($plan, $request->user())['final_usd'],
                     'billing_cycle' => $plan->billing_cycle,
                     'features' => $plan->features,
                     'includes_music_library' => $plan->includes_music_library,

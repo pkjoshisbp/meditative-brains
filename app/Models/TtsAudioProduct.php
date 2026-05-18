@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use App\Models\TtsAudiobook;
+use App\Services\StudentPricingService;
+use Illuminate\Support\Facades\Auth;
 
 class TtsAudioProduct extends Model
 {
@@ -29,8 +32,15 @@ class TtsAudioProduct extends Model
         'audio_only_price',
         'pdf_price_inr',
         'bundle_price_inr',
+        'student_audio_price',
+        'student_audio_price_inr',
+        'student_pdf_price',
+        'student_pdf_price_inr',
+        'student_bundle_price',
+        'student_bundle_price_inr',
         'pdf_file_path',
         'pdf_file_url',
+        'linked_audiobook_id',
         'parent_product_id',
         'preview_duration',
         'background_music_url',
@@ -78,7 +88,14 @@ class TtsAudioProduct extends Model
         'audio_only_price' => 'decimal:2',
         'pdf_price_inr' => 'decimal:2',
         'bundle_price_inr' => 'decimal:2',
+        'student_audio_price' => 'decimal:2',
+        'student_audio_price_inr' => 'decimal:2',
+        'student_pdf_price' => 'decimal:2',
+        'student_pdf_price_inr' => 'decimal:2',
+        'student_bundle_price' => 'decimal:2',
+        'student_bundle_price_inr' => 'decimal:2',
         'preview_duration' => 'integer',
+        'linked_audiobook_id' => 'integer',
         'total_messages_count' => 'integer',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
@@ -111,6 +128,11 @@ class TtsAudioProduct extends Model
     public function purchases()
     {
         return $this->hasMany(TtsProductPurchase::class);
+    }
+
+    public function linkedAudiobook()
+    {
+        return $this->belongsTo(TtsAudiobook::class, 'linked_audiobook_id');
     }
 
     /**
@@ -179,6 +201,11 @@ class TtsAudioProduct extends Model
     public function getFormattedPriceAttribute()
     {
         return '$' . number_format($this->price, 2);
+    }
+
+    public function getStudentPriceData(string $productType = 'audio', $user = null): array
+    {
+        return app(StudentPricingService::class)->forTtsProduct($this, $productType, $user ?: Auth::user());
     }
 
     /**

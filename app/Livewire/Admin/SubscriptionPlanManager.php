@@ -25,6 +25,12 @@ class SubscriptionPlanManager extends AdminComponent
     public string $billing_cycle   = 'monthly';
     public string $price           = '';
     public string $inr_price       = '';
+    public string $student_price   = '';
+    public string $student_inr_price = '';
+    public string $yearly_price = '';
+    public string $yearly_inr_price = '';
+    public string $yearly_student_price = '';
+    public string $yearly_student_inr_price = '';
     public string $features        = '';
     public bool   $includes_music_library      = false;
     public bool   $includes_all_tts_categories = false;
@@ -42,6 +48,12 @@ class SubscriptionPlanManager extends AdminComponent
             'billing_cycle' => 'required|in:monthly,yearly,lifetime',
             'price'         => 'required|numeric|min:0',
             'inr_price'     => 'nullable|numeric|min:0',
+            'student_price' => 'nullable|numeric|min:0',
+            'student_inr_price' => 'nullable|numeric|min:0',
+            'yearly_price' => 'nullable|numeric|min:0',
+            'yearly_inr_price' => 'nullable|numeric|min:0',
+            'yearly_student_price' => 'nullable|numeric|min:0',
+            'yearly_student_inr_price' => 'nullable|numeric|min:0',
             'features'      => 'nullable|string',
             'trial_days'    => 'integer|min:0',
             'max_products'  => 'nullable|integer|min:1',
@@ -66,6 +78,12 @@ class SubscriptionPlanManager extends AdminComponent
         $this->billing_cycle = $plan->billing_cycle;
         $this->price       = (string) $plan->price;
         $this->inr_price   = (string) ($plan->inr_price ?? '');
+        $this->student_price = (string) ($plan->student_price ?? '');
+        $this->student_inr_price = (string) ($plan->student_inr_price ?? '');
+        $this->yearly_price = (string) ($plan->yearly_price ?? '');
+        $this->yearly_inr_price = (string) ($plan->yearly_inr_price ?? '');
+        $this->yearly_student_price = (string) ($plan->yearly_student_price ?? '');
+        $this->yearly_student_inr_price = (string) ($plan->yearly_student_inr_price ?? '');
         $this->features    = is_array($plan->features) ? implode("\n", $plan->features) : '';
         $this->includes_music_library      = (bool) $plan->includes_music_library;
         $this->includes_all_tts_categories = (bool) $plan->includes_all_tts_categories;
@@ -94,6 +112,12 @@ class SubscriptionPlanManager extends AdminComponent
             'billing_cycle' => $this->billing_cycle,
             'price'         => (float) $this->price,
             'inr_price'     => $this->inr_price !== '' ? (float) $this->inr_price : null,
+            'student_price' => $this->student_price !== '' ? (float) $this->student_price : null,
+            'student_inr_price' => $this->student_inr_price !== '' ? (float) $this->student_inr_price : null,
+            'yearly_price' => $this->yearly_price !== '' ? (float) $this->yearly_price : null,
+            'yearly_inr_price' => $this->yearly_inr_price !== '' ? (float) $this->yearly_inr_price : null,
+            'yearly_student_price' => $this->yearly_student_price !== '' ? (float) $this->yearly_student_price : null,
+            'yearly_student_inr_price' => $this->yearly_student_inr_price !== '' ? (float) $this->yearly_student_inr_price : null,
             'features'      => $featuresArray ?: null,
             'includes_music_library'      => $this->includes_music_library,
             'includes_all_tts_categories' => $this->includes_all_tts_categories,
@@ -143,6 +167,12 @@ class SubscriptionPlanManager extends AdminComponent
         $this->billing_cycle   = 'monthly';
         $this->price           = '';
         $this->inr_price       = '';
+        $this->student_price   = '';
+        $this->student_inr_price = '';
+        $this->yearly_price = '';
+        $this->yearly_inr_price = '';
+        $this->yearly_student_price = '';
+        $this->yearly_student_inr_price = '';
         $this->features        = '';
         $this->includes_music_library      = false;
         $this->includes_all_tts_categories = false;

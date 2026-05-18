@@ -40,17 +40,17 @@ The physiological return to baseline — with the help of genuine positive state
 
 Three voices on inner strength as a cultivated capacity. [pause:600]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "The impediment to action advances action. What stands in the way becomes the way."
 [/rate][/personality] [pause:900]
 Marcus Aurelius — emperor, general, writing by candlelight during a military campaign — practiced this principle daily. Difficulty was not an interruption to engaged living. It was the material from which engaged living was built. [pause:800]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "It is not because things are difficult that we do not dare; it is because we do not dare that things are difficult."
 [/rate][/personality] [pause:900]
 Seneca identifies the causal reversal: perceived difficulty is partially a function of inner state. Approach from inner resource and the same challenge becomes more navigable. Approach from depletion and the same challenge becomes overwhelming. [pause:800]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "Happiness is not something ready made. It comes from your own actions."
 [/rate][/personality] [pause:900]
 The Dalai Lama — whose brain was studied by neuroscientist Richard Davidson and found to show positive affect states off the charts of normal distribution — attributes this not to temperament but to tens of thousands of hours of deliberate practice. Inner strength is not a gift. It is the accumulation of a practice taken seriously. [pause:800]

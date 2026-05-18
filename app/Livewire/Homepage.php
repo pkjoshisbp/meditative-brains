@@ -35,7 +35,7 @@ class Homepage extends Component
             'categories' => $categories,
             'newProducts' => $newProducts,
         ])->layout('layouts.app-frontend', [
-            'title' => 'Meditative Brains - Premium TTS Affirmations & Sleep Aid Music',
+            'title' => 'Mental Fitness Store - Premium TTS Affirmations & Sleep Aid Music',
             'description' => 'Transform your life with our premium collection of TTS affirmations, sleep aid music, meditation tracks, binaural beats, and healing frequencies. Start your wellness journey today.',
             'keywords' => 'TTS affirmations, sleep music, meditation, binaural beats, solfeggio frequencies, nature sounds, wellness, mindfulness, personal development'
         ]);

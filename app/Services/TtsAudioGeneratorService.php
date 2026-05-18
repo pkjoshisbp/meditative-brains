@@ -72,7 +72,15 @@ class TtsAudioGeneratorService
 
         // Return cached result if file already present
         if (file_exists($paths['absolutePath'])) {
-            Log::debug('TTS cache hit', ['path' => $paths['relativePath']]);
+            Log::info('[TTS] CACHE HIT — skipping Azure call, returning existing audio', [
+                'path'         => $paths['relativePath'],
+                'speaker'      => $options['speaker'],
+                'rate'         => $options['prosodyRate'],
+                'pitch'        => $options['prosodyPitch'],
+                'volume'       => $options['prosodyVolume'],
+                'style'        => $options['speakerStyle'] ?? null,
+                'personality'  => $options['speakerPersonality'] ?? null,
+            ]);
             return ['relativePath' => $paths['relativePath'], 'audioUrl' => $paths['audioUrl'], 'absolutePath' => $paths['absolutePath']];
         }
 
@@ -120,31 +128,40 @@ class TtsAudioGeneratorService
         $text = preg_replace('/\[pause:(\d+)\]/i', '<break time="$1ms"/>', $text);
         $text = preg_replace('/\[silence:(\d+)\]/i', '<break time="$1ms"/>', $text);
 
-        // [personality:X]…[/personality]
+        // [personality:X]…[/personality]  (strips surrounding quotes from value)
         $text = preg_replace_callback(
             '/\[personality:([^\]]+)\]([\s\S]*?)\[\/personality\]/i',
-            fn ($m) => '<mstts:express-as style="' . strtolower(trim($m[1])) . '">' . $m[2] . '</mstts:express-as>',
+            fn ($m) => '<mstts:express-as style="' . strtolower(trim($m[1], " \t\r\n\"'")) . '">' . $m[2] . '</mstts:express-as>',
             $text
         );
 
-        // [rate:X]…[/rate]
+        // [rate:X]…[/rate]  — strips quotes; absolute % (e.g. "90%") auto-converted to relative ("-10%")
         $text = preg_replace_callback(
             '/\[rate:([^\]]+)\]([\s\S]*?)\[\/rate\]/i',
-            fn ($m) => '<prosody rate="' . trim($m[1]) . '">' . $m[2] . '</prosody>',
+            function ($m) {
+                $val = $this->convertToRelativePercent(trim($m[1], " \t\r\n\"'")) ?? 'medium';
+                return '<prosody rate="' . $val . '">' . $m[2] . '</prosody>';
+            },
             $text
         );
 
-        // [pitch:X]…[/pitch]
+        // [pitch:X]…[/pitch]  — strips quotes; absolute % auto-converted to relative
         $text = preg_replace_callback(
             '/\[pitch:([^\]]+)\]([\s\S]*?)\[\/pitch\]/i',
-            fn ($m) => '<prosody pitch="' . trim($m[1]) . '">' . $m[2] . '</prosody>',
+            function ($m) {
+                $val = $this->convertToRelativePercent(trim($m[1], " \t\r\n\"'")) ?? 'medium';
+                return '<prosody pitch="' . $val . '">' . $m[2] . '</prosody>';
+            },
             $text
         );
 
-        // [volume:X]…[/volume]
+        // [volume:X]…[/volume]  — strips quotes; absolute % auto-converted to relative
         $text = preg_replace_callback(
             '/\[volume:([^\]]+)\]([\s\S]*?)\[\/volume\]/i',
-            fn ($m) => '<prosody volume="' . trim($m[1]) . '">' . $m[2] . '</prosody>',
+            function ($m) {
+                $val = $this->convertToRelativePercent(trim($m[1], " \t\r\n\"'")) ?? 'medium';
+                return '<prosody volume="' . $val . '">' . $m[2] . '</prosody>';
+            },
             $text
         );
 
@@ -157,6 +174,35 @@ class TtsAudioGeneratorService
         $text = preg_replace('/\[[^\]]*\]/', '', $text);
 
         return $text;
+    }
+
+    /**
+     * Convert an absolute-percentage prosody value to Azure's relative-change format.
+     *
+     * Azure SSML interprets rate/pitch percentages as relative offsets from the default:
+     *   rate="90%"  → +90% faster (190% of normal)
+     *   rate="-10%" → 10% slower  (90% of normal)
+     *
+     * Our UI stores values as absolute percentages (90 = 90% of normal speed),
+     * so we convert:  90% → -10%,  100% → medium,  110% → +10%
+     *
+     * Named values (medium, slow, fast, x-slow, x-fast, default) are passed through.
+     */
+    private function convertToRelativePercent(?string $value): ?string
+    {
+        if ($value === null || $value === '') return null;
+
+        // 'default' means "do not set this attribute" — return null so no prosody attr is emitted
+        if (strtolower(trim($value)) === 'default') return null;
+
+        // Match values like "90%", "110%", "100", "90" (with or without %-sign)
+        if (preg_match('/^(\d+(?:\.\d+)?)%?$/', trim($value), $m)) {
+            $rel = (float)$m[1] - 100.0;
+            if ($rel == 0.0) return 'medium';
+            return ($rel > 0 ? '+' : '') . rtrim(rtrim(number_format($rel, 1), '0'), '.') . '%';
+        }
+
+        return $value; // named value (slow, medium, fast, etc.) — pass through
     }
 
     /**
@@ -174,9 +220,12 @@ class TtsAudioGeneratorService
         $speaker    = $opts['speaker']  ?? 'en-US-AriaNeural';
         $style      = $opts['speakerStyle']       ?? null;
         $personality = $opts['speakerPersonality'] ?? null;
-        $rate       = $opts['prosodyRate']   ?? null;
-        $pitch      = $opts['prosodyPitch']  ?? null;
-        $volume     = $opts['prosodyVolume'] ?? null;
+        // Convert absolute-percentage values (e.g. "90%") to Azure's relative-change
+        // format (e.g. "-10%"). Azure treats rate/pitch percentages as relative offsets
+        // from the default, so "90%" would mean +90% (=190% speed), not 90% of normal.
+        $rate       = $this->convertToRelativePercent($opts['prosodyRate']   ?? null);
+        $pitch      = $this->convertToRelativePercent($opts['prosodyPitch']  ?? null);
+        $volume     = $this->convertToRelativePercent($opts['prosodyVolume'] ?? null);
 
         $needsProsody = ($rate && $rate !== 'medium')
                      || ($pitch && $pitch !== 'medium')
@@ -223,11 +272,16 @@ class TtsAudioGeneratorService
     {
         $ssml = $this->buildSSML(array_merge($options, ['text' => $text]));
 
-        Log::info('Azure TTS request', [
-            'speaker'  => $options['speaker'],
-            'language' => $options['language'],
-            'style'    => $options['speakerStyle'] ?? null,
-            'ssml'     => substr($ssml, 0, 300),
+        Log::info('[TTS][AZURE] Sending request to Azure', [
+            'speaker'      => $options['speaker'],
+            'language'     => $options['language'],
+            'style'        => $options['speakerStyle']       ?? null,
+            'personality'  => $options['speakerPersonality'] ?? null,
+            'prosodyRate'  => $options['prosodyRate']   ?? 'medium',
+            'prosodyPitch' => $options['prosodyPitch']  ?? 'medium',
+            'prosodyVolume'=> $options['prosodyVolume'] ?? 'medium',
+            'text_length'  => strlen($text),
+            'ssml_full'    => $ssml,
         ]);
 
         $response = Http::timeout(180)->withHeaders([
@@ -330,6 +384,15 @@ class TtsAudioGeneratorService
     //  Helpers
     // ─────────────────────────────────────────────────────────────────────────
 
+    /**
+     * Convert any FFmpeg-supported audio input (webm, ogg, wav, mp4, …) to AAC.
+     * Used for browser voice recordings uploaded from the admin panel.
+     */
+    public function convertAudioToAac(string $inputPath, string $outputPath): void
+    {
+        $this->wavToAac($inputPath, $outputPath);
+    }
+
     private function wavToAac(string $wavPath, string $aacPath): void
     {
         $process = new Process([
@@ -404,7 +467,17 @@ class TtsAudioGeneratorService
             $speaker = $this->resolveVitsSpeaker($options);
         }
 
-        $relative = implode('/', [$lang, $cat, $speaker, "{$slug}-{$hash}.{$ext}"]);
+        // Include a settings fingerprint so that changing rate/pitch/volume/style
+        // produces a different file rather than reusing stale cached audio.
+        $settingsFingerprint = substr(md5(implode('|', [
+            $options['prosodyRate']        ?? 'medium',
+            $options['prosodyPitch']       ?? 'medium',
+            $options['prosodyVolume']      ?? 'medium',
+            $options['speakerStyle']       ?? '',
+            $options['speakerPersonality'] ?? '',
+        ])), 0, 8);
+
+        $relative = implode('/', [$lang, $cat, $speaker, "{$slug}-{$hash}-{$settingsFingerprint}.{$ext}"]);
 
         if ($options['storageType'] === 'products') {
             $base       = $this->productsAudioBase;

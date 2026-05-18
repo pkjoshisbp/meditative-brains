@@ -37,7 +37,7 @@ This means that a morning when you caught three negative thoughts, redirected th
 
 Voltaire's famous sentence captures the entire argument of this chapter in nine words: [pause:500]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 The perfect is the enemy of the good. [pause:1000]
 [/rate][/personality] [pause:900]
 
@@ -47,7 +47,7 @@ What he understood was that the demand for perfect conditions, perfect performan
 
 Aristotle, whose understanding of character development has not been improved upon in two and a half thousand years, wrote: [pause:500]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 We are what we repeatedly do. Excellence, then, is not an act, but a habit. [pause:1000]
 [/rate][/personality] [pause:900]
 
@@ -57,7 +57,7 @@ Consider what this means. Excellence is not a quality you either have or do not 
 
 Confucius, from a different civilisation separated by two thousand years of history but arriving at the same place, expressed it simply: [pause:500]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 It does not matter how slowly you go as long as you do not stop. [pause:1000]
 [/rate][/personality] [pause:900]
 

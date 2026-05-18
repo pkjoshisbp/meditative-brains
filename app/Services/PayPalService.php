@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\SubscriptionPlan;
 use App\Models\Product;
 use App\Models\Order;
+use App\Models\PromoCode;
 use App\Models\Subscription;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -15,13 +16,17 @@ use Illuminate\Support\Facades\Http;
 class PayPalService
 {
     private $accessControlService;
+    private $affiliateService;
+    private $studentPricing;
     private $baseUrl;
     private $clientId;
     private $clientSecret;
 
-    public function __construct(AccessControlService $accessControlService)
+    public function __construct(AccessControlService $accessControlService, StudentPricingService $studentPricing, AffiliateService $affiliateService)
     {
         $this->accessControlService = $accessControlService;
+        $this->studentPricing = $studentPricing;
+        $this->affiliateService = $affiliateService;
         $this->clientId = config('paypal.client_id');
         $this->clientSecret = config('paypal.client_secret');
         $this->baseUrl = config('paypal.mode') === 'live' 
@@ -52,7 +57,8 @@ class PayPalService
      */
     public function createProductOrder(User $user, Product $product, array $options = [])
     {
-        $price = $product->sale_price ?? $product->price;
+        $price = $this->studentPricing->forRegularProduct($product, $user)['final_usd'];
+        $affiliateData = $this->affiliateService->attributionData($price, $user);
         
         $orderData = [
             'intent' => 'CAPTURE',
@@ -89,6 +95,11 @@ class PayPalService
                 $order = Order::create([
                     'order_number' => 'ORD-' . strtoupper(Str::random(10)),
                     'user_id' => $user->id,
+                    'affiliate_profile_id' => $affiliateData['affiliate_profile_id'] ?? null,
+                    'affiliate_click_id' => $affiliateData['affiliate_click_id'] ?? null,
+                    'affiliate_referral_code' => $affiliateData['affiliate_referral_code'] ?? null,
+                    'affiliate_commission_rate' => $affiliateData['affiliate_commission_rate'] ?? null,
+                    'affiliate_commission_amount' => $affiliateData['affiliate_commission_amount'] ?? null,
                     'subtotal' => $price,
                     'total_amount' => $price,
                     'status' => 'pending',
@@ -136,27 +147,58 @@ class PayPalService
     /**
      * Create subscription order
      */
-    public function createSubscriptionOrder(User $user, SubscriptionPlan $plan)
+    public function createSubscriptionOrder(
+        User $user,
+        SubscriptionPlan $plan,
+        string $billingInterval = 'monthly',
+        ?PromoCode $promoCode = null,
+        ?string $returnUrl = null,
+        ?string $cancelUrl = null
+    )
     {
+        $price = $this->studentPricing->forSubscriptionPlan($plan, $user, $billingInterval)['final_usd'];
+        if ($promoCode) {
+            $price = $promoCode->applyDiscount($price, 'USD');
+        }
+        $affiliateData = $this->affiliateService->attributionData($price, $user);
+
+        session([
+            'paypal_affiliate_data' => $affiliateData,
+        ]);
+
         $orderData = [
             'intent' => 'CAPTURE',
             'purchase_units' => [
                 [
                     'reference_id' => 'subscription_' . $plan->id,
-                    'description' => $plan->name . ' - ' . ucfirst($plan->billing_cycle) . ' Subscription',
+                    'description' => $plan->name . ' - ' . ucfirst($billingInterval) . ' Subscription',
                     'amount' => [
                         'currency_code' => config('paypal.currency'),
-                        'value' => number_format($plan->price, 2, '.', '')
+                        'value' => number_format($price, 2, '.', '')
                     ],
                     'custom_id' => 'user_' . $user->id . '_plan_' . $plan->id
                 ]
             ],
             'application_context' => [
-                'return_url' => config('paypal.return_url') . '?type=subscription&plan_id=' . $plan->id,
-                'cancel_url' => config('paypal.cancel_url'),
-                'brand_name' => config('app.name'),
+                'return_url' => $returnUrl ?: config('paypal.return_url') . '?type=subscription&plan_id=' . $plan->id,
+                'cancel_url' => $cancelUrl ?: config('paypal.cancel_url'),
+                'brand_name' => config('paypal.brand_name', 'Mental Fitness'),
+                'landing_page' => 'BILLING',
+                'locale' => config('paypal.locale', 'en_US'),
                 'user_action' => 'PAY_NOW'
-            ]
+            ],
+            'payment_source' => [
+                'paypal' => [
+                    'experience_context' => [
+                        'brand_name' => config('paypal.brand_name', 'Mental Fitness'),
+                        'landing_page' => 'BILLING',
+                        'user_action' => 'PAY_NOW',
+                        'locale' => config('paypal.locale', 'en_US'),
+                        'return_url' => $returnUrl ?: config('paypal.return_url') . '?type=subscription&plan_id=' . $plan->id,
+                        'cancel_url' => $cancelUrl ?: config('paypal.cancel_url'),
+                    ],
+                ],
+            ],
         ];
 
         try {
@@ -259,6 +301,11 @@ class PayPalService
                 'payment_status' => 'completed',
                 'completed_at' => now()
             ]);
+
+            $this->affiliateService->recordOrderConversion(
+                $order,
+                (string) ($captureResult['currency'] ?? config('paypal.currency', 'USD'))
+            );
         }
 
         // Grant access based on product type
@@ -287,7 +334,13 @@ class PayPalService
     /**
      * Process successful subscription purchase
      */
-    public function processSubscriptionPurchase($paypalOrderId, User $user, SubscriptionPlan $plan)
+    public function processSubscriptionPurchase(
+        $paypalOrderId,
+        User $user,
+        SubscriptionPlan $plan,
+        string $billingInterval = 'monthly',
+        ?PromoCode $promoCode = null
+    )
     {
         $captureResult = $this->captureOrder($paypalOrderId);
         
@@ -297,15 +350,26 @@ class PayPalService
 
         // Calculate subscription dates
         $startsAt = now();
-        $endsAt = $plan->billing_cycle === 'yearly' 
+        $endsAt = $billingInterval === 'yearly' 
             ? $startsAt->copy()->addYear()
             : $startsAt->copy()->addMonth();
 
+        $price = $this->studentPricing->forSubscriptionPlan($plan, $user, $billingInterval)['final_usd'];
+        if ($promoCode) {
+            $price = $promoCode->applyDiscount($price, 'USD');
+        }
+
         // Create subscription record
+        $affiliateData = session('paypal_affiliate_data', []);
         $subscription = Subscription::create([
             'user_id' => $user->id,
+            'affiliate_profile_id' => $affiliateData['affiliate_profile_id'] ?? null,
+            'affiliate_click_id' => $affiliateData['affiliate_click_id'] ?? null,
+            'affiliate_referral_code' => $affiliateData['affiliate_referral_code'] ?? null,
+            'affiliate_commission_rate' => $affiliateData['affiliate_commission_rate'] ?? null,
+            'affiliate_commission_amount' => $affiliateData['affiliate_commission_amount'] ?? null,
             'plan_type' => $plan->slug,
-            'price' => $plan->price,
+            'price' => $price,
             'status' => 'active',
             'starts_at' => $startsAt,
             'ends_at' => $endsAt,
@@ -321,6 +385,13 @@ class PayPalService
             $endsAt,
             $subscription->id
         );
+
+        $this->affiliateService->recordSubscriptionConversion(
+            $subscription,
+            (string) ($captureResult['currency'] ?? config('paypal.currency', 'USD'))
+        );
+
+        session()->forget('paypal_affiliate_data');
 
         return [
             'success' => true,

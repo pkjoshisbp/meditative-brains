@@ -95,8 +95,26 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label">Preview Duration (seconds) *</label>
-                                            <input type="number" wire:model="preview_duration" class="form-control @error('preview_duration') is-invalid @enderror" min="10" max="120">
+                                            <input type="number" wire:model="preview_duration" class="form-control @error('preview_duration') is-invalid @enderror" min="10" max="1800">
                                             @error('preview_duration') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Student Price USD</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input type="number" wire:model="student_price" class="form-control @error('student_price') is-invalid @enderror" step="0.01" min="0">
+                                            </div>
+                                            @error('student_price') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Student Price INR</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">₹</span>
+                                                <input type="number" wire:model="student_inr_price" class="form-control @error('student_inr_price') is-invalid @enderror" step="0.01" min="0">
+                                            </div>
+                                            @error('student_inr_price') <span class="invalid-feedback">{{ $message }}</span> @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -142,7 +160,66 @@
                                         <label class="form-label">Preview Image</label>
                                         <input type="file" wire:model="preview_file" class="form-control @error('preview_file') is-invalid @enderror" accept="image/*">
                                         @error('preview_file') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                        @if($preview_file)
+                                            <div class="mt-2">
+                                                <img src="{{ $preview_file->temporaryUrl() }}" alt="Preview image upload" class="img-thumbnail" style="max-width: 220px; max-height: 160px; object-fit: cover;">
+                                            </div>
+                                        @elseif($existingPreviewImageUrl)
+                                            <div class="mt-2">
+                                                <img src="{{ $existingPreviewImageUrl }}" alt="Current preview image" class="img-thumbnail" style="max-width: 220px; max-height: 160px; object-fit: cover;">
+                                            </div>
+                                        @endif
                                     </div>
+
+                                    <hr>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Linked Audiobook</label>
+                                        <select wire:model.live="linked_audiobook_id" class="form-control @error('linked_audiobook_id') is-invalid @enderror">
+                                            <option value="">No linked audiobook</option>
+                                            @foreach($audiobooks as $audiobook)
+                                                <option value="{{ $audiobook->id }}">
+                                                    {{ $audiobook->adminSelectionLabel() }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('linked_audiobook_id') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                        <small class="text-muted">Link an audiobook generated in the TTS audiobook manager.</small>
+                                        <div class="mt-1">
+                                            <a href="{{ route('admin.tts.audiobook') }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-book-open"></i> Open Audiobook Manager
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    @if($linkedAudiobookPreviewUrl)
+                                        <div class="mb-3 p-3 border rounded bg-light">
+                                            <div><strong>{{ $linkedAudiobookPreviewTitle }}</strong></div>
+                                            <small class="text-muted d-block mb-2">{{ $linkedAudiobookChapterCount }} chapter(s)</small>
+                                            <audio controls preload="none" class="w-100" src="{{ $linkedAudiobookPreviewUrl }}"></audio>
+                                        </div>
+                                    @elseif($linked_audiobook_id)
+                                        <div class="mb-3 p-3 border rounded bg-light">
+                                            <small class="text-muted">Linked audiobook found, but no playable chapter preview is available yet.</small>
+                                        </div>
+                                    @endif
+
+                                    <div class="mb-3">
+                                        <label class="form-label">PDF Book</label>
+                                        <input type="file" wire:model="pdf_book" class="form-control @error('pdf_book') is-invalid @enderror" accept="application/pdf,.pdf">
+                                        @error('pdf_book') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                        <small class="text-muted">Upload the PDF book linked to this product.</small>
+                                    </div>
+
+                                    @if($pdf_file_url)
+                                        <div class="mb-3 p-3 border rounded bg-light">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <strong>Current PDF</strong>
+                                                <a href="{{ $pdf_file_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Open PDF</a>
+                                            </div>
+                                            <iframe src="{{ $pdf_file_url }}#toolbar=0&navpanes=0" style="width: 100%; height: 320px; border: 1px solid #ddd;"></iframe>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -250,6 +327,8 @@
                                 <th>Price</th>
                                 <th>Status</th>
                                 <th>Audio File</th>
+                                <th>Audiobook</th>
+                                <th>PDF</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -270,6 +349,9 @@
                                         @else
                                             <span class="text-primary">${{ number_format($product->price, 2) }}</span>
                                         @endif
+                                        @if($product->student_price)
+                                            <br><small class="text-success">Student: ${{ number_format($product->student_price, 2) }}</small>
+                                        @endif
                                     </td>
                                     <td>
                                         @if($product->is_active)
@@ -288,6 +370,21 @@
                                         @endif
                                     </td>
                                     <td>
+                                        @if($product->linkedAudiobook)
+                                            <span class="badge bg-info text-dark">Linked</span>
+                                            <div><small class="text-muted">{{ $product->linkedAudiobook->book_title }}</small></div>
+                                        @else
+                                            <span class="badge bg-secondary">None</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($product->pdf_file_path)
+                                            <span class="badge bg-primary">Attached</span>
+                                        @else
+                                            <span class="badge bg-secondary">None</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         <button wire:click="edit({{ $product->id }})" class="btn btn-sm btn-primary">
                                             <i class="fas fa-edit"></i>
                                         </button>
@@ -299,7 +396,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center">No products found</td>
+                                    <td colspan="8" class="text-center">No products found</td>
                                 </tr>
                             @endforelse
                         </tbody>

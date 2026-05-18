@@ -1,0 +1,6 @@
+TIMESTAMP: 2026-05-15T00:19:12+05:30
+DEVICE INFO: Windows 10 / PowerShell
+SOURCE: manual_test
+CLIENT TIMESTAMP: 2026-05-15T00:19:10Z
+
+Sample log message from PowerShell

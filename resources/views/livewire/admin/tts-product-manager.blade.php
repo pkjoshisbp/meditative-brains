@@ -190,6 +190,22 @@
                         <button wire:click="refreshSignedUrls" class="btn btn-sm btn-warning mr-1" title="Re-sign expired audio URLs for all products">
                             <i class="fas fa-key"></i> Refresh URLs
                         </button>
+                        <button type="button" class="btn btn-sm btn-dark mr-1"
+                            title="Click to copy the SMS Gateway secret token"
+                            onclick="
+                                var t = '{{ config('services.sms_gateway.secret') }}';
+                                navigator.clipboard.writeText(t).then(function(){
+                                    var el = document.getElementById('smsTokenCopied');
+                                    el.style.display='inline';
+                                    setTimeout(function(){ el.style.display='none'; }, 2000);
+                                });
+                            ">
+                            <i class="fas fa-mobile-alt"></i> SMS Token
+                            <span id="smsTokenCopied" style="display:none;margin-left:4px;color:#90ee90;">✓ Copied</span>
+                        </button>
+                        <a href="{{ route('admin.settings.sms-gateway') }}" class="btn btn-sm btn-info mr-1">
+                            <i class="fas fa-cog"></i> SMS Setup
+                        </a>
                         <button wire:click="manualSync" class="btn btn-sm btn-primary">
                             <i class="fas fa-sync"></i> Manual Sync
                         </button>
@@ -254,6 +270,7 @@
                                 <th>Price</th>
                                 <th>Messages</th>
                                 <th>Status</th>
+                                <th>Book Assets</th>
                                 <th>Backend Category</th>
                                 <th>Actions</th>
                             </tr>
@@ -287,6 +304,9 @@
                                         @if ($product->sale_price)
                                             <br><small class="text-success">${{ number_format($product->sale_price, 2) }}</small>
                                         @endif
+                                        @if ($product->student_audio_price)
+                                            <br><small class="text-info">Student audio: ${{ number_format($product->student_audio_price, 2) }}</small>
+                                        @endif
                                     </td>
                                     <td>
                                         <span class="badge badge-info">{{ $product->total_messages_count }} messages</span>
@@ -300,6 +320,18 @@
                                         @if ($product->is_featured)
                                             <br><span class="badge badge-warning">Featured</span>
                                         @endif
+                                    </td>
+                                    <td>
+                                        @if ($product->linkedAudiobook)
+                                            <span class="badge badge-info">Audiobook</span>
+                                        @endif
+                                        @if ($product->pdf_file_path)
+                                            <span class="badge badge-primary">PDF</span>
+                                        @endif
+                                        @if (!$product->linkedAudiobook && !$product->pdf_file_path)
+                                            <span class="badge badge-secondary">None</span>
+                                        @endif
+                                        <br><small class="text-muted">{{ $product->product_type ?: 'audio' }}</small>
                                     </td>
                                     <td>
                                         @if ($product->backend_category_id)
@@ -352,7 +384,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted">
+                                    <td colspan="9" class="text-center text-muted">
                                         No products found. 
                                         @if ($backendConnected)
                                             Try syncing with the backend to import categories.
@@ -424,11 +456,85 @@
                                     </div>
 
                                     <div class="form-group">
+                                        <label for="product_type">Product Type *</label>
+                                        <select wire:model="product_type" class="form-control @error('product_type') is-invalid @enderror" id="product_type">
+                                            <option value="audio">Audio only</option>
+                                            <option value="ebook_pdf">PDF only</option>
+                                            <option value="ebook_bundle">Audiobook + PDF bundle</option>
+                                        </select>
+                                        @error('product_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+
+                                    <div class="form-group">
                                         <label for="backend_category_name">Backend Source Category</label>
                                         <input wire:model="backend_category_name" type="text" class="form-control @error('backend_category_name') is-invalid @enderror"
                                                id="backend_category_name" placeholder="Node/Mongo source category" readonly>
                                         @error('backend_category_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                         <small class="form-text text-muted">This is the source category used to fetch messages and generated tracks from the current Node backend.</small>
+                                    </div>
+
+                                    <div class="card border mt-4">
+                                        <div class="card-header">
+                                            <h5 class="mb-0">Book Assets</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="form-group">
+                                                <label for="linked_audiobook_id">Linked Audiobook</label>
+                                                <select wire:model.live="linked_audiobook_id" class="form-control @error('linked_audiobook_id') is-invalid @enderror" id="linked_audiobook_id">
+                                                    <option value="">No linked audiobook</option>
+                                                    @foreach($audiobooks as $audiobook)
+                                                        <option value="{{ $audiobook->id }}">
+                                                            {{ $audiobook->adminSelectionLabel() }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @error('linked_audiobook_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                <small class="form-text text-muted">Link an audiobook generated in the audiobook manager.</small>
+                                                <div class="mt-2">
+                                                    <a href="{{ route('admin.tts.audiobook') }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fas fa-book-open"></i> Open Audiobook Manager
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                            @if($linkedAudiobookPreviewUrl)
+                                                <div class="border rounded p-3 bg-light mb-3">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <strong>{{ $linkedAudiobookPreviewTitle }}</strong>
+                                                            <div class="text-muted small">{{ $linkedAudiobookChapterCount }} chapter(s)</div>
+                                                        </div>
+                                                        <button type="button" wire:click="playLinkedAudiobookPreview" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-play"></i> Preview With Product Player
+                                                        </button>
+                                                    </div>
+                                                    <audio controls preload="none" class="w-100 mt-2" src="{{ $linkedAudiobookPreviewUrl }}"></audio>
+                                                    <small class="form-text text-muted">This preview can also use the current background music settings through the product player.</small>
+                                                </div>
+                                            @elseif($linked_audiobook_id)
+                                                <div class="alert alert-light border">
+                                                    Linked audiobook found, but no playable chapter preview is available yet.
+                                                </div>
+                                            @endif
+
+                                            <div class="form-group mb-0">
+                                                <label for="pdf_book">PDF Book</label>
+                                                <input wire:model="pdf_book" type="file" accept="application/pdf,.pdf"
+                                                       class="form-control-file @error('pdf_book') is-invalid @enderror" id="pdf_book">
+                                                @error('pdf_book') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                                                <small class="form-text text-muted">Upload the PDF edition linked to this product.</small>
+                                            </div>
+
+                                            @if($pdf_file_url)
+                                                <div class="border rounded p-3 bg-light mt-3">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <strong>Current PDF</strong>
+                                                        <a href="{{ $pdf_file_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Open PDF</a>
+                                                    </div>
+                                                    <iframe src="{{ $pdf_file_url }}#toolbar=0&navpanes=0" style="width: 100%; height: 320px; border: 1px solid #ddd;"></iframe>
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
 
                                     <div class="row">
@@ -456,6 +562,93 @@
                                                            class="form-control @error('sale_price') is-invalid @enderror" id="sale_price">
                                                 </div>
                                                 @error('sale_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="student_audio_price">Student Audio Price USD</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">$</span>
+                                                    </div>
+                                                    <input wire:model="student_audio_price" type="number" step="0.01"
+                                                           class="form-control @error('student_audio_price') is-invalid @enderror" id="student_audio_price">
+                                                </div>
+                                                @error('student_audio_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="student_audio_price_inr">Student Audio Price INR</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">₹</span>
+                                                    </div>
+                                                    <input wire:model="student_audio_price_inr" type="number" step="0.01"
+                                                           class="form-control @error('student_audio_price_inr') is-invalid @enderror" id="student_audio_price_inr">
+                                                </div>
+                                                @error('student_audio_price_inr') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="student_pdf_price">Student PDF Price USD</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">$</span>
+                                                    </div>
+                                                    <input wire:model="student_pdf_price" type="number" step="0.01"
+                                                           class="form-control @error('student_pdf_price') is-invalid @enderror" id="student_pdf_price">
+                                                </div>
+                                                @error('student_pdf_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="student_pdf_price_inr">Student PDF Price INR</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">₹</span>
+                                                    </div>
+                                                    <input wire:model="student_pdf_price_inr" type="number" step="0.01"
+                                                           class="form-control @error('student_pdf_price_inr') is-invalid @enderror" id="student_pdf_price_inr">
+                                                </div>
+                                                @error('student_pdf_price_inr') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="student_bundle_price">Student Bundle Price USD</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">$</span>
+                                                    </div>
+                                                    <input wire:model="student_bundle_price" type="number" step="0.01"
+                                                           class="form-control @error('student_bundle_price') is-invalid @enderror" id="student_bundle_price">
+                                                </div>
+                                                @error('student_bundle_price') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="student_bundle_price_inr">Student Bundle Price INR</label>
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">₹</span>
+                                                    </div>
+                                                    <input wire:model="student_bundle_price_inr" type="number" step="0.01"
+                                                           class="form-control @error('student_bundle_price_inr') is-invalid @enderror" id="student_bundle_price_inr">
+                                                </div>
+                                                @error('student_bundle_price_inr') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                             </div>
                                         </div>
                                     </div>

@@ -37,6 +37,10 @@
                             class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded {{ request()->routeIs('account.profile') ? 'bg-primary text-white' : 'text-dark' }}">
                             <i class="fas fa-user-edit fa-fw"></i> Profile & Password
                         </a>
+                        <a href="{{ route('account.affiliate') }}"
+                            class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded {{ request()->routeIs('account.affiliate') ? 'bg-primary text-white' : 'text-dark' }}">
+                            <i class="fas fa-handshake fa-fw"></i> Affiliate
+                        </a>
                         <hr class="my-2">
                         <a href="{{ route('home') }}"
                             class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded text-dark">

@@ -90,8 +90,8 @@
                 <div class="col-md-6 col-lg-3">
                     <div class="card h-100 product-card border-0 shadow-sm">
                         <div class="position-relative">
-                            @if($product->getFirstMediaUrl('images'))
-                                <img src="{{ $product->getFirstMediaUrl('images', 'cover') }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
+                            @if($product->productImageUrl('cover'))
+                                <img src="{{ $product->productImageUrl('cover') }}" class="card-img-top" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
                             @else
                                 @php
                                     $catSlug = strtolower($product->category->name ?? $product->category ?? '');
@@ -129,21 +129,29 @@
 
                             <div class="mt-auto">
                                 <div class="mb-2">
-                                    @php $isIndia = session('user_currency') === 'INR'; @endphp
+                                    @php
+                                        $isIndia = session('user_currency') === 'INR';
+                                        $pricing = $product->getStudentPriceData(auth()->user());
+                                    @endphp
                                     @if($isIndia)
-                                        @if($product->hasDiscount() && $product->inr_sale_price)
-                                            <span class="h6 text-primary">&#8377;{{ number_format($product->inr_sale_price, 0) }}</span>
-                                            <span class="text-muted text-decoration-line-through ms-1">&#8377;{{ number_format($product->inr_price ?: $product->price * 100, 0) }}</span>
+                                        @if($pricing['student_applied'] || ($product->hasDiscount() && $product->inr_sale_price))
+                                            <span class="h6 text-primary">&#8377;{{ number_format($pricing['final_inr'], 0) }}</span>
+                                            <span class="text-muted text-decoration-line-through ms-1">&#8377;{{ number_format($pricing['base_inr'], 0) }}</span>
                                         @else
-                                            <span class="h6 text-primary">&#8377;{{ number_format($product->inr_price ?: $product->price * 100, 0) }}</span>
+                                            <span class="h6 text-primary">&#8377;{{ number_format($pricing['final_inr'], 0) }}</span>
                                         @endif
                                     @else
-                                        @if($product->hasDiscount())
-                                            <span class="h6 text-primary">${{ number_format($product->sale_price, 2) }}</span>
-                                            <span class="text-muted text-decoration-line-through ms-1">${{ number_format($product->price, 2) }}</span>
+                                        @if($pricing['student_applied'] || $product->hasDiscount())
+                                            <span class="h6 text-primary">${{ number_format($pricing['final_usd'], 2) }}</span>
+                                            <span class="text-muted text-decoration-line-through ms-1">${{ number_format($pricing['base_usd'], 2) }}</span>
                                         @else
-                                            <span class="h6 text-primary">${{ number_format($product->price, 2) }}</span>
+                                            <span class="h6 text-primary">${{ number_format($pricing['final_usd'], 2) }}</span>
                                         @endif
+                                    @endif
+                                    @if($pricing['student_available'] && !$pricing['student_applied'])
+                                        <div class="small text-info mt-1">Student pricing available</div>
+                                    @elseif($pricing['student_applied'])
+                                        <div class="small text-success mt-1">Student pricing applied</div>
                                     @endif
                                 </div>
 
@@ -181,8 +189,8 @@
                 <div class="col-md-6 col-lg-3">
                     <div class="card h-100 product-card border-0 shadow-sm">
                         <div class="position-relative">
-                            @if($product->getFirstMediaUrl('images'))
-                                <img src="{{ $product->getFirstMediaUrl('images', 'cover') }}" class="card-img-top" alt="{{ $product->name }}" style="height: 180px; object-fit: cover;">
+                            @if($product->productImageUrl('cover'))
+                                <img src="{{ $product->productImageUrl('cover') }}" class="card-img-top" alt="{{ $product->name }}" style="height: 180px; object-fit: cover;">
                             @else
                                 @php
                                     $catSlugN = strtolower($product->category->name ?? $product->category ?? '');

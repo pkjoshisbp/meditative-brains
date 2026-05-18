@@ -8,6 +8,7 @@ return [
     
     'currency' => 'USD',
     'locale' => 'en_US',
+    'brand_name' => env('PAYPAL_BRAND_NAME', 'Mental Fitness'),
     
     // URLs
     'return_url' => env('APP_URL') . '/payment/paypal/success',

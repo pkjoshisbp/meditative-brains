@@ -24,7 +24,7 @@ use Illuminate\Support\Str;
  * Replaces the Node.js HTTP API with a Ratchet bi-directional WebSocket.
  *
  * ┌─────────────────────────────────────────────────────────────────────────┐
- * │  Authenticate: send {"action":"auth","token":"<sanctum-token>"}        │
+ * │  Authenticate: send {"action":"auth","token":"<token-or-secret>"}       │
  * │  All subsequent messages require a prior successful auth.              │
  * └─────────────────────────────────────────────────────────────────────────┘
  *
@@ -38,12 +38,14 @@ class TtsWebSocketServer implements MessageComponentInterface
     private TtsAudioGeneratorService $tts;
     private AudioSecurityService $security;
 
+    /** The currently registered SMS gateway connection (one at a time). */
+    private ?ConnectionInterface $smsGatewayConn = null;
+
     public function __construct()
     {
         $this->clients  = new \SplObjectStorage();
         $this->tts      = app(TtsAudioGeneratorService::class);
         $this->security = app(AudioSecurityService::class);
-        Log::info('[WS] TtsWebSocketServer started');
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -59,6 +61,10 @@ class TtsWebSocketServer implements MessageComponentInterface
 
     public function onClose(ConnectionInterface $conn): void
     {
+        if ($this->smsGatewayConn === $conn) {
+            $this->smsGatewayConn = null;
+            Log::warning('[WS][SMS] SMS gateway disconnected');
+        }
         $this->clients->detach($conn);
         Log::info("[WS] Connection #{$conn->resourceId} closed");
     }
@@ -89,7 +95,17 @@ class TtsWebSocketServer implements MessageComponentInterface
         $meta = $this->clients[$from];
         if (!$meta['authed']) {
             Log::warning("[WS] #{$from->resourceId} sent '{$action}' without auth");
-            $this->sendError($from, 'Not authenticated. Send {"action":"auth","token":"<sanctum-token>"} first.');
+            if ($action === 'sms.gateway.register') {
+                $this->handleAuth($from, $payload);
+
+                $meta = $this->clients[$from] ?? ['authed' => false, 'role' => null];
+                if (($meta['authed'] ?? false) && ($meta['role'] ?? null) === 'sms_gateway') {
+                    $this->handleSmsGatewayRegister($from);
+                }
+                return;
+            }
+
+            $this->sendError($from, 'Not authenticated. Send {"action":"auth","token":"<token-or-secret>"} first.');
             return;
         }
 
@@ -135,6 +151,10 @@ class TtsWebSocketServer implements MessageComponentInterface
                 // Logs
                 'logs.submit'                  => $this->handleLogsSubmit($from, $payload),
 
+                // SMS gateway
+                'sms.gateway.register'         => $this->handleSmsGatewayRegister($from),
+                'sms.ack'                      => $this->handleSmsAck($from, $payload),
+
                 // ── Mental Fitness TTS catalog (replaces REST /api/tts/…) ──
                 'tts.language.list'            => $this->handleTtsLanguageList($from),
                 'tts.product.listByLanguage'   => $this->handleTtsProductListByLanguage($from, $payload),
@@ -156,21 +176,52 @@ class TtsWebSocketServer implements MessageComponentInterface
 
     private function handleAuth(ConnectionInterface $conn, array $payload): void
     {
-        $token = $payload['token'] ?? null;
-        if (!$token) {
+        $token = trim((string) ($payload['token']
+            ?? $payload['secret']
+            ?? $payload['smsGatewaySecret']
+            ?? $payload['sms_gateway_secret']
+            ?? $payload['apiKey']
+            ?? ''));
+        if (stripos($token, 'Bearer ') === 0) {
+            $token = trim(substr($token, 7));
+        }
+        if ($token === '') {
             $this->sendError($conn, 'token required for auth');
+            return;
+        }
+
+        // Accept the static SMS gateway secret (no user account required)
+        $gatewaySecret = (string) config('services.sms_gateway.secret');
+        if ($gatewaySecret && hash_equals($gatewaySecret, $token)) {
+            $this->clients[$conn] = ['authed' => true, 'user' => null, 'role' => 'sms_gateway'];
+            $this->send($conn, [
+                'event' => 'auth.success',
+                'user'  => ['id' => 0, 'name' => 'SMS Gateway', 'email' => ''],
+            ]);
+            Log::info("[WS] SMS gateway authenticated on conn #{$conn->resourceId}");
+
+            // Legacy Flutter gateway clients may stop after auth and never send a
+            // separate sms.gateway.register action, so register immediately.
+            $this->handleSmsGatewayRegister($conn, false);
             return;
         }
 
         // Validate Sanctum token
         $tokenRecord = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
         if (!$tokenRecord || !$tokenRecord->tokenable) {
-            $this->sendError($conn, 'Invalid or expired token');
+            Log::warning("[WS] Auth failed on #{$conn->resourceId}", [
+                'provided_length' => strlen($token),
+                'used_secret_alias' => array_key_exists('secret', $payload)
+                    || array_key_exists('smsGatewaySecret', $payload)
+                    || array_key_exists('sms_gateway_secret', $payload)
+                    || array_key_exists('apiKey', $payload),
+            ]);
+            $this->sendError($conn, 'Invalid token. Use the SMS Gateway secret or a valid Sanctum token.');
             return;
         }
 
         $user = $tokenRecord->tokenable;
-        $this->clients[$conn] = ['authed' => true, 'user' => $user];
+        $this->clients[$conn] = ['authed' => true, 'user' => $user, 'role' => 'user'];
 
         $this->send($conn, [
             'event' => 'auth.success',
@@ -187,6 +238,70 @@ class TtsWebSocketServer implements MessageComponentInterface
     private function handlePing(ConnectionInterface $conn): void
     {
         $this->send($conn, ['event' => 'pong', 'time' => now()->toISOString()]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    //  SMS Gateway
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * action: sms.gateway.register
+     * Called by the Flutter SMS gateway app after auth.
+     * Marks this connection as the active SMS gateway.
+     */
+    private function handleSmsGatewayRegister(ConnectionInterface $conn, bool $emitEvent = true): void
+    {
+        $this->smsGatewayConn = $conn;
+        Log::info("[WS][SMS] SMS gateway registered on conn #{$conn->resourceId}");
+
+        if ($emitEvent) {
+            $this->send($conn, ['event' => 'sms.gateway.registered']);
+        }
+    }
+
+    /**
+     * action: sms.ack
+     * Received from the Flutter SMS gateway after it attempts delivery.
+     * payload: {"request_id":"...","status":"sent|failed","error":"..."}
+     */
+    private function handleSmsAck(ConnectionInterface $conn, array $payload): void
+    {
+        $requestId = $payload['request_id'] ?? 'unknown';
+        $status    = $payload['status']     ?? 'unknown';
+        $error     = $payload['error']      ?? null;
+        $details   = $payload['details']    ?? null;
+
+        if ($status === 'sent') {
+            Log::info("[WS][SMS] ACK sent — request_id={$requestId}");
+        } else {
+            Log::error("[WS][SMS] ACK failed — request_id={$requestId}", [
+                'error'   => $error   ?? '(no error field)',
+                'details' => $details ?? '(no details)',
+                'raw'     => $payload,
+            ]);
+        }
+    }
+
+    /**
+     * Push an sms.send event to the registered SMS gateway connection.
+     * Called by the internal TCP push channel from AuthController.
+     *
+     * @param  array{event:string,phone:string,message:string,request_id:string}  $payload
+     * @return bool  true if the gateway is connected and the message was sent
+     */
+    public function pushSmsEvent(array $payload): bool
+    {
+        if ($this->smsGatewayConn === null) {
+            Log::error('[WS][SMS] Cannot send SMS — no gateway connected');
+            return false;
+        }
+
+        $this->smsGatewayConn->send(json_encode($payload));
+        Log::info('[WS][SMS] sms.send dispatched', [
+            'phone'      => $payload['phone']      ?? '?',
+            'request_id' => $payload['request_id'] ?? '?',
+        ]);
+        return true;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -506,11 +621,12 @@ class TtsWebSocketServer implements MessageComponentInterface
     private function handleAudiobookUpsert(ConnectionInterface $conn, array $payload): void
     {
         $data = array_intersect_key($payload, array_flip([
-            'book_title', 'book_author', 'language', 'speaker', 'engine',
-            'speaker_style', 'expression_style', 'prosody_rate', 'prosody_pitch', 'prosody_volume',
+            'book_title', 'variant_name', 'book_author', 'language', 'speaker', 'engine',
+            'speaker_style', 'speaker_personality', 'expression_style', 'prosody_rate', 'prosody_pitch', 'prosody_volume',
         ]));
 
-        $book = TtsAudiobook::updateOrCreate(['book_title' => $data['book_title']], $data);
+        $lookup = TtsAudiobook::variantLookup($data);
+        $book = TtsAudiobook::updateOrCreate($lookup, array_merge($data, ['variant_key' => $lookup['variant_key']]));
 
         foreach (($payload['chapters'] ?? []) as $i => $ch) {
             TtsAudiobookChapter::updateOrCreate(
@@ -548,16 +664,17 @@ class TtsWebSocketServer implements MessageComponentInterface
             $result   = $this->tts->generateForMessage(
                 !empty($chapter->ssml_content) ? $chapter->ssml_content : $chapter->plain_content,
                 [
-                    'language'     => $book->language,
-                    'speaker'      => $book->speaker,
-                    'engine'       => $book->engine,
-                    'speakerStyle' => $book->speaker_style,
-                    'ssml'         => $chapter->ssml_content ?: null,
-                    'prosodyRate'  => $book->prosody_rate,
-                    'prosodyPitch' => $book->prosody_pitch,
-                    'prosodyVolume'=> $book->prosody_volume,
-                    'storageType'  => 'audiobook',
-                    'category'     => $bookSlug,
+                    'language'           => $book->language,
+                    'speaker'            => $book->speaker,
+                    'engine'             => $book->engine,
+                    'speakerStyle'       => $book->speaker_style,
+                    'speakerPersonality' => $book->speaker_personality,
+                    'ssml'               => $chapter->ssml_content ?: null,
+                    'prosodyRate'        => $book->prosody_rate,
+                    'prosodyPitch'       => $book->prosody_pitch,
+                    'prosodyVolume'      => $book->prosody_volume,
+                    'storageType'        => 'audiobook',
+                    'category'           => $bookSlug,
                 ]
             );
 
@@ -741,14 +858,53 @@ class TtsWebSocketServer implements MessageComponentInterface
             ];
         }
 
-        $this->send($conn, [
+        $accessDenied = !$preview && $products->isNotEmpty() && empty($items);
+        $latestSubscription = $accessDenied
+            ? $user->subscriptions()->orderByDesc('ends_at')->first()
+            : null;
+        $latestSubscriptionEndsAt = $latestSubscription && $latestSubscription->ends_at
+            ? strtotime((string) $latestSubscription->ends_at)
+            : null;
+        $subscriptionExpired = $accessDenied &&
+            !$user->hasActiveSubscription() &&
+            $latestSubscriptionEndsAt !== null &&
+            $latestSubscriptionEndsAt !== false &&
+            $latestSubscriptionEndsAt <= time();
+        $message = null;
+        $statusCode = null;
+
+        if ($accessDenied) {
+            $message = $subscriptionExpired
+                ? 'Your subscription has expired. Please renew to access tracks.'
+                : 'A subscription or purchase is required to access these tracks.';
+            $statusCode = $subscriptionExpired ? 402 : 403;
+
+            Log::info('[WS] tts.product.listByLanguage access denied', [
+                'user_id' => $user->id,
+                'language' => $language,
+                'subscription_expired' => $subscriptionExpired,
+                'status_code' => $statusCode,
+                'active_product_count' => $products->count(),
+            ]);
+        }
+
+        $response = [
             'event'        => 'tts.product.listByLanguage',
-            'success'      => true,
+            'success'      => !$accessDenied,
             'language'     => $language,
             'products'     => $items,
             'count'        => count($items),
             'preview_mode' => $preview,
-        ]);
+        ];
+
+        if ($accessDenied) {
+            $response['access_denied'] = true;
+            $response['subscription_expired'] = $subscriptionExpired;
+            $response['status_code'] = $statusCode;
+            $response['message'] = $message;
+        }
+
+        $this->send($conn, $response);
     }
 
     /**
@@ -839,7 +995,7 @@ class TtsWebSocketServer implements MessageComponentInterface
     private function handleTtsBackgroundMusicUpload(ConnectionInterface $conn, array $payload): void
     {
         $user = $this->clients[$conn]['user'];
-        if (!$user || $user->role !== 'admin') {
+        if (!$user || !$user->isAdmin()) {
             $this->sendError($conn, 'Admin access required for background music upload.');
             return;
         }

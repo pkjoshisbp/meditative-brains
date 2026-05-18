@@ -61,7 +61,9 @@ class MusicLibraryController extends Controller
                     'audio_features' => $product->audio_features,
                     'preview_duration' => $product->preview_duration,
                     'preview_url' => $product->preview_file ? url('storage/' . $product->preview_file) : null,
-                    'full_audio_url' => $hasAccess && $product->full_file ? url('storage/' . $product->full_file) : null,
+                    'full_audio_url' => null,
+                    'pdf_download_available' => $hasAccess && (bool) $product->pdf_file_path,
+                    'audio_delivery' => 'app_only',
                     'tags' => explode(',', $product->tags ?? ''),
                     'is_featured' => $product->is_featured,
                     'has_access' => $hasAccess,
@@ -179,8 +181,10 @@ class MusicLibraryController extends Controller
                 'description' => $product->short_description,
                 'audio_type' => $product->audio_type,
                 'audio_features' => $product->audio_features,
-                'full_audio_url' => $product->full_file ? url('storage/' . $product->full_file) : null,
+                'full_audio_url' => null,
                 'preview_url' => $product->preview_file ? url('storage/' . $product->preview_file) : null,
+                'pdf_download_available' => (bool) $product->pdf_file_path,
+                'audio_delivery' => 'app_only',
                 'category' => $product->category->name ?? 'Uncategorized',
                 'tags' => explode(',', $product->tags ?? ''),
                 'downloaded' => false // You can track this separately if needed
@@ -283,9 +287,11 @@ class MusicLibraryController extends Controller
         return response()->json([
             'product_id' => $product->id,
             'product_name' => $product->name,
-            'audio_url' => url('storage/' . $product->full_file),
+            'audio_url' => null,
+            'audio_delivery' => 'app_only',
             'audio_type' => $product->audio_type,
-            'audio_features' => $product->audio_features
+            'audio_features' => $product->audio_features,
+            'message' => 'Direct audio URLs are disabled. Use the app playback flow for purchased audio.',
         ]);
     }
 

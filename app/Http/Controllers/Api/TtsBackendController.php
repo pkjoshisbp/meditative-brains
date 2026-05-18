@@ -743,6 +743,45 @@ class TtsBackendController extends Controller
             ];
         }
 
+        $accessDenied = !$preview && $products->isNotEmpty() && empty($payload);
+        $latestSubscription = $accessDenied
+            ? $user->subscriptions()->orderByDesc('ends_at')->first()
+            : null;
+        $latestSubscriptionEndsAt = $latestSubscription && $latestSubscription->ends_at
+            ? strtotime((string) $latestSubscription->ends_at)
+            : null;
+        $subscriptionExpired = $accessDenied &&
+            !$user->hasActiveSubscription() &&
+            $latestSubscriptionEndsAt !== null &&
+            $latestSubscriptionEndsAt !== false &&
+            $latestSubscriptionEndsAt <= time();
+
+        if ($accessDenied) {
+            $message = $subscriptionExpired
+                ? 'Your subscription has expired. Please renew to access tracks.'
+                : 'A subscription or purchase is required to access these tracks.';
+            $statusCode = $subscriptionExpired ? 402 : 403;
+
+            \Log::info('[HTTP] getProductsByLanguage access denied', [
+                'user_id' => $user->id,
+                'language' => $language,
+                'subscription_expired' => $subscriptionExpired,
+                'status_code' => $statusCode,
+                'active_product_count' => $products->count(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'language' => $language,
+                'products' => [],
+                'count' => 0,
+                'preview_mode' => $preview,
+                'access_denied' => true,
+                'subscription_expired' => $subscriptionExpired,
+                'message' => $message,
+            ], $statusCode);
+        }
+
         return response()->json([
             'success' => true,
             'language' => $language,
@@ -828,20 +867,20 @@ class TtsBackendController extends Controller
             }
         }
 
-        // Load full message texts from tts_motivation_messages (keyed by slug for lookup)
-        $messageTextMap = $this->buildProductMessageTextMap($product);
+        // Load full message texts by index — same strategy as Node.js:
+        // audioPaths[i] was generated from messages[i], so positions match exactly.
+        // No slug parsing or pattern matching needed.
+        $messages = $this->getProductMessages($product);
 
-        // Map to tracks payload — extract message text from audio filename slug
         $tracks = [];
         foreach ($audioUrls as $i => $url) {
-            $urlSlug  = $this->extractSlugFromUrl($url);
-            $fullText = $urlSlug ? $this->findMessageTextForSlug($urlSlug, $messageTextMap) : null;
-            $title    = $this->extractMessageTextFromUrl($url) ?: ($product->name . ' #' . ($i + 1));
+            $title       = $this->extractMessageTextFromUrl($url) ?: ($product->name . ' #' . ($i + 1));
+            $messageText = $this->resolveTrackMessageText($url, $i, $messages, $title);
             $tracks[] = [
                 'index'        => $i,
                 'url'          => $url,
                 'title'        => $title,
-                'message_text' => $fullText ?? $title,
+                'message_text' => $messageText,
             ];
         }
 
@@ -866,6 +905,7 @@ class TtsBackendController extends Controller
                 'background_music_track' => $this->resolveBackgroundMusicPlaybackUrl($product),
                 'background_music_track_name' => $product->background_music_track,
                 'background_music_url' => $this->resolveBackgroundMusicPlaybackUrl($product),
+                'updated_at' => $product->updated_at?->toISOString(),
             ],
             'tracks' => $tracks,
             'access' => [
@@ -949,10 +989,11 @@ class TtsBackendController extends Controller
      */
 
     /**
-     * Build a slug → full message text map for a product by looking up its
-     * corresponding tts_motivation_messages record.
+     * Return the ordered messages array for a product from tts_motivation_messages.
+     * Index i of the returned array corresponds to audioUrls[i] — the same
+     * positional mapping Node.js uses (audioPaths[i] was generated from messages[i]).
      */
-    private function buildProductMessageTextMap(TtsAudioProduct $product): array
+    private function getProductMessages(TtsAudioProduct $product): array
     {
         if (empty($product->backend_category_id)) {
             return [];
@@ -966,7 +1007,7 @@ class TtsBackendController extends Controller
             return [];
         }
 
-        // Prefer a record that matches the product's speaker; fall back to any record
+        // Prefer the record that matches the product's speaker; fall back to any record
         $msgRecord = \DB::table('tts_motivation_messages')
             ->where('source_category_id', $sourceCategory->id)
             ->when($product->backend_speaker, fn($q) => $q->where('speaker', $product->backend_speaker))
@@ -982,108 +1023,92 @@ class TtsBackendController extends Controller
             return [];
         }
 
-        $messages = json_decode($msgRecord->messages, true);
-        if (!is_array($messages)) {
-            return [];
+        $decoded = json_decode($msgRecord->messages, true);
+        return is_array($decoded) ? array_values(array_map('strval', $decoded)) : [];
+    }
+
+    private function resolveTrackMessageText(string $url, int $index, array $messages, string $fallbackTitle): string
+    {
+        $matched = $this->matchMessageTextFromUrl($url, $messages);
+        if ($matched !== null) {
+            return $matched;
         }
 
-        $map = [];
-        foreach ($messages as $msg) {
-            $slug = $this->slugifyMessage((string) $msg);
-            if ($slug !== '') {
-                $map[$slug] = (string) $msg;
+        if (isset($messages[$index]) && trim((string) $messages[$index]) !== '') {
+            return trim((string) $messages[$index]);
+        }
+
+        return $fallbackTitle;
+    }
+
+    private function matchMessageTextFromUrl(string $url, array $messages): ?string
+    {
+        $slugStem = $this->extractMessageSlugFromUrl($url);
+        if ($slugStem === '') {
+            return null;
+        }
+
+        $bestMatch = null;
+        $bestScore = 0;
+
+        foreach ($messages as $message) {
+            $candidate = trim((string) $message);
+            if ($candidate === '') {
+                continue;
+            }
+
+            $candidateSlug = Str::slug($candidate);
+            if ($candidateSlug === '') {
+                continue;
+            }
+
+            if ($candidateSlug === $slugStem) {
+                return $candidate;
+            }
+
+            if (str_starts_with($candidateSlug, $slugStem) || str_starts_with($slugStem, $candidateSlug)) {
+                $score = min(strlen($candidateSlug), strlen($slugStem));
+                if ($score > $bestScore) {
+                    $bestScore = $score;
+                    $bestMatch = $candidate;
+                }
             }
         }
-        return $map;
+
+        return $bestMatch;
     }
 
-    /**
-     * Normalise a message string into a URL-filename-compatible slug so it
-     * can be matched against the slug extracted from an audio file path.
-     */
-    private function slugifyMessage(string $text): string
-    {
-        $text = strtolower($text);
-        // Remove characters that are neither alphanumeric nor whitespace
-        $text = preg_replace('/[^a-z0-9\s]/', '', $text);
-        // Collapse whitespace and trim
-        $text = preg_replace('/\s+/', ' ', trim($text));
-        return str_replace(' ', '-', $text);
-    }
-
-    /**
-     * Extract only the filename slug (no hash, no extension) from an audio URL.
-     * Returns an empty string when the URL cannot be parsed.
-     */
-    private function extractSlugFromUrl(string $url): string
+    private function extractMessageSlugFromUrl(string $url): string
     {
         $parsed = parse_url($url);
         $filePath = '';
+
         if (!empty($parsed['query'])) {
             parse_str($parsed['query'], $q);
             if (!empty($q['path'])) {
                 $filePath = base64_decode($q['path'], true) ?: '';
             }
         }
-        if (empty($filePath)) {
+
+        if ($filePath === '') {
             $filePath = $parsed['path'] ?? '';
         }
 
         $basename = pathinfo($filePath, PATHINFO_FILENAME);
-        if (empty($basename)) {
+        if ($basename === '') {
             return '';
         }
 
-        // Strip trailing MD5 hash (32 hex chars preceded by a hyphen)
-        $slug = preg_replace('/-[0-9a-f]{32}$/i', '', $basename);
-        return strtolower($slug);
-    }
-
-    /**
-     * Find the full message text for a given URL slug by checking the message
-     * map. Handles the case where filenames were truncated at generation time
-     * (the message slug will be longer than the URL slug).
-     */
-    private function findMessageTextForSlug(string $urlSlug, array $messageMap): ?string
-    {
-        if (isset($messageMap[$urlSlug])) {
-            return $messageMap[$urlSlug];
-        }
-
-        // The file slug may be a truncated prefix of the full message slug
-        foreach ($messageMap as $msgSlug => $text) {
-            if (str_starts_with($msgSlug, $urlSlug)) {
-                return $text;
-            }
-        }
-
-        return null;
+        return (string) preg_replace('/-[0-9a-f]{32}$/i', '', $basename);
     }
 
     private function extractMessageTextFromUrl(string $url): string
     {
-        // Try to get the file path – signed URLs encode it in ?path=<base64>
-        $parsed = parse_url($url);
-        $filePath = '';
-        if (!empty($parsed['query'])) {
-            parse_str($parsed['query'], $q);
-            if (!empty($q['path'])) {
-                $filePath = base64_decode($q['path'], true) ?: '';
-            }
-        }
-        if (empty($filePath)) {
-            $filePath = $parsed['path'] ?? '';
-        }
+        $text = $this->extractMessageSlugFromUrl($url);
 
-        // Get just the filename without directory
-        $basename = pathinfo($filePath, PATHINFO_FILENAME);
-
-        if (empty($basename)) {
+        if (empty($text)) {
             return '';
         }
-
-        // Strip trailing MD5 hash (32 hex chars) preceded by a hyphen
-        $text = preg_replace('/-[0-9a-f]{32}$/i', '', $basename);
 
         if (empty($text)) {
             return '';

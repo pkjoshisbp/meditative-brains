@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
@@ -25,7 +26,22 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/my-account';
+
+    /**
+     * Determine the post-login redirect path for the authenticated user.
+     */
+    protected function redirectTo(): string
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if ($user && $user->isAdmin()) {
+            return route('admin.dashboard');
+        }
+
+        return route('account.dashboard');
+    }
 
     /**
      * Create a new controller instance.

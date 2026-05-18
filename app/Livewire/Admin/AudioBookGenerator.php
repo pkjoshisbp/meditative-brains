@@ -3,8 +3,10 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use App\Models\TtsAudiobook;
 use App\Models\TtsAudiobookChapter;
 use App\Services\TtsAudioGeneratorService;
@@ -12,9 +14,13 @@ use App\Services\AudioSecurityService;
 
 class AudioBookGenerator extends Component
 {
+    use WithFileUploads;
+
     // Book metadata
     public string $bookTitle  = 'Practicing Happiness';
     public string $bookAuthor = 'Pawan Joshi';
+    public string $variantName = '';
+    public string $publicSpeakerName = '';
 
     /**
      * All chapters. Each item:
@@ -51,7 +57,11 @@ class AudioBookGenerator extends Component
     // ── Runtime state ────────────────────────────────────────────────
     public ?int   $generatingChapterId = null;
     public string $importStatus        = '';   // "success:msg" or "error:msg"
+    public string $chapterSaveStatus   = '';   // "success:ID" or "error:msg"
     public ?int   $savedBookId         = null; // MySQL id of the saved book
+    public ?string $loadedVariantSignature = null;
+    public        $recordedAudio       = null; // Temporary uploaded voice recording
+    public        $previewAudioUpload  = null;
 
     // ── Voice data ───────────────────────────────────────────────────
     public array $languages               = [];
@@ -61,6 +71,12 @@ class AudioBookGenerator extends Component
     public array $availableExpressionStyles = [];
     public array $availablePersonalities  = [];
     public array $savedBooks              = []; // list for load dropdown
+    public string $previewChapterNumber   = '';
+    public string $customPreviewAudioPath = '';
+    public string $customPreviewAudioUrl  = '';
+    public string $resolvedPreviewUrl     = '';
+    public string $resolvedPreviewLabel   = '';
+    public string $previewStatus          = '';
 
     // ─────────────────────────────────────────────────────────────────
     // Lifecycle
@@ -80,13 +96,43 @@ class AudioBookGenerator extends Component
             'error'         => null,
         ]];
         $this->activeChapterId = 1;
+        $this->syncResolvedPreview();
     }
 
     private function loadSavedBooksList(): void
     {
-        $this->savedBooks = TtsAudiobook::select('id', 'book_title', 'book_author')
+        $this->savedBooks = TtsAudiobook::select(
+                'id',
+                'book_title',
+            'variant_name',
+                'book_author',
+                'language',
+                'speaker',
+                'public_speaker_name',
+                'engine',
+                'speaker_style',
+                'speaker_personality',
+                'expression_style',
+                'preview_chapter_number',
+                'preview_audio_path',
+                'preview_audio_url'
+            )
             ->orderByDesc('updated_at')
             ->get()
+            ->groupBy('book_title')
+            ->map(function ($books, $title) {
+                return [
+                    'book_title' => $title,
+                    'variants' => $books->map(fn (TtsAudiobook $book) => [
+                        'id' => $book->id,
+                        'book_title' => $book->book_title,
+                        'book_author' => $book->book_author,
+                        'label' => $book->variantAdminLabel(),
+                        'summary' => $book->variantSummary(),
+                    ])->values()->toArray(),
+                ];
+            })
+            ->values()
             ->toArray();
     }
 
@@ -175,14 +221,20 @@ class AudioBookGenerator extends Component
         }
     }
 
+    public function updatedPreviewChapterNumber(): void
+    {
+        $this->syncResolvedPreview();
+    }
+
     // ─────────────────────────────────────────────────────────────────
     // Chapter management
     // ─────────────────────────────────────────────────────────────────
 
     public function setActiveChapter(int $id): void
     {
-        $this->activeChapterId = $id;
-        $this->activeTab       = 'ssml';
+        $this->activeChapterId  = $id;
+        $this->activeTab        = 'ssml';
+        $this->chapterSaveStatus = '';
     }
 
     public function setActiveTab(string $tab): void
@@ -204,6 +256,7 @@ class AudioBookGenerator extends Component
             'error'         => null,
         ];
         $this->activeChapterId = $maxId + 1;
+        $this->syncResolvedPreview();
     }
 
     public function removeChapter(int $id): void
@@ -216,6 +269,7 @@ class AudioBookGenerator extends Component
         if ($this->activeChapterId === $id) {
             $this->activeChapterId = $this->chapters[0]['id'] ?? null;
         }
+        $this->syncResolvedPreview();
     }
 
     public function moveUp(int $id): void
@@ -224,6 +278,7 @@ class AudioBookGenerator extends Component
         if ($i > 0) {
             [$this->chapters[$i - 1], $this->chapters[$i]] =
                 [$this->chapters[$i], $this->chapters[$i - 1]];
+            $this->syncResolvedPreview();
         }
     }
 
@@ -233,6 +288,7 @@ class AudioBookGenerator extends Component
         if ($i !== false && $i < count($this->chapters) - 1) {
             [$this->chapters[$i + 1], $this->chapters[$i]] =
                 [$this->chapters[$i], $this->chapters[$i + 1]];
+            $this->syncResolvedPreview();
         }
     }
 
@@ -367,6 +423,8 @@ class AudioBookGenerator extends Component
                         'status'     => 'done',
                     ]);
             }
+
+                    $this->syncResolvedPreview();
         } catch (\Exception $e) {
             $this->chapters[$index]['status'] = 'error';
             $this->chapters[$index]['error']  = $e->getMessage();
@@ -406,6 +464,78 @@ class AudioBookGenerator extends Component
             $this->chapters[$index]['status']    = 'pending';
             $this->chapters[$index]['audio_url'] = null;
             $this->chapters[$index]['error']     = null;
+                $this->syncResolvedPreview();
+        }
+    }
+
+    /**
+     * Save just the chapter's content (title, plain_content, ssml_content) to MySQL
+     * WITHOUT generating audio. Audio path/url/status are left untouched.
+     */
+    public function saveChapterContent(int $id): void
+    {
+        $index = collect($this->chapters)->search(fn($c) => $c['id'] === $id);
+        if ($index === false) return;
+
+        if (empty(trim($this->bookTitle))) {
+            $this->chapterSaveStatus = 'error:Book title is required before saving.';
+            return;
+        }
+
+        try {
+            $variantLookup = TtsAudiobook::variantLookup([
+                'book_title' => $this->bookTitle,
+                'engine' => $this->engine,
+                'language' => $this->language,
+                'speaker' => $this->speaker,
+                'speaker_style' => $this->speakerStyle,
+                'speaker_personality' => $this->speakerPersonality,
+                'expression_style' => $this->expressionStyle,
+            ]);
+
+            // Ensure the parent book record exists in MySQL
+            $book = TtsAudiobook::updateOrCreate(
+                $variantLookup,
+                [
+                    'variant_key'         => $variantLookup['variant_key'],
+                    'variant_name'        => trim($this->variantName) ?: null,
+                    'book_author'         => $this->bookAuthor,
+                    'language'            => $this->language,
+                    'speaker'             => $this->speaker,
+                    'public_speaker_name' => trim($this->publicSpeakerName) ?: null,
+                    'engine'              => $this->engine,
+                    'speaker_style'       => $this->speakerStyle ?: null,
+                    'speaker_personality' => $this->speakerPersonality ?: null,
+                    'expression_style'    => $this->expressionStyle ?: null,
+                    'prosody_rate'        => $this->prosodyRate,
+                    'prosody_pitch'       => $this->prosodyPitch,
+                    'prosody_volume'      => $this->prosodyVolume,
+                    'preview_chapter_number' => $this->previewChapterNumber !== '' ? (int) $this->previewChapterNumber : null,
+                    'preview_audio_path'  => $this->customPreviewAudioPath ?: null,
+                    'preview_audio_url'   => $this->customPreviewAudioUrl ?: null,
+                ]
+            );
+            $this->savedBookId = $book->id;
+            $this->loadedVariantSignature = $this->currentVoiceSignature();
+
+            $ch = $this->chapters[$index];
+
+            // Update ONLY content fields — audio_path, audio_url, and status are NOT touched
+            TtsAudiobookChapter::updateOrCreate(
+                ['audiobook_id' => $book->id, 'chapter_number' => $index + 1],
+                [
+                    'title'         => $ch['title'],
+                    'plain_content' => $ch['plain_content'],
+                    'ssml_content'  => $ch['ssml_content'],
+                ]
+            );
+
+            $this->chapterSaveStatus = 'success:' . $id;
+            $this->loadSavedBooksList();
+            $this->syncResolvedPreview();
+        } catch (\Exception $e) {
+            $this->chapterSaveStatus = 'error:' . $e->getMessage();
+            \Log::error('Chapter content save error', ['chapter_id' => $id, 'error' => $e->getMessage()]);
         }
     }
 
@@ -417,6 +547,71 @@ class AudioBookGenerator extends Component
             $c['error']     = null;
             return $c;
         })->toArray();
+    }
+
+    /**
+     * Accept a browser voice recording (webm/ogg), convert to AAC via FFmpeg,
+     * encrypt it, and store it as the chapter's audio — without any TTS call.
+     */
+    public function saveRecordedAudio(int $id): void
+    {
+        $this->validate([
+            'recordedAudio' => 'required|file|max:102400', // 100 MB max
+        ]);
+
+        $index = collect($this->chapters)->search(fn($c) => $c['id'] === $id);
+        if ($index === false || !$this->recordedAudio) return;
+
+        try {
+            $this->_persistBook();
+
+            $security = app(AudioSecurityService::class);
+            $tts      = app(TtsAudioGeneratorService::class);
+            $bookSlug = Str::slug($this->bookTitle);
+
+            $ch   = $this->chapters[$index];
+            $slug = Str::slug($ch['title'] ?: 'chapter-' . ($index + 1));
+            $hash = substr(md5($ch['title'] . ($index + 1)), 0, 8);
+
+            $relative = $this->language . '/' . $bookSlug . '/voice-recording/' . $slug . '-' . $hash . '-voice.aac';
+            $absolute = storage_path('app/audiobook/' . $relative);
+
+            if (!is_dir(dirname($absolute))) {
+                mkdir(dirname($absolute), 0775, true);
+            }
+
+            // Convert the uploaded audio (webm/ogg) to AAC via FFmpeg
+            $tts->convertAudioToAac($this->recordedAudio->getRealPath(), $absolute);
+
+            // Encrypt and sign
+            $storageKey  = 'audiobook/' . $relative;
+            $signedUrl   = $security->encryptRawAudioAndSign($absolute, $storageKey);
+            $encRelative = 'audio/encrypted/tts-messages/' . preg_replace('/\.[^.]+$/', '', $storageKey) . '.enc';
+
+            // Update Livewire state
+            $this->chapters[$index]['status']    = 'done';
+            $this->chapters[$index]['audio_url'] = $signedUrl;
+            $this->chapters[$index]['error']     = null;
+
+            // Persist to MySQL
+            if ($this->savedBookId) {
+                TtsAudiobookChapter::where('audiobook_id', $this->savedBookId)
+                    ->where('chapter_number', $index + 1)
+                    ->update([
+                        'audio_path' => $encRelative,
+                        'audio_url'  => $signedUrl,
+                        'status'     => 'done',
+                    ]);
+            }
+
+            $this->recordedAudio     = null;
+            $this->chapterSaveStatus = 'success:' . $id;
+            $this->syncResolvedPreview();
+
+        } catch (\Exception $e) {
+            $this->chapters[$index]['error'] = $e->getMessage();
+            \Log::error('Voice recording save error', ['chapter_id' => $id, 'error' => $e->getMessage()]);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────
@@ -439,15 +634,103 @@ class AudioBookGenerator extends Component
         }
     }
 
+    public function savePreviewSelection(): void
+    {
+        if (empty(trim($this->bookTitle))) {
+            $this->previewStatus = 'error:Book title is required before saving preview settings.';
+            return;
+        }
+
+        try {
+            $this->_persistBook();
+            $this->loadSavedBooksList();
+            $this->syncResolvedPreview();
+            $this->previewStatus = 'success:Preview settings saved.';
+        } catch (\Exception $e) {
+            $this->previewStatus = 'error:' . $e->getMessage();
+        }
+    }
+
+    public function saveCustomPreviewAudio(): void
+    {
+        $this->validate([
+            'previewAudioUpload' => 'required|file|max:102400',
+        ]);
+
+        if (empty(trim($this->bookTitle))) {
+            $this->previewStatus = 'error:Book title is required before uploading a custom preview.';
+            return;
+        }
+
+        try {
+            $this->_persistBook();
+
+            $security = app(AudioSecurityService::class);
+            $tts = app(TtsAudioGeneratorService::class);
+            $bookSlug = Str::slug($this->bookTitle);
+            $relative = $this->language . '/' . $bookSlug . '/custom-preview-' . substr(md5($this->bookTitle . microtime(true)), 0, 10) . '.aac';
+            $absolute = storage_path('app/audiobook-preview/' . $relative);
+
+            if (!is_dir(dirname($absolute))) {
+                mkdir(dirname($absolute), 0775, true);
+            }
+
+            $tts->convertAudioToAac($this->previewAudioUpload->getRealPath(), $absolute);
+
+            $storageKey = 'audiobook-preview/' . $relative;
+            $signedUrl = $security->encryptRawAudioAndSign($absolute, $storageKey);
+            $encRelative = 'audio/encrypted/tts-messages/' . preg_replace('/\.[^.]+$/', '', $storageKey) . '.enc';
+
+            if ($this->customPreviewAudioPath) {
+                Storage::disk('local')->delete($this->customPreviewAudioPath);
+            }
+
+            $this->customPreviewAudioPath = $encRelative;
+            $this->customPreviewAudioUrl = $signedUrl;
+            $this->previewAudioUpload = null;
+
+            $this->_persistBook();
+            $this->loadSavedBooksList();
+            $this->syncResolvedPreview();
+            $this->previewStatus = 'success:Custom preview audio saved.';
+        } catch (\Exception $e) {
+            $this->previewStatus = 'error:' . $e->getMessage();
+        }
+    }
+
+    public function clearCustomPreviewAudio(): void
+    {
+        if ($this->customPreviewAudioPath) {
+            Storage::disk('local')->delete($this->customPreviewAudioPath);
+        }
+
+        $this->customPreviewAudioPath = '';
+        $this->customPreviewAudioUrl = '';
+        $this->savePreviewSelection();
+    }
+
     /** Upsert the book + chapters into MySQL. Sets $this->savedBookId. */
     private function _persistBook(): void
     {
+        $variantLookup = TtsAudiobook::variantLookup([
+            'book_title' => $this->bookTitle,
+            'engine' => $this->engine,
+            'language' => $this->language,
+            'speaker' => $this->speaker,
+            'speaker_style' => $this->speakerStyle,
+            'speaker_personality' => $this->speakerPersonality,
+            'expression_style' => $this->expressionStyle,
+        ]);
+
         $book = TtsAudiobook::updateOrCreate(
-            ['book_title' => $this->bookTitle],
+            $variantLookup,
             [
+                'variant_key'         => $variantLookup['variant_key'],
+                'variant_name'        => trim($this->variantName) ?: null,
                 'book_author'         => $this->bookAuthor,
                 'language'            => $this->language,
                 'speaker'             => $this->speaker,
+                'public_speaker_name' => trim($this->publicSpeakerName) ?: null,
                 'engine'              => $this->engine,
                 'speaker_style'       => $this->speakerStyle ?: null,
                 'speaker_personality' => $this->speakerPersonality ?: null,
@@ -455,9 +738,13 @@ class AudioBookGenerator extends Component
                 'prosody_rate'        => $this->prosodyRate,
                 'prosody_pitch'       => $this->prosodyPitch,
                 'prosody_volume'      => $this->prosodyVolume,
+                'preview_chapter_number' => $this->previewChapterNumber !== '' ? (int) $this->previewChapterNumber : null,
+                'preview_audio_path'  => $this->customPreviewAudioPath ?: null,
+                'preview_audio_url'   => $this->customPreviewAudioUrl ?: null,
             ]
         );
         $this->savedBookId = $book->id;
+        $this->loadedVariantSignature = $this->currentVoiceSignature();
 
         foreach ($this->chapters as $i => $ch) {
             TtsAudiobookChapter::updateOrCreate(
@@ -484,10 +771,13 @@ class AudioBookGenerator extends Component
             }
 
             $this->savedBookId     = $book->id;
+            $this->loadedVariantSignature = $this->voiceSignatureFor($book->engine, $book->language, $book->speaker);
             $this->bookTitle       = $book->book_title;
             $this->bookAuthor      = $book->book_author;
+            $this->variantName     = $book->variant_name ?? '';
             $this->language        = $book->language;
             $this->speaker         = $book->speaker;
+            $this->publicSpeakerName = $book->public_speaker_name ?? '';
             $this->engine          = $book->engine;
             $this->speakerStyle       = $book->speaker_style       ?? '';
             $this->speakerPersonality = $book->speaker_personality ?? '';
@@ -495,6 +785,9 @@ class AudioBookGenerator extends Component
             $this->prosodyRate        = $book->prosody_rate;
             $this->prosodyPitch       = $book->prosody_pitch;
             $this->prosodyVolume      = $book->prosody_volume;
+            $this->previewChapterNumber = $book->preview_chapter_number ? (string) $book->preview_chapter_number : '';
+            $this->customPreviewAudioPath = $book->preview_audio_path ?? '';
+            $this->customPreviewAudioUrl = $book->preview_audio_url ?? '';
 
             $this->chapters = $book->chapters
                 ->values()
@@ -511,8 +804,10 @@ class AudioBookGenerator extends Component
 
             $this->activeChapterId = $this->chapters[0]['id'] ?? null;
             $this->refreshSpeakers();
+            $this->syncResolvedPreview();
             $count = count($this->chapters);
-            $this->importStatus = "success:Loaded \"{$this->bookTitle}\" with {$count} chapters.";
+            $loadedVariantLabel = $book->variantLabel();
+            $this->importStatus = "success:Loaded \"{$this->bookTitle}\" ({$loadedVariantLabel}) with {$count} chapters.";
         } catch (\Exception $e) {
             $this->importStatus = 'error:Load error: ' . $e->getMessage();
         }
@@ -527,14 +822,77 @@ class AudioBookGenerator extends Component
         $activeIndex = collect($this->chapters)
             ->search(fn($c) => $c['id'] === $this->activeChapterId);
 
-        $doneCount      = collect($this->chapters)->where('status', 'done')->count();
-        $pendingCount   = collect($this->chapters)->whereIn('status', ['pending', 'error'])->count();
+        $isCurrentAudioVariant = $this->isCurrentAudioVariantLoaded();
+        $doneCount      = $isCurrentAudioVariant ? collect($this->chapters)->where('status', 'done')->count() : 0;
+        $pendingCount   = $isCurrentAudioVariant
+            ? collect($this->chapters)->whereIn('status', ['pending', 'error'])->count()
+            : count($this->chapters);
         $totalCount     = count($this->chapters);
 
         return view('livewire.admin.audio-book-generator', compact(
-            'activeIndex', 'doneCount', 'pendingCount', 'totalCount'
+            'activeIndex', 'doneCount', 'pendingCount', 'totalCount', 'isCurrentAudioVariant'
         ))->layout('components.layouts.admin', [
             'title' => 'Audiobook Generator',
         ]);
+    }
+
+    private function currentVoiceSignature(): string
+    {
+        return $this->voiceSignatureFor($this->engine, $this->language, $this->speaker);
+    }
+
+    private function voiceSignatureFor(?string $engine, ?string $language, ?string $speaker): string
+    {
+        return implode('|', [
+            strtolower(trim((string) ($engine ?? ''))),
+            strtolower(trim((string) ($language ?? ''))),
+            strtolower(trim((string) ($speaker ?? ''))),
+        ]);
+    }
+
+    private function isCurrentAudioVariantLoaded(): bool
+    {
+        return !empty($this->loadedVariantSignature)
+            && $this->loadedVariantSignature === $this->currentVoiceSignature();
+    }
+
+    private function syncResolvedPreview(): void
+    {
+        $this->resolvedPreviewUrl = '';
+        $this->resolvedPreviewLabel = '';
+
+        if ($this->customPreviewAudioPath && Storage::disk('local')->exists($this->customPreviewAudioPath)) {
+            $this->resolvedPreviewUrl = app(AudioSecurityService::class)
+                ->generateSignedUrl($this->customPreviewAudioPath, null, 60 * 24 * 30);
+            $this->resolvedPreviewLabel = 'Custom uploaded preview';
+            return;
+        }
+
+        if ($this->customPreviewAudioUrl) {
+            $this->resolvedPreviewUrl = $this->customPreviewAudioUrl;
+            $this->resolvedPreviewLabel = 'Custom uploaded preview';
+            return;
+        }
+
+        if ($this->previewChapterNumber !== '') {
+            $chapterIndex = ((int) $this->previewChapterNumber) - 1;
+            $chapter = $this->chapters[$chapterIndex] ?? null;
+            if ($chapter && !empty($chapter['audio_url'])) {
+                $this->resolvedPreviewUrl = $chapter['audio_url'];
+                $this->resolvedPreviewLabel = 'Chapter preview: ' . ($chapter['title'] ?: 'Chapter ' . $this->previewChapterNumber);
+                return;
+            }
+
+            $this->resolvedPreviewLabel = 'Selected preview chapter has no generated audio yet.';
+            return;
+        }
+
+        foreach ($this->chapters as $chapter) {
+            if (($chapter['status'] ?? '') === 'done' && !empty($chapter['audio_url'])) {
+                $this->resolvedPreviewUrl = $chapter['audio_url'];
+                $this->resolvedPreviewLabel = 'Fallback preview: ' . ($chapter['title'] ?: 'Generated chapter');
+                return;
+            }
+        }
     }
 }

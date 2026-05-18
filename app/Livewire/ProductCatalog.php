@@ -150,9 +150,9 @@ class ProductCatalog extends Component
             'categories' => $categories,
             'audioFeatureOptions' => $audioFeatureOptions,
         ])->layout('layouts.app-frontend', [
-            'title' => 'Premium Music Catalog - Meditative Brains',
-            'description' => 'Browse our collection of TTS affirmations, sleep aid music, meditation tracks, binaural beats, and more.',
-            'keywords' => 'music catalog, TTS affirmations, sleep music, meditation, binaural beats, wellness audio'
+            'title' => 'Premium Audio Catalog - Mental Fitness',
+            'description' => 'Browse our collection of wellness audio, audiobooks, meditation tracks, binaural beats, and more.',
+            'keywords' => 'audio catalog, audiobooks, sleep music, meditation, binaural beats, wellness audio'
         ]);
     }
 }

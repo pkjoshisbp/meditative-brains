@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AudioStreamController;
 use App\Http\Controllers\ProductPreviewController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Auth\OtpLoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +22,7 @@ use App\Http\Controllers\AccountController;
 // Frontend Routes
 Route::get('/', App\Livewire\Homepage::class)->name('home');
 Route::get('/products', App\Livewire\ProductCatalog::class)->name('products');
+Route::get('/products/{slug}', App\Livewire\ProductDetail::class)->name('products.show');
 Route::get('/simple-test', function () {
     return view('test-page');
 })->name('simple-test');
@@ -35,7 +38,7 @@ Route::get('/mind-audio', App\Livewire\AudioExperienceCatalog::class)->name('aud
 Route::get('/mind-audio/{slug}', App\Livewire\AudioExperienceDetail::class)->name('audio.detail');
 
 // Background music secure issue endpoint (admin only for now)
-Route::middleware(['auth'])->get('/bg-music/issue', [App\Http\Controllers\BgMusicStreamController::class, 'issue'])
+Route::middleware(['auth', 'role:admin'])->get('/bg-music/issue', [App\Http\Controllers\BgMusicStreamController::class, 'issue'])
     ->name('bg-music.issue');
 
 // Product preview URLs
@@ -43,7 +46,7 @@ Route::post('/audio/preview-url', [ProductPreviewController::class, 'getPreviewU
     ->name('audio.preview-url');
 
 // Admin Routes (protected by auth middleware)
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
@@ -67,6 +70,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Audiobook Generator
     Route::get('/tts/audiobook', App\Livewire\Admin\AudioBookGenerator::class)->name('tts.audiobook');
 
+    // XTTS Voice Training (vast.ai)
+    Route::get('/tts/voice-training', App\Livewire\Admin\VoiceTrainingManager::class)->name('tts.voice-training');
+
     // Attention Guide Manager
     Route::get('/tts/attention-guides', App\Livewire\Admin\AttentionGuideManager::class)->name('tts.attention-guides');
 
@@ -78,12 +84,22 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Store Management
     Route::get('/orders', App\Livewire\Admin\OrderManager::class)->name('orders');
     Route::get('/customers', App\Livewire\Admin\CustomerManager::class)->name('customers');
+    Route::get('/affiliates', App\Livewire\Admin\AffiliateManager::class)->name('affiliates');
 
     // Subscription Management
     Route::get('/subscriptions', App\Livewire\Admin\SubscriptionManager::class)->name('subscriptions');
     Route::get('/subscriptions/plans', App\Livewire\Admin\SubscriptionPlanManager::class)->name('subscriptions.plans');
+    Route::get('/subscriptions/promo-codes', App\Livewire\Admin\PromoCodeManager::class)->name('subscriptions.promo-codes');
+    Route::get('/students', App\Livewire\Admin\StudentVerificationManager::class)->name('students');
 
     // Payment Settings
+    Route::get('/settings/sms-gateway', function () {
+        return view('admin.settings.sms-gateway', [
+            'smsGatewaySecret' => config('services.sms_gateway.secret'),
+            'smsGatewayWsUrl' => config('services.sms_gateway.ws_url'),
+        ]);
+    })->name('settings.sms-gateway');
+
     Route::get('/settings/payments', function () {
         return view('admin.settings.payments');
     })->name('settings.payments');
@@ -131,6 +147,20 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 });
 
 // Authentication routes
+Route::middleware('guest')->group(function () {
+    Route::post('/login/otp/request', [OtpLoginController::class, 'requestOtp'])
+        ->middleware('throttle:6,1')
+        ->name('login.otp.request');
+    Route::get('/login/otp/challenge', [OtpLoginController::class, 'showChallenge'])
+        ->name('login.otp.challenge');
+    Route::post('/login/otp/verify', [OtpLoginController::class, 'verifyOtp'])
+        ->middleware('throttle:6,1')
+        ->name('login.otp.verify');
+    Route::post('/login/otp/resend', [OtpLoginController::class, 'resendOtp'])
+        ->middleware('throttle:3,1')
+        ->name('login.otp.resend');
+});
+
 Auth::routes();
 
 // Customer Account Panel
@@ -139,7 +169,10 @@ Route::middleware(['auth'])->prefix('my-account')->name('account.')->group(funct
     Route::get('/library',    [AccountController::class, 'library'])->name('library');
     Route::get('/orders',     [AccountController::class, 'orders'])->name('orders');
     Route::get('/profile',    [AccountController::class, 'profile'])->name('profile');
+    Route::get('/affiliate',  [AccountController::class, 'affiliate'])->name('affiliate');
     Route::post('/profile',   [AccountController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/student-verification', [AccountController::class, 'submitStudentVerification'])->name('profile.student-verification');
+    Route::post('/affiliate', [AccountController::class, 'applyAffiliate'])->name('affiliate.apply');
     Route::post('/password',  [AccountController::class, 'updatePassword'])->name('password.update');
 });
 
@@ -186,7 +219,15 @@ Route::post('/contact', function (\Illuminate\Http\Request $request) {
     );
     return redirect()->route('contact')->with('contact_success', true);
 })->name('contact.send');
-Route::get('/subscription', function () { return view('pages.subscription'); })->name('subscription');
+Route::get('/subscription', [SubscriptionController::class, 'index'])->name('subscription');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/subscription/checkout', [SubscriptionController::class, 'showCheckout'])->name('subscription.checkout.show');
+    Route::post('/subscription/checkout', [SubscriptionController::class, 'checkout'])->name('subscription.checkout');
+    Route::post('/subscription/checkout/razorpay/create-order', [SubscriptionController::class, 'createRazorpayOrder'])->name('subscription.checkout.razorpay.create');
+    Route::post('/subscription/checkout/razorpay/verify', [SubscriptionController::class, 'verifyRazorpayPayment'])->name('subscription.checkout.razorpay.verify');
+    Route::get('/subscription/checkout/success', [SubscriptionController::class, 'success'])->name('subscription.success');
+    Route::get('/subscription/checkout/cancel', [SubscriptionController::class, 'cancel'])->name('subscription.cancel');
+});
 
 // About & Blog
 Route::get('/about', function () { return view('pages.about'); })->name('about');
@@ -207,9 +248,13 @@ Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name
 Route::post('/cart/add', [App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/remove', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
+Route::middleware(['auth'])->group(function () {
+    Route::post('/cart/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('cart.checkout');
+    Route::post('/cart/checkout/razorpay/create-order', [App\Http\Controllers\CartController::class, 'createRazorpayOrder'])->name('cart.checkout.razorpay.create');
+    Route::post('/cart/checkout/razorpay/verify', [App\Http\Controllers\CartController::class, 'verifyRazorpayPayment'])->name('cart.checkout.razorpay.verify');
+    Route::get('/cart/checkout/success', [App\Http\Controllers\CartController::class, 'checkoutSuccess'])->name('cart.checkout.success');
+    Route::get('/cart/checkout/cancel', [App\Http\Controllers\CartController::class, 'checkoutCancel'])->name('cart.checkout.cancel');
+});
 
 // Sitemap
-Route::get('/sitemap.xml', function () {
-    $content = view('sitemap')->render();
-    return response($content, 200)->header('Content-Type', 'application/xml');
-})->name('sitemap');
+Route::get('/sitemap.xml', App\Http\Controllers\SitemapController::class)->name('sitemap');

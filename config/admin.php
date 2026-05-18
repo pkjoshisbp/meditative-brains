@@ -25,6 +25,11 @@ return [
         'auto_layout' => true,
     ],
 
+    'emails' => array_values(array_filter(array_map(
+        static fn ($email) => trim(strtolower($email)),
+        explode(',', env('ADMIN_EMAILS', 'admin@mentalfitness.store,admin@meditative-brains.com'))
+    ))),
+
     'sidebar' => [
         // Admin sidebar menu items
         'menu' => [

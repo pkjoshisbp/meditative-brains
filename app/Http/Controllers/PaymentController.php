@@ -6,6 +6,8 @@ use App\Helpers\CurrencyHelper;
 use App\Models\TtsAudioProduct;
 use App\Models\ProductVersion;
 use App\Models\TtsProductPurchase;
+use App\Services\AffiliateService;
+use App\Services\StudentPricingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +15,10 @@ use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
+    public function __construct(private StudentPricingService $studentPricing, private AffiliateService $affiliateService)
+    {
+    }
+
     // ─────────────────────────────────────────────
     //  Razorpay – create order (India)
     // ─────────────────────────────────────────────
@@ -29,6 +35,7 @@ class PaymentController extends Controller
         $productType = $request->product_type ?? $product->product_type ?? 'audio';
 
         $amountInr = $this->resolveInrAmount($product, $productType, $request->version_id);
+        $affiliateData = $this->affiliateService->attributionData($amountInr, Auth::user());
 
         try {
             $api = new \Razorpay\Api\Api(
@@ -46,6 +53,12 @@ class PaymentController extends Controller
                     'version_id'   => $request->version_id,
                     'product_type' => $productType,
                     'user_id'      => Auth::id(),
+                    'affiliate_profile_id' => $affiliateData['affiliate_profile_id'] ?? null,
+                    'affiliate_click_id' => $affiliateData['affiliate_click_id'] ?? null,
+                    'affiliate_referral_code' => $affiliateData['affiliate_referral_code'] ?? null,
+                    'affiliate_commission_rate' => $affiliateData['affiliate_commission_rate'] ?? null,
+                    'affiliate_commission_amount' => $affiliateData['affiliate_commission_amount'] ?? null,
+                    'final_amount' => $amountInr,
                 ],
             ]);
 
@@ -109,6 +122,7 @@ class PaymentController extends Controller
         $product     = TtsAudioProduct::findOrFail($request->product_id);
         $productType = $request->product_type ?? $product->product_type ?? 'audio';
         $amountUsd   = $this->resolveUsdAmount($product, $productType, $request->version_id);
+        $affiliateData = $this->affiliateService->attributionData($amountUsd, Auth::user());
 
         try {
             $token = $this->getPayPalAccessToken();
@@ -144,6 +158,8 @@ class PaymentController extends Controller
                 'paypal_product_id'   => $product->id,
                 'paypal_version_id'   => $request->version_id,
                 'paypal_product_type' => $productType,
+                'paypal_affiliate_data' => $affiliateData,
+                'paypal_final_amount' => $amountUsd,
             ]);
 
             return response()->json([
@@ -179,8 +195,12 @@ class PaymentController extends Controller
                     session('paypal_version_id'),
                     session('paypal_product_type', 'audio'),
                     'paypal',
-                    $token
+                    $token,
+                    session('paypal_affiliate_data', []),
+                    (float) session('paypal_final_amount', 0),
+                    'USD'
                 );
+                session()->forget(['paypal_affiliate_data', 'paypal_final_amount']);
                 return redirect('/')->with('success', 'Payment successful! Your purchase is now available.');
             }
         } catch (\Throwable $e) {
@@ -218,7 +238,16 @@ class PaymentController extends Controller
                     $notes['version_id'] ?? null,
                     $notes['product_type'] ?? 'audio',
                     'razorpay',
-                    $request->json('payload.payment.entity.id')
+                    $request->json('payload.payment.entity.id'),
+                    [
+                        'affiliate_profile_id' => $notes['affiliate_profile_id'] ?? null,
+                        'affiliate_click_id' => $notes['affiliate_click_id'] ?? null,
+                        'affiliate_referral_code' => $notes['affiliate_referral_code'] ?? null,
+                        'affiliate_commission_rate' => $notes['affiliate_commission_rate'] ?? null,
+                        'affiliate_commission_amount' => $notes['affiliate_commission_amount'] ?? null,
+                    ],
+                    (float) ($notes['final_amount'] ?? 0),
+                    'INR'
                 );
             }
         }
@@ -238,11 +267,8 @@ class PaymentController extends Controller
                 return (float) $v->inr_price;
             }
         }
-        return match ($type) {
-            'ebook_pdf'    => (float) ($product->pdf_price_inr   ?? ($product->pdf_price    * CurrencyHelper::USD_TO_INR)),
-            'ebook_bundle' => (float) ($product->bundle_price_inr ?? ($product->bundle_price * CurrencyHelper::USD_TO_INR)),
-            default        => (float) ($product->inr_sale_price  ?? $product->inr_price ?? ($product->price * CurrencyHelper::USD_TO_INR)),
-        };
+
+        return $this->studentPricing->forTtsProduct($product, $type, Auth::user())['final_inr'];
     }
 
     private function resolveUsdAmount(TtsAudioProduct $product, string $type, ?int $versionId): float
@@ -253,28 +279,48 @@ class PaymentController extends Controller
                 return (float) $v->price;
             }
         }
-        return match ($type) {
-            'ebook_pdf'    => (float) ($product->pdf_price    ?? 4.90),
-            'ebook_bundle' => (float) ($product->bundle_price  ?? 10.00),
-            default        => (float) ($product->sale_price   ?? $product->price),
-        };
+
+        return $this->studentPricing->forTtsProduct($product, $type, Auth::user())['final_usd'];
     }
 
-    private function recordPurchase(int $productId, ?int $versionId, string $productType, string $gateway, string $txnId): void
+    private function recordPurchase(int $productId, ?int $versionId, string $productType, string $gateway, string $txnId, array $affiliateData = [], float $amount = 0, string $currency = 'USD'): void
     {
         if (! Auth::check()) {
             return;
         }
 
-        TtsProductPurchase::firstOrCreate(
+        $purchase = TtsProductPurchase::firstOrCreate(
             ['user_id' => Auth::id(), 'tts_audio_product_id' => $productId, 'version_id' => $versionId],
             [
+                'affiliate_profile_id' => $affiliateData['affiliate_profile_id'] ?? null,
+                'affiliate_click_id' => $affiliateData['affiliate_click_id'] ?? null,
+                'affiliate_referral_code' => $affiliateData['affiliate_referral_code'] ?? null,
+                'affiliate_commission_rate' => $affiliateData['affiliate_commission_rate'] ?? null,
+                'affiliate_commission_amount' => $affiliateData['affiliate_commission_amount'] ?? null,
+                'amount' => $amount > 0 ? $amount : $this->resolveRecordedAmount($productId, $productType, $currency),
+                'currency' => $currency,
                 'status'         => 'completed',
                 'payment_method' => $gateway,
                 'transaction_id' => $txnId,
                 'product_type'   => $productType,
+                'purchased_at' => now(),
             ]
         );
+
+        $this->affiliateService->recordTtsConversion($purchase, $currency);
+    }
+
+    private function resolveRecordedAmount(int $productId, string $productType, string $currency): float
+    {
+        $product = TtsAudioProduct::find($productId);
+
+        if (! $product) {
+            return 0;
+        }
+
+        return strtoupper($currency) === 'INR'
+            ? $this->studentPricing->forTtsProduct($product, $productType, Auth::user())['final_inr']
+            : $this->studentPricing->forTtsProduct($product, $productType, Auth::user())['final_usd'];
     }
 
     private function getPayPalAccessToken(): string

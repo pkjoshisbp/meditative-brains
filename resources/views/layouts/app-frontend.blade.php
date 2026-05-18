@@ -167,7 +167,7 @@
                                 <li><a class="dropdown-item" href="{{ route('account.profile') }}">
                                     <i class="fas fa-user-edit me-2"></i>Profile
                                 </a></li>
-                                @if(Auth::user()->email === 'admin@mentalfitness.store' || Auth::user()->email === 'admin@meditative-brains.com')
+                                @if(Auth::user()->isAdmin())
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">
                                         <i class="fas fa-cog me-2"></i>Admin Panel

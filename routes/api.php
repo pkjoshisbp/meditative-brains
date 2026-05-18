@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Api\DownloadController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TrialAnalyticsController;
+use App\Http\Controllers\Api\AppLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me/subscription-status', [AuthController::class,'subscriptionStatus']);
 });
 
+Route::post('/logs', [AppLogController::class, 'store']);
+
 // Music Library API Routes for Flutter
 Route::prefix('music-library')->group(function () {
     // Public routes (no authentication required)
@@ -48,8 +51,7 @@ Route::prefix('music-library')->group(function () {
     
     // Protected routes (authentication required)
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/my-library', [MusicLibraryController::class, 'myLibrary']);
-        Route::get('/check-access', [MusicLibraryController::class, 'checkAccess']);
+        Route::get('/my-library', [MusicLibraryController::class, 'myLibrary']);        Route::get('/check-access', [MusicLibraryController::class, 'checkAccess']);
         Route::get('/full-audio/{productId}', [MusicLibraryController::class, 'getFullAudio']);
     });
 });
@@ -57,16 +59,14 @@ Route::prefix('music-library')->group(function () {
 // TTS Categories API Routes for Flutter
 Route::prefix('tts')->group(function () {
     // Public routes
-    Route::get('/categories', [MusicLibraryController::class, 'ttsCategories']);
-    Route::get('/voices', [TtsBackendController::class, 'getAvailableVoices']);
+    Route::get('/categories', [MusicLibraryController::class, 'ttsCategories']);    Route::get('/voices', [TtsBackendController::class, 'getAvailableVoices']);
     Route::get('/category-pricing', [TtsBackendController::class, 'getCategoryPricing']);
     
     // Protected routes (authentication required)
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/category/{category}/messages', [TtsBackendController::class, 'getCategoryMessages']);
         Route::post('/generate-audio', [TtsBackendController::class, 'generateAudio']);
-        Route::post('/search', [TtsBackendController::class, 'searchMessages']);
-        Route::get('/user-stats', [TtsBackendController::class, 'getUserStats']);
+        Route::post('/search', [TtsBackendController::class, 'searchMessages']);        Route::get('/user-stats', [TtsBackendController::class, 'getUserStats']);
     // Language + product access filtered endpoints for Flutter
     Route::get('/languages', [TtsBackendController::class, 'getAvailableLanguages']);
     Route::get('/language/{language}/products', [TtsBackendController::class, 'getProductsByLanguage']);

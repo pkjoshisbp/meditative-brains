@@ -257,7 +257,7 @@ return [
     */
 
     'use_route_url' => false,
-    'dashboard_url' => 'home',
+    'dashboard_url' => 'admin/dashboard',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
@@ -358,6 +358,11 @@ return [
             'icon' => 'fas fa-fw fa-book-open',
         ],
         [
+            'text' => 'Voice Training',
+            'url' => 'admin/tts/voice-training',
+            'icon' => 'fas fa-fw fa-microphone-alt',
+        ],
+        [
             'text' => 'BG Music Manager',
             'url' => 'admin/bg-music',
             'icon' => 'fas fa-fw fa-music',
@@ -373,6 +378,11 @@ return [
             'url' => 'admin/customers',
             'icon' => 'fas fa-fw fa-users',
         ],
+        [
+            'text' => 'Affiliates',
+            'url' => 'admin/affiliates',
+            'icon' => 'fas fa-fw fa-handshake',
+        ],
         ['header' => 'SUBSCRIPTIONS'],
         [
             'text'    => 'User Subscriptions',
@@ -384,7 +394,22 @@ return [
             'url'     => 'admin/subscriptions/plans',
             'icon'    => 'fas fa-fw fa-layer-group',
         ],
+        [
+            'text'    => 'Promo Codes',
+            'url'     => 'admin/subscriptions/promo-codes',
+            'icon'    => 'fas fa-fw fa-badge-percent',
+        ],
+        [
+            'text'    => 'Student Verification',
+            'url'     => 'admin/students',
+            'icon'    => 'fas fa-fw fa-user-graduate',
+        ],
         ['header' => 'SETTINGS'],
+        [
+            'text' => 'SMS Gateway',
+            'url'  => 'admin/settings/sms-gateway',
+            'icon' => 'fas fa-fw fa-mobile-alt',
+        ],
         [
             'text' => 'Payment Settings',
             'url'  => 'admin/settings/payments',

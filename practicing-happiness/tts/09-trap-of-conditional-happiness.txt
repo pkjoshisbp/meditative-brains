@@ -4,7 +4,7 @@
 That sentence has a particular power — because it feels rational. [pause:600]
 Of course things will be better when the goal is reached. [pause:500]
 Of course life will feel lighter when the pressure is resolved. [pause:700]
-The problem is structural, not situational. [pause:700]
+The problem is **structural, not situational.** [pause:800]
 And once you see the structure, you cannot unsee it. [pause:800]
 
 [silence:300]
@@ -25,7 +25,7 @@ And the trajectory was clearly continuing toward normalisation. [pause:700]
 
 Both groups had returned, substantially, to their pre-event emotional baseline. [pause:800]
 Not all the way. But much further than common sense predicted. [pause:700]
-The circumstance moved dramatically. The inner baseline reasserted. [pause:800]
+The circumstance moved dramatically. The *inner baseline* reasserted. [pause:900]
 
 This is hedonic adaptation — the nervous system's profound capacity to neutralise change, positive or negative, and return to familiar emotional ground. [pause:900]
 It is not a dysfunction. It is a feature. [pause:600]
@@ -44,7 +44,7 @@ Then adaptation begins. The mind normalises. The baseline reasserts. [pause:600]
 The mind scans and finds the next condition. [pause:500]
 The loop begins again. [pause:700]
 
-The loop has no built-in exit. [pause:600]
+The loop has **no built-in exit.** [pause:700]
 Every circumstance, however spectacular, is subject to the neutralising process of adaptation. [pause:700]
 And beneath the loop, something quieter and more damaging accumulates. [pause:700]
 Every time you generate an "I'll be happy when..." thought, you also generate its inverse: [pause:600]
@@ -61,7 +61,7 @@ The finding, roughly stated: approximately fifty per cent of individual happines
 Approximately ten per cent to circumstances — the things the treadmill is made of. [pause:700]
 Approximately forty per cent to intentional activities: thoughts and behaviours under voluntary control. [pause:800]
 
-That forty per cent is the entire project of this book. [pause:600]
+That **forty per cent** is the entire project of this book. [pause:700]
 The ten per cent — circumstances — explains precisely why the treadmill persistently fails. [pause:700]
 Circumstances matter. They simply matter far less, in a sustained way, than the thoughts and practices that surround them. [pause:800]
 
@@ -69,17 +69,17 @@ Circumstances matter. They simply matter far less, in a sustained way, than the 
 
 Three voices who understood this clearly. [pause:600]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "It is not the man who has too little, but the man who craves more, that is poor."
 [/rate][/personality] [pause:900]
 Seneca — one of the wealthiest men in Rome, who spent his life writing about inner freedom — saw that the treadmill is not built from lacking. It is built from craving. [pause:800]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "If you want to make a man happy, add not to his possessions but take away from his desires."
 [/rate][/personality] [pause:900]
 Epicurus founded a community built on the premise that the subtraction of unnecessary conditions leads more reliably to wellbeing than the addition of new satisfactions. [pause:800]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 "Yesterday I was clever, so I wanted to change the world. Today I am wise, so I am changing myself."
 [/rate][/personality] [pause:900]
 Rumi identified the turning point: the movement from rearranging circumstances to doing the inner work — which is the only work that reaches the actual source of experience. [pause:800]
@@ -89,11 +89,11 @@ Rumi identified the turning point: the movement from rearranging circumstances t
 There is a practical framework for stepping off the treadmill. [pause:600]
 It begins with the recognition that goals and conditions are not the same thing. [pause:700]
 
-A goal is a direction. [pause:500]
+A goal is a **direction.** [pause:600]
 An intention to move toward something while remaining fully present in the journey. [pause:600]
 A goal does not hold your wellbeing hostage. You can feel the full quality of your engagement while pursuing a goal. [pause:700]
 
-A condition is a gate. [pause:500]
+A condition is a **gate.** [pause:600]
 A requirement that must be passed before normal psychological functioning is permitted. [pause:600]
 A condition suspends your wellbeing. And conditions, unlike goals, never fully open — because beyond every gate is the next gate. [pause:800]
 
@@ -111,13 +111,13 @@ Each morning, instead of identifying what you want the day to deliver, identify 
 Engagement. Curiosity. Patience. Warmth. Ease. [pause:600]
 The goal is to show up as the person you want to be — regardless of what circumstances cooperate. [pause:700]
 Start with the state. Then enter the day. [pause:700]
-This is the reversal: state first, then action. Not action first, then state as reward. [pause:800]
+This is the reversal: **state first, then action.** Not action first, then state as reward. [pause:900]
 
 [silence:400]
 
 Your conditioning reminders for this chapter. Receive each one slowly. [pause:600]
 
-You do not wait for conditions to permit your happiness. You bring your happiness to the conditions. [pause:700]
+You do not wait for conditions to permit your happiness. You bring your happiness to the conditions. [pause:800]
 The treadmill holds nothing you need. The keys have always been in your hands. [pause:700]
 You can want better circumstances and be genuinely well in your current ones. These are not contradictions. [pause:700]
 The present moment is where your life is happening. You choose to be here, fully, now. [pause:700]
@@ -132,7 +132,7 @@ You are here now. This is the arrival. You choose to recognise it. [pause:800]
 
 [silence:500]
 
-**The foolish person seeks happiness in the distance. The wise person grows it under their feet.** [pause:700]
+**The foolish person seeks happiness in the distance. The wise person grows it under their feet.** [pause:800]
 The soil is right here. [pause:500]
 The practice is the growing. [pause:500]
 Begin now. [pause:1000]

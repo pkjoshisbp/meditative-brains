@@ -155,19 +155,32 @@ class MigrateMongoToMysql extends Command
 
         $rows = $this->loadJson($file);
         $this->withProgressBar($rows, function ($row) {
+            $attributes = [
+                'book_title' => $row['bookTitle'] ?? $row['book_title'],
+                'language' => $row['language'] ?? 'en-US',
+                'speaker' => $row['speaker'] ?? 'en-US-AriaNeural',
+                'engine' => $row['engine'] ?? 'azure',
+                'speaker_style' => $row['speakerStyle'] ?? null,
+                'speaker_personality' => $row['speakerPersonality'] ?? null,
+                'expression_style' => $row['expressionStyle'] ?? null,
+            ];
+
             $book = TtsAudiobook::firstOrCreate(
                 ['mongo_id' => $this->extractId($row)],
                 [
-                    'book_title'      => $row['bookTitle'] ?? $row['book_title'],
-                    'book_author'     => $row['bookAuthor'] ?? $row['book_author'] ?? null,
-                    'language'        => $row['language'] ?? 'en-US',
-                    'speaker'         => $row['speaker']  ?? 'en-US-AriaNeural',
-                    'engine'          => $row['engine']   ?? 'azure',
-                    'speaker_style'   => $row['speakerStyle'] ?? null,
-                    'expression_style'=> $row['expressionStyle'] ?? null,
-                    'prosody_rate'    => $row['prosodyRate'] ?? 'medium',
-                    'prosody_pitch'   => $row['prosodyPitch'] ?? 'medium',
-                    'prosody_volume'  => $row['prosodyVolume'] ?? 'medium',
+                    'book_title' => $attributes['book_title'],
+                    'variant_key' => TtsAudiobook::variantKeyFromAttributes($attributes),
+                    'variant_name' => $row['variantName'] ?? $row['variant_name'] ?? null,
+                    'book_author' => $row['bookAuthor'] ?? $row['book_author'] ?? null,
+                    'language' => $attributes['language'],
+                    'speaker' => $attributes['speaker'],
+                    'engine' => $attributes['engine'],
+                    'speaker_style' => $attributes['speaker_style'],
+                    'speaker_personality' => $attributes['speaker_personality'],
+                    'expression_style' => $attributes['expression_style'],
+                    'prosody_rate' => $row['prosodyRate'] ?? 'medium',
+                    'prosody_pitch' => $row['prosodyPitch'] ?? 'medium',
+                    'prosody_volume' => $row['prosodyVolume'] ?? 'medium',
                 ]
             );
 

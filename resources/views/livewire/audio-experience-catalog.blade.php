@@ -110,21 +110,29 @@
                                             <h3 class="h6 fw-semibold mb-1">{{ $p->name }}</h3>
                                             <p class="small text-muted flex-grow-1">{!! $this->highlight($p->short_description ?? $p->description) !!}</p>
                                             <div class="mt-2 small fw-medium">
-                                                @php $isIndia = session('user_currency') === 'INR'; @endphp
+                                                @php
+                                                    $isIndia = session('user_currency') === 'INR';
+                                                    $pricing = $p->getStudentPriceData('audio', auth()->user());
+                                                @endphp
                                                 @if($isIndia)
-                                                    @if($p->sale_price && $p->sale_price < $p->price && $p->inr_sale_price)
-                                                        <span class="text-muted text-decoration-line-through me-1">&#8377;{{ number_format($p->inr_price ?: $p->price * 100, 0) }}</span>
-                                                        <span class="text-success fw-semibold">&#8377;{{ number_format($p->inr_sale_price, 0) }}</span>
+                                                    @if($pricing['student_applied'] || ($p->sale_price && $p->sale_price < $p->price && $p->inr_sale_price))
+                                                        <span class="text-muted text-decoration-line-through me-1">&#8377;{{ number_format($pricing['base_inr'], 0) }}</span>
+                                                        <span class="text-success fw-semibold">&#8377;{{ number_format($pricing['final_inr'], 0) }}</span>
                                                     @else
-                                                        <span class="fw-semibold">&#8377;{{ number_format($p->inr_price ?: $p->price * 100, 0) }}</span>
+                                                        <span class="fw-semibold">&#8377;{{ number_format($pricing['final_inr'], 0) }}</span>
                                                     @endif
                                                 @else
-                                                    @if($p->sale_price && $p->sale_price < $p->price)
-                                                        <span class="text-muted text-decoration-line-through me-1">${{ number_format($p->price,2) }}</span>
-                                                        <span class="text-success fw-semibold">${{ number_format($p->sale_price,2) }}</span>
+                                                    @if($pricing['student_applied'] || ($p->sale_price && $p->sale_price < $p->price))
+                                                        <span class="text-muted text-decoration-line-through me-1">${{ number_format($pricing['base_usd'],2) }}</span>
+                                                        <span class="text-success fw-semibold">${{ number_format($pricing['final_usd'],2) }}</span>
                                                     @else
-                                                        <span class="fw-semibold">${{ number_format($p->price,2) }}</span>
+                                                        <span class="fw-semibold">${{ number_format($pricing['final_usd'],2) }}</span>
                                                     @endif
+                                                @endif
+                                                @if($pricing['student_available'] && !$pricing['student_applied'])
+                                                    <div class="text-info small mt-1">Student pricing available</div>
+                                                @elseif($pricing['student_applied'])
+                                                    <div class="text-success small mt-1">Student pricing applied</div>
                                                 @endif
                                             </div>
                                         </div>

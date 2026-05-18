@@ -41,4 +41,14 @@ return [
         'region' => env('AZURE_REGION', 'centralindia'),
     ],
 
+    'vastai_xtts' => [
+        'url'    => env('VASTAI_XTTS_URL', ''),
+        'secret' => env('VASTAI_XTTS_SECRET', ''),
+    ],
+
+    'sms_gateway' => [
+        'secret' => env('SMS_GATEWAY_SECRET', ''),
+        'ws_url' => env('SMS_GATEWAY_WS_URL', 'wss://mentalfitness.store:8091'),
+    ],
+
 ];

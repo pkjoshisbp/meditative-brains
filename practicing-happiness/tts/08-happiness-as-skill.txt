@@ -33,7 +33,7 @@ Richard Davidson's research at the University of Wisconsin compared the brains o
 
 The Dalai Lama has said: [pause:500]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 Happiness is not something ready-made. It comes from your own actions. [pause:1000]
 [/rate][/personality] [pause:900]
 
@@ -43,7 +43,7 @@ This is not a vague encouragement. It is a technically accurate description of h
 
 Carl Jung wrote: [pause:500]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 I am not what happened to me. I am what I choose to become. [pause:1000]
 [/rate][/personality] [pause:900]
 
@@ -53,7 +53,7 @@ What you choose to practice is what you are choosing to become. Not in a moment 
 
 The Buddha put the entire principle in four words: [pause:500]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 The mind is everything. What you think, you become. [pause:1000]
 [/rate][/personality] [pause:900]
 

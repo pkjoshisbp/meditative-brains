@@ -154,41 +154,58 @@
             <div class="card shadow-sm mb-4" id="purchase-card">
                 <div class="card-body">
                     @php
-                        $hasDiscount = $p->sale_price && $p->sale_price < $p->price;
+                        $pricing = $p->getStudentPriceData('audio', auth()->user());
+                        $hasDiscount = $pricing['student_applied'] || ($p->sale_price && $p->sale_price < $p->price);
                     @endphp
                     <div class="mb-3" id="price-display">
                         @if($isIndia)
-                            @if($hasDiscount && $p->inr_sale_price)
-                                <div class="h3 fw-bold text-success mb-0">&#8377;{{ number_format($p->inr_sale_price, 0) }}</div>
-                                <div class="text-muted text-decoration-line-through">&#8377;{{ number_format($p->inr_price ?: $p->price * 100, 0) }}</div>
+                            @if($hasDiscount)
+                                <div class="h3 fw-bold text-success mb-0">&#8377;{{ number_format($pricing['final_inr'], 0) }}</div>
+                                <div class="text-muted text-decoration-line-through">&#8377;{{ number_format($pricing['base_inr'], 0) }}</div>
                             @else
-                                <div class="h3 fw-bold mb-0">&#8377;{{ number_format($p->inr_price ?: $p->price * 100, 0) }}</div>
+                                <div class="h3 fw-bold mb-0">&#8377;{{ number_format($pricing['final_inr'], 0) }}</div>
                             @endif
                             <div class="small text-muted mt-1">Prices in Indian Rupees</div>
                         @else
                             @if($hasDiscount)
-                                <div class="h3 fw-bold text-success mb-0">${{ number_format($p->sale_price, 2) }}</div>
-                                <div class="text-muted text-decoration-line-through">${{ number_format($p->price, 2) }}</div>
+                                <div class="h3 fw-bold text-success mb-0">${{ number_format($pricing['final_usd'], 2) }}</div>
+                                <div class="text-muted text-decoration-line-through">${{ number_format($pricing['base_usd'], 2) }}</div>
                             @else
-                                <div class="h3 fw-bold mb-0">${{ number_format($p->price, 2) }}</div>
+                                <div class="h3 fw-bold mb-0">${{ number_format($pricing['final_usd'], 2) }}</div>
                             @endif
                         @endif
+                        @if($pricing['student_applied'])
+                            <div class="small text-success mt-1">Student pricing applied</div>
+                        @elseif($pricing['student_available'])
+                            <div class="small text-info mt-1">Student pricing available after verification</div>
+                        @endif
                     </div>
+
+                    @if($pricing['student_available'] && !$pricing['student_applied'])
+                        <div class="alert alert-info py-2 small mb-3">
+                            Eligible students can unlock special pricing from
+                            @auth
+                                <a href="{{ route('account.profile') }}" class="alert-link">their account profile</a>.
+                            @else
+                                <a href="{{ route('login') }}" class="alert-link">their account after login</a>.
+                            @endauth
+                        </div>
+                    @endif
 
                     @auth
                         @if($isIndia)
                             <button class="btn btn-success w-100 mb-3"
                                 id="pay-btn"
                                 data-product-id="{{ $p->id }}"
-                                data-amount="{{ $p->inr_price ?: $p->price * 100 }}"
+                                data-amount="{{ $pricing['final_inr'] }}"
                                 data-name="{{ $p->name }}"
                                 onclick="initiateRazorpay(this)">
-                                <i class="fas fa-lock me-2"></i>Pay with Razorpay &#8377;{{ number_format($p->inr_price ?: $p->price * 100, 0) }}
+                                <i class="fas fa-lock me-2"></i>Pay with Razorpay &#8377;{{ number_format($pricing['final_inr'], 0) }}
                             </button>
                         @else
                             <a href="{{ route('payment.paypal.create', ['product_id' => $p->id]) }}"
                                class="btn btn-primary w-100 mb-3" id="pay-btn">
-                                <i class="fab fa-paypal me-2"></i>Pay with PayPal ${{ number_format($p->price, 2) }}
+                                <i class="fab fa-paypal me-2"></i>Pay with PayPal ${{ number_format($pricing['final_usd'], 2) }}
                             </a>
                         @endif
                     @else

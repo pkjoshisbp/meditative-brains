@@ -41,7 +41,7 @@ This is an extraordinary piece of biological engineering when you face a genuine
 
 Plato diagnosed this problem two and a half thousand years ago. [pause:500]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 The part can never be well unless the whole is well. [pause:1000]
 [/rate][/personality] [pause:900]
 
@@ -51,7 +51,7 @@ He was describing the error of ancient physicians who treated symptoms in isolat
 
 Thich Nhat Hanh, the Vietnamese Buddhist teacher who taught mindfulness to Western practitioners for decades, reduced the entire practice of mind-body regulation to its simplest possible form: [pause:500]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 Breathing in, I calm body and mind. Breathing out, I smile. [pause:1000]
 [/rate][/personality] [pause:900]
 
@@ -61,7 +61,7 @@ This is not a metaphor. It is a description of a physiological mechanism. A slow
 
 William James, who spent decades observing the relationship between thought, emotion, and physical action, arrived at a revolutionary conclusion for his era: [pause:500]
 
-[personality:Warm] [rate:slow]
+[personality:Warm] [rate:"-5%"]
 The greatest discovery of my generation is that a human being can alter his life by altering his attitude of mind. [pause:1000]
 [/rate][/personality] [pause:900]
 

@@ -8,6 +8,7 @@ use Livewire\WithFileUploads;
 use Livewire\Attributes\On;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\TtsAudiobook;
 use App\Services\AudioSecurityService;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,6 +24,8 @@ class ProductManager extends AdminComponent
     public $short_description = '';
     public $price = '';
     public $sale_price = '';
+    public $student_price = '';
+    public $student_inr_price = '';
     public $type = 'digital';
     public $audio_type = '';
     public $audio_features = [];
@@ -38,6 +41,15 @@ class ProductManager extends AdminComponent
     
     public $preview_file;
     public $full_file;
+    public $pdf_book;
+
+    public $linked_audiobook_id = '';
+    public $pdf_file_path = '';
+    public $pdf_file_url = '';
+    public $existingPreviewImageUrl = '';
+    public $linkedAudiobookPreviewUrl = '';
+    public $linkedAudiobookPreviewTitle = '';
+    public $linkedAudiobookChapterCount = 0;
     
     // File browser integration
     public $selectedOriginalFile = '';
@@ -67,9 +79,11 @@ class ProductManager extends AdminComponent
             'short_description' => 'nullable|string|max:500',
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0',
+            'student_price' => 'nullable|numeric|min:0',
+            'student_inr_price' => 'nullable|numeric|min:0',
             'type' => 'required|in:digital,physical',
             'audio_type' => 'nullable|string',
-            'preview_duration' => 'required|integer|min:10|max:120',
+            'preview_duration' => 'required|integer|min:10|max:1800',
             'tags' => 'nullable|string',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
@@ -78,8 +92,10 @@ class ProductManager extends AdminComponent
             'is_featured' => 'boolean',
             'sort_order' => 'integer|min:0',
             'category_id' => 'required|exists:product_categories,id',
-            'preview_file' => 'nullable|file|mimes:mp3,wav,ogg|max:10240',
+            'preview_file' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:10240',
             'full_file' => 'nullable|file|mimes:mp3,wav,ogg|max:51200',
+            'pdf_book' => 'nullable|file|mimes:pdf|max:20480',
+            'linked_audiobook_id' => 'nullable|exists:tts_audiobooks,id',
         ];
     }
 
@@ -105,6 +121,8 @@ class ProductManager extends AdminComponent
         $this->short_description = '';
         $this->price = '';
         $this->sale_price = '';
+        $this->student_price = '';
+        $this->student_inr_price = '';
         $this->type = 'digital';
         $this->audio_type = '';
         $this->audio_features = [];
@@ -120,9 +138,22 @@ class ProductManager extends AdminComponent
         $this->selectedOriginalFile = '';
         $this->preview_file = null;
         $this->full_file = null;
+        $this->pdf_book = null;
+        $this->linked_audiobook_id = '';
+        $this->pdf_file_path = '';
+        $this->pdf_file_url = '';
+        $this->existingPreviewImageUrl = '';
+        $this->linkedAudiobookPreviewUrl = '';
+        $this->linkedAudiobookPreviewTitle = '';
+        $this->linkedAudiobookChapterCount = 0;
         $this->editingProduct = null;
         $this->showForm = false;
         $this->showFileBrowser = false;
+    }
+
+    public function updatedLinkedAudiobookId()
+    {
+        $this->syncLinkedAudiobookPreview();
     }
 
     #[On('file-selected')]
@@ -148,6 +179,8 @@ class ProductManager extends AdminComponent
         $this->short_description = $product->short_description;
         $this->price = $product->price;
         $this->sale_price = $product->sale_price;
+        $this->student_price = $product->student_price;
+        $this->student_inr_price = $product->student_inr_price;
         $this->type = $product->type;
         $this->audio_type = $product->audio_type;
         $this->audio_features = $product->audio_features ?? [];
@@ -160,6 +193,13 @@ class ProductManager extends AdminComponent
         $this->is_featured = $product->is_featured;
         $this->sort_order = $product->sort_order;
         $this->category_id = $product->category_id;
+        $this->linked_audiobook_id = $product->linked_audiobook_id ?? '';
+        $this->pdf_file_path = $product->pdf_file_path ?? '';
+        $this->pdf_file_url = $product->pdf_file_url ?? '';
+        $this->existingPreviewImageUrl = $product->preview_file
+            ? Storage::disk('public')->url($product->preview_file)
+            : '';
+        $this->syncLinkedAudiobookPreview();
         $this->showForm = true;
     }
 
@@ -173,9 +213,12 @@ class ProductManager extends AdminComponent
             'short_description' => $this->short_description,
             'price' => $this->price,
             'sale_price' => $this->sale_price,
+            'student_price' => $this->student_price !== '' ? $this->student_price : null,
+            'student_inr_price' => $this->student_inr_price !== '' ? $this->student_inr_price : null,
             'type' => $this->type,
             'audio_type' => $this->audio_type,
             'audio_features' => $this->audio_features,
+            'linked_audiobook_id' => $this->linked_audiobook_id ?: null,
             'preview_duration' => $this->preview_duration,
             'tags' => $this->tags,
             'meta_title' => $this->meta_title,
@@ -185,6 +228,8 @@ class ProductManager extends AdminComponent
             'is_featured' => $this->is_featured,
             'sort_order' => $this->sort_order,
             'category_id' => $this->category_id,
+            'pdf_file_path' => $this->pdf_file_path ?: null,
+            'pdf_file_url' => $this->pdf_file_url ?: null,
         ];
 
         $audioService = app(AudioSecurityService::class);
@@ -227,6 +272,12 @@ class ProductManager extends AdminComponent
             }
         }
 
+        if ($this->pdf_book) {
+            $pdfPath = $this->pdf_book->store('products/pdfs', 'public');
+            $data['pdf_file_path'] = $pdfPath;
+            $data['pdf_file_url'] = Storage::disk('public')->url($pdfPath);
+        }
+
         if ($this->editingProduct) {
             $product = Product::findOrFail($this->editingProduct);
             
@@ -236,6 +287,9 @@ class ProductManager extends AdminComponent
             }
             if (($this->selectedOriginalFile || $this->full_file) && $product->audio_path) {
                 Storage::disk('local')->delete($product->audio_path);
+            }
+            if ($this->pdf_book && $product->pdf_file_path) {
+                Storage::disk('public')->delete($product->pdf_file_path);
             }
             
             $product->update($data);
@@ -259,6 +313,9 @@ class ProductManager extends AdminComponent
         if ($product->audio_path) {
             Storage::disk('local')->delete($product->audio_path);
         }
+        if ($product->pdf_file_path) {
+            Storage::disk('public')->delete($product->pdf_file_path);
+        }
         
         $product->delete();
         session()->flash('message', 'Product deleted successfully!');
@@ -271,7 +328,7 @@ class ProductManager extends AdminComponent
 
     protected function getViewData(): array
     {
-        $products = Product::with('category')
+        $products = Product::with(['category', 'linkedAudiobook'])
             ->when($this->search, function ($query) {
                 return $query->where('name', 'like', '%' . $this->search . '%')
                            ->orWhere('description', 'like', '%' . $this->search . '%')
@@ -288,10 +345,35 @@ class ProductManager extends AdminComponent
             ->orderBy('name')
             ->get();
 
+        $audiobooks = TtsAudiobook::withCount('chapters')
+            ->orderBy('book_title')
+            ->get();
+
         return [
             'products' => $products,
             'categories' => $categories,
+            'audiobooks' => $audiobooks,
             'audioFeatureOptions' => $this->audioFeatureOptions,
         ];
+    }
+
+    protected function syncLinkedAudiobookPreview(): void
+    {
+        $this->linkedAudiobookPreviewUrl = '';
+        $this->linkedAudiobookPreviewTitle = '';
+        $this->linkedAudiobookChapterCount = 0;
+
+        if (!$this->linked_audiobook_id) {
+            return;
+        }
+
+        $audiobook = TtsAudiobook::with('chapters')->find($this->linked_audiobook_id);
+        if (!$audiobook) {
+            return;
+        }
+
+        $this->linkedAudiobookPreviewTitle = $audiobook->resolvePreviewTitle();
+        $this->linkedAudiobookChapterCount = $audiobook->chapters->count();
+        $this->linkedAudiobookPreviewUrl = $audiobook->resolvePreviewUrl();
     }
 }

@@ -12,6 +12,11 @@ class Subscription extends Model
 
     protected $fillable = [
         'user_id',
+        'affiliate_profile_id',
+        'affiliate_click_id',
+        'affiliate_referral_code',
+        'affiliate_commission_rate',
+        'affiliate_commission_amount',
         'plan_type',
         'price',
         'status',
@@ -26,6 +31,8 @@ class Subscription extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'affiliate_commission_rate' => 'decimal:2',
+        'affiliate_commission_amount' => 'decimal:2',
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
         'cancelled_at' => 'datetime',
@@ -36,6 +43,16 @@ class Subscription extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function affiliateProfile()
+    {
+        return $this->belongsTo(AffiliateProfile::class);
+    }
+
+    public function affiliateClick()
+    {
+        return $this->belongsTo(AffiliateClick::class);
     }
 
     public function isActive()

@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -23,6 +24,16 @@ class User extends Authenticatable
         'email',
         'mobile',
         'password',
+        'student_status',
+        'student_expires_at',
+        'student_verified_at',
+        'student_reviewed_at',
+        'student_reviewed_by',
+        'student_institution',
+        'student_id_number',
+        'student_document_path',
+        'student_document_uploaded_at',
+        'student_review_notes',
     ];
 
     /**
@@ -43,6 +54,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'student_expires_at' => 'datetime',
+        'student_verified_at' => 'datetime',
+        'student_reviewed_at' => 'datetime',
+        'student_document_uploaded_at' => 'datetime',
     ];
 
     /**
@@ -77,9 +92,106 @@ class User extends Authenticatable
         return $this->hasMany(UserDevice::class);
     }
 
+    public function trustedLoginDevices()
+    {
+        return $this->hasMany(TrustedLoginDevice::class);
+    }
+
     public function downloads()
     {
         return $this->hasMany(UserDownload::class);
+    }
+
+    public function studentReviewer()
+    {
+        return $this->belongsTo(User::class, 'student_reviewed_by');
+    }
+
+    public function affiliateProfile()
+    {
+        return $this->hasOne(AffiliateProfile::class);
+    }
+
+    public function affiliateClicks()
+    {
+        return $this->hasMany(AffiliateClick::class, 'visitor_user_id');
+    }
+
+    public function affiliateConversions()
+    {
+        return $this->hasMany(AffiliateConversion::class, 'referred_user_id');
+    }
+
+    public function hasStudentPricingAccess(): bool
+    {
+        if ($this->student_status === 'approved') {
+            return true;
+        }
+
+        return $this->student_status === 'pending'
+            && $this->student_expires_at
+            && $this->student_expires_at->isFuture();
+    }
+
+    public function studentDocumentUrl(): ?string
+    {
+        if (! $this->student_document_path) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->student_document_path);
+    }
+
+    public function studentStatusLabel(): string
+    {
+        return match ($this->student_status) {
+            'approved' => 'Approved',
+            'pending' => 'Pending review',
+            'rejected' => 'Rejected',
+            'expired' => 'Expired',
+            default => 'Not submitted',
+        };
+    }
+
+    public function isAffiliate(): bool
+    {
+        return $this->affiliateProfile()->exists();
+    }
+
+    public function isAdmin(): bool
+    {
+        if ($this->role === 'admin') {
+            return true;
+        }
+
+        $adminEmails = config('admin.emails', []);
+
+        if (is_string($adminEmails)) {
+            $adminEmails = explode(',', $adminEmails);
+        }
+
+        $adminEmails = array_values(array_filter(array_map(
+            static fn ($email) => trim(strtolower((string) $email)),
+            $adminEmails
+        )));
+
+        return $this->email
+            && in_array(strtolower($this->email), $adminEmails, true);
+    }
+
+    public function hasRole(string ...$roles): bool
+    {
+        foreach ($roles as $role) {
+            if ($role === 'admin' && $this->isAdmin()) {
+                return true;
+            }
+
+            if ($this->role === $role) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function withinDeviceLimit($deviceUuid = null)

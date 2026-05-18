@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use App\Services\StudentPricingService;
+use Illuminate\Support\Facades\Auth;
 
 class SubscriptionPlan extends Model
 {
@@ -17,6 +19,12 @@ class SubscriptionPlan extends Model
         'description',
         'price',
         'inr_price',
+        'student_price',
+        'student_inr_price',
+        'yearly_price',
+        'yearly_inr_price',
+        'yearly_student_price',
+        'yearly_student_inr_price',
         'billing_cycle',
         'features',
         'access_rules',
@@ -32,6 +40,13 @@ class SubscriptionPlan extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'inr_price' => 'decimal:2',
+        'student_price' => 'decimal:2',
+        'student_inr_price' => 'decimal:2',
+        'yearly_price' => 'decimal:2',
+        'yearly_inr_price' => 'decimal:2',
+        'yearly_student_price' => 'decimal:2',
+        'yearly_student_inr_price' => 'decimal:2',
         'features' => 'array',
         'access_rules' => 'array',
         'included_tts_categories' => 'array',
@@ -82,6 +97,11 @@ class SubscriptionPlan extends Model
     public function getFormattedPriceAttribute()
     {
         return '$' . number_format($this->price, 2);
+    }
+
+    public function getStudentPriceData($user = null, string $billingInterval = 'monthly'): array
+    {
+        return app(StudentPricingService::class)->forSubscriptionPlan($this, $user ?: Auth::user(), $billingInterval);
     }
 
     /**

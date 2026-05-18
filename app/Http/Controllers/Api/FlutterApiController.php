@@ -69,7 +69,9 @@ class FlutterApiController extends Controller
                         'price' => $product->price,
                         'audio_features' => $product->audio_features ? json_decode($product->audio_features, true) : null,
                         'preview_url' => route('api.flutter.audio.preview', $product->id),
-                        'download_url' => route('api.flutter.audio.download', $product->id),
+                        'download_url' => null,
+                        'has_pdf_book' => (bool) $product->pdf_file_path,
+                        'audio_delivery' => 'app_only',
                         'created_at' => $product->created_at->toISOString()
                     ];
                 })
@@ -142,35 +144,15 @@ class FlutterApiController extends Controller
     }
 
     /**
-     * Get full audio download URL (requires authentication/purchase validation)
+     * Legacy endpoint kept only to explicitly deny direct audio downloads.
      */
     public function getAudioDownload($productId): JsonResponse
     {
-        try {
-            // TODO: Add authentication and purchase validation here
-            // For now, treating as free content
-            
-            $product = Product::findOrFail($productId);
-            
-            if (!$product->audio_path) {
-                return response()->json(['success' => false, 'message' => 'No audio file available'], 404);
-            }
-
-            // Generate signed URL for full download (valid for 24 hours)
-            $downloadUrl = $this->audioService->generateSignedUrl($product->audio_path, 86400, false);
-            
-            return response()->json([
-                'success' => true,
-                'download_url' => $downloadUrl,
-                'expires_in' => 86400 // seconds
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Flutter API: Failed to get audio download', [
-                'product_id' => $productId,
-                'error' => $e->getMessage()
-            ]);
-            return response()->json(['success' => false, 'message' => 'Failed to get download URL'], 500);
-        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Direct audio downloads are disabled. Audio is available only through the app playback flow.',
+            'audio_delivery' => 'app_only',
+        ], 403);
     }
 
     /**

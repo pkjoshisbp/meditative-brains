@@ -162,6 +162,7 @@ class AudioStreamController extends Controller
     public function signedStream(Request $request)
     {
         // Laravel automatically validates signed URLs
+        $startedAt = microtime(true);
         try {
             $encodedPath = $request->get('path');
             $previewLength = $request->get('preview');
@@ -170,11 +171,21 @@ class AudioStreamController extends Controller
                 return response('Invalid parameters', 400);
             }
 
+            $decodedPath = base64_decode($encodedPath, true) ?: $encodedPath;
+
             // Get decrypted audio content
             $audioContent = $this->audioSecurityService->streamFromSignedUrl($encodedPath, $previewLength);
 
             // Determine content type based on audio format
             $contentType = $this->getContentType($audioContent);
+
+            Log::info('Audio signed stream served', [
+                'path' => $decodedPath,
+                'preview' => $previewLength !== null ? (int) $previewLength : null,
+                'content_type' => $contentType,
+                'bytes' => strlen($audioContent),
+                'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+            ]);
 
             return response($audioContent)
                 ->header('Content-Type', $contentType)
@@ -189,6 +200,7 @@ class AudioStreamController extends Controller
                 'path' => $request->get('path'),
                 'preview' => $request->get('preview'),
                 'error' => $e->getMessage(),
+                'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
             ]);
             return response('Unauthorized or file not found', 403);
         }

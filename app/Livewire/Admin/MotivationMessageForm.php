@@ -7,6 +7,7 @@ use Symfony\Component\Process\Process;
 use Illuminate\Support\Str;
 use App\Models\TtsSourceCategory;
 use App\Models\TtsMotivationMessage;
+use App\Models\TtsAudioProduct;
 use App\Services\TtsAudioGeneratorService;
 use App\Services\AudioSecurityService;
 
@@ -748,6 +749,9 @@ class MotivationMessageForm extends Component
                 'audio_urls'   => array_values($audioUrls),
             ]);
 
+            // Sync the same index removal to all related tts_audio_products
+            $this->syncProductAudioUrlsForDelete($record, $index);
+
             session()->flash('success', 'Message deleted successfully!');
             $this->fetchAdminMessages();
 
@@ -757,6 +761,82 @@ class MotivationMessageForm extends Component
         } catch (\Exception $e) {
             \Log::error('deleteMessage exception', ['error' => $e->getMessage()]);
             session()->flash('error', 'Error deleting message: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Resync tts_audio_products.audio_urls for a message record.
+     * Trims product audio_urls to match the current messages count.
+     * Use this after bulk-editing messages via the textarea.
+     */
+    public function resyncProductAudioUrls($recordId): void
+    {
+        try {
+            $record = TtsMotivationMessage::find((int) $recordId);
+            if (!$record) {
+                session()->flash('error', 'Record not found.');
+                return;
+            }
+
+            $messagesCount = count($record->messages ?? []);
+            $sourceCategory = TtsSourceCategory::find($record->source_category_id);
+            if (!$sourceCategory) {
+                session()->flash('error', 'Source category not found.');
+                return;
+            }
+
+            $products = TtsAudioProduct::where('backend_category_id', $sourceCategory->mongo_id)
+                ->where('backend_speaker', $record->speaker)
+                ->get();
+
+            $synced = 0;
+            foreach ($products as $product) {
+                $productUrls = is_string($product->audio_urls)
+                    ? json_decode($product->audio_urls, true)
+                    : ($product->audio_urls ?? []);
+
+                if (!is_array($productUrls)) continue;
+
+                $currentCount = count($productUrls);
+                if ($currentCount > $messagesCount) {
+                    $trimmed = array_values(array_slice($productUrls, 0, $messagesCount));
+                    $product->update(['audio_urls' => $trimmed]);
+                    $synced++;
+                }
+            }
+
+            session()->flash('success', "Resynced {$synced} product(s). audio_urls trimmed to {$messagesCount} tracks.");
+        } catch (\Throwable $e) {
+            \Log::error('resyncProductAudioUrls failed', ['error' => $e->getMessage()]);
+            session()->flash('error', 'Resync failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove index $index from audio_urls on all tts_audio_products linked to this message record.
+     */
+    private function syncProductAudioUrlsForDelete(TtsMotivationMessage $record, int $index): void
+    {
+        try {
+            $sourceCategory = TtsSourceCategory::find($record->source_category_id);
+            if (!$sourceCategory) return;
+
+            $products = TtsAudioProduct::where('backend_category_id', $sourceCategory->mongo_id)
+                ->where('backend_speaker', $record->speaker)
+                ->get();
+
+            foreach ($products as $product) {
+                $productUrls = is_string($product->audio_urls)
+                    ? json_decode($product->audio_urls, true)
+                    : ($product->audio_urls ?? []);
+
+                if (!is_array($productUrls) || !array_key_exists($index, $productUrls)) continue;
+
+                array_splice($productUrls, $index, 1);
+                $product->update(['audio_urls' => array_values($productUrls)]);
+            }
+        } catch (\Throwable $e) {
+            \Log::error('syncProductAudioUrlsForDelete failed', ['error' => $e->getMessage()]);
         }
     }
 

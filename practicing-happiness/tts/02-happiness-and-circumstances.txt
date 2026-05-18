@@ -73,17 +73,17 @@ Regardless of how your circumstances currently stand. [pause:700]
 [silence:500]
 
 Epictetus, the Stoic philosopher who was born into slavery and built one of the most influential philosophical traditions of the ancient world, wrote: [pause:600]
-[rate:slow]"Men are not disturbed by the things which happen, but by the opinions about the things."[/rate] [pause:800]
+[rate:"-5%"]"Men are not disturbed by the things which happen, but by the opinions about the things."[/rate] [pause:800]
 He is not saying the things don't happen. He is saying that between the event and the disturbance, [pause:500]
 there is a judgment — an interpretation — and that judgment is trainable. [pause:700]
 
 Abraham Lincoln, who endured the death of two children, severe melancholic episodes he himself documented, and the leadership of a nation through its bloodiest war, said simply: [pause:600]
-[rate:slow]"Most folks are about as happy as they make up their minds to be."[/rate] [pause:800]
+[rate:"-5%"]"Most folks are about as happy as they make up their minds to be."[/rate] [pause:800]
 Not a comfortable saying from a comfortable life. [pause:400]
 A hard-won conclusion from genuine difficulty. [pause:700]
 
 Viktor Frankl, who spent three years in Nazi concentration camps and lost his wife, his brother, and his parents, wrote: [pause:600]
-[rate:slow][personality:Warm]"Everything can be taken from a man but one thing: the last of the human freedoms — to choose one's attitude in any given set of circumstances, to choose one's own way."[/personality][/rate] [pause:900]
+[rate:"-5%"][personality:Warm]"Everything can be taken from a man but one thing: the last of the human freedoms — to choose one's attitude in any given set of circumstances, to choose one's own way."[/personality][/rate] [pause:900]
 If that inner freedom survived Auschwitz, consider what it can do in your ordinary conditions. [pause:700]
 Most people are not using even a fraction of the inner sovereignty that is available to them in their daily lives. [pause:900]
 
@@ -151,7 +151,7 @@ The progress continues. The balance is available now. [pause:900]
 
 [silence:600]
 
-[personality:Warm][rate:slow]"Everything can be taken from a man but one thing: the last of the human freedoms — to choose one's attitude in any given set of circumstances."[/rate][/personality] [pause:700]
+[personality:Warm][rate:"-5%"]"Everything can be taken from a man but one thing: the last of the human freedoms — to choose one's attitude in any given set of circumstances."[/rate][/personality] [pause:700]
 
 If that held in the worst circumstances imaginable, [pause:400]
 it holds in yours. [pause:500]

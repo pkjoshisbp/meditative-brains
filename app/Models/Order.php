@@ -12,6 +12,11 @@ class Order extends Model
     protected $fillable = [
         'order_number',
         'user_id',
+        'affiliate_profile_id',
+        'affiliate_click_id',
+        'affiliate_referral_code',
+        'affiliate_commission_rate',
+        'affiliate_commission_amount',
         'subtotal',
         'tax_amount',
         'total_amount',
@@ -29,6 +34,8 @@ class Order extends Model
         'subtotal' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
+        'affiliate_commission_rate' => 'decimal:2',
+        'affiliate_commission_amount' => 'decimal:2',
         'billing_details' => 'array',
         'order_items' => 'array',
         'completed_at' => 'datetime',
@@ -37,6 +44,16 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function affiliateProfile()
+    {
+        return $this->belongsTo(AffiliateProfile::class);
+    }
+
+    public function affiliateClick()
+    {
+        return $this->belongsTo(AffiliateClick::class);
     }
 
     public function scopeCompleted($query)

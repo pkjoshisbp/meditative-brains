@@ -12,12 +12,25 @@ class RequireRole
     {
         $user = $request->user();
         if (!$user) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthenticated'], 401);
+            }
+
+            abort(401);
         }
-        if (empty($roles)) { return $next($request); }
-        if (!$user->role || !in_array($user->role, $roles)) {
-            return response()->json(['message' => 'Forbidden (role)'], 403);
+
+        if (empty($roles)) {
+            return $next($request);
         }
+
+        if (!$user->hasRole(...$roles)) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Forbidden (role)'], 403);
+            }
+
+            abort(403);
+        }
+
         return $next($request);
     }
 }

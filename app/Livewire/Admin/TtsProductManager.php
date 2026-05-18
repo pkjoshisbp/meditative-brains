@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\On;
 use App\Models\TtsAudioProduct;
+use App\Models\TtsAudiobook;
 use App\Models\TtsSourceCategory;
 use App\Models\TtsMotivationMessage;
 use Illuminate\Support\Facades\Http;
@@ -31,6 +32,12 @@ class TtsProductManager extends AdminComponent
     public $category = '';
     public $price = '';
     public $sale_price = '';
+    public $student_audio_price = '';
+    public $student_audio_price_inr = '';
+    public $student_pdf_price = '';
+    public $student_pdf_price_inr = '';
+    public $student_bundle_price = '';
+    public $student_bundle_price_inr = '';
     public $tags = '';
     public $preview_duration = 30;
     public $sort_order = 0;
@@ -42,6 +49,14 @@ class TtsProductManager extends AdminComponent
     public $meta_title = '';
     public $meta_description = '';
     public $meta_keywords = '';
+    public $product_type = 'audio';
+    public $linked_audiobook_id = '';
+    public $pdf_book;
+    public $pdf_file_path = '';
+    public $pdf_file_url = '';
+    public $linkedAudiobookPreviewUrl = '';
+    public $linkedAudiobookPreviewTitle = '';
+    public $linkedAudiobookChapterCount = 0;
     
     // TTS specific
     public $language = 'en';
@@ -86,8 +101,15 @@ class TtsProductManager extends AdminComponent
         'description' => 'nullable|string',
         'short_description' => 'nullable|string|max:500',
         'category' => 'nullable|string|max:100',
+        'product_type' => 'required|in:audio,ebook_pdf,ebook_bundle',
         'price' => 'required|numeric|min:0',
         'sale_price' => 'nullable|numeric|min:0',
+        'student_audio_price' => 'nullable|numeric|min:0',
+        'student_audio_price_inr' => 'nullable|numeric|min:0',
+        'student_pdf_price' => 'nullable|numeric|min:0',
+        'student_pdf_price_inr' => 'nullable|numeric|min:0',
+        'student_bundle_price' => 'nullable|numeric|min:0',
+        'student_bundle_price_inr' => 'nullable|numeric|min:0',
         'tags' => 'nullable|string',
         'preview_duration' => 'required|integer|min:10|max:300',
         'sort_order' => 'required|integer|min:0',
@@ -95,6 +117,8 @@ class TtsProductManager extends AdminComponent
         'is_featured' => 'boolean',
         'background_music_url' => 'nullable|url',
         'cover_image_path' => 'nullable|string',
+        'linked_audiobook_id' => 'nullable|exists:tts_audiobooks,id',
+        'pdf_book' => 'nullable|file|mimes:pdf|max:20480',
         'meta_title' => 'nullable|string|max:255',
         'meta_description' => 'nullable|string|max:500',
         'meta_keywords' => 'nullable|string|max:255',
@@ -136,6 +160,11 @@ class TtsProductManager extends AdminComponent
     public function updatedFilterActive(): void
     {
         $this->resetPage();
+    }
+
+    public function updatedLinkedAudiobookId(): void
+    {
+        $this->syncLinkedAudiobookPreview();
     }
 
     /**
@@ -497,6 +526,12 @@ class TtsProductManager extends AdminComponent
         $this->category = $this->editingProduct->category ?? '';
         $this->price = $this->editingProduct->price;
         $this->sale_price = $this->editingProduct->sale_price;
+        $this->student_audio_price = $this->editingProduct->student_audio_price;
+        $this->student_audio_price_inr = $this->editingProduct->student_audio_price_inr;
+        $this->student_pdf_price = $this->editingProduct->student_pdf_price;
+        $this->student_pdf_price_inr = $this->editingProduct->student_pdf_price_inr;
+        $this->student_bundle_price = $this->editingProduct->student_bundle_price;
+        $this->student_bundle_price_inr = $this->editingProduct->student_bundle_price_inr;
         $this->tags = $this->editingProduct->tags
             ? (is_array($this->editingProduct->tags)
                 ? implode(',', $this->editingProduct->tags)
@@ -513,6 +548,10 @@ class TtsProductManager extends AdminComponent
         $this->meta_title = $this->editingProduct->meta_title ?? '';
         $this->meta_description = $this->editingProduct->meta_description ?? '';
         $this->meta_keywords = $this->editingProduct->meta_keywords ?? '';
+        $this->product_type = $this->editingProduct->product_type ?? 'audio';
+        $this->linked_audiobook_id = $this->editingProduct->linked_audiobook_id ?? '';
+        $this->pdf_file_path = $this->editingProduct->pdf_file_path ?? '';
+        $this->pdf_file_url = $this->editingProduct->pdf_file_url ?? '';
         $this->language = $this->editingProduct->language ?? 'en';
         $this->backend_category_id = $this->editingProduct->backend_category_id ?? '';
         $this->backend_category_name = $this->editingProduct->backend_category_name ?? '';
@@ -535,6 +574,7 @@ class TtsProductManager extends AdminComponent
         // Audio URLs
         $this->audio_urls = $this->editingProduct->audio_urls ?? '';
         $this->preview_audio_url = $this->editingProduct->preview_audio_url ?? '';
+        $this->syncLinkedAudiobookPreview();
 
         Log::info('Loaded product audio settings', [
             'product_id' => $this->editingProduct->id,
@@ -587,9 +627,18 @@ class TtsProductManager extends AdminComponent
                 'description' => $this->description,
                 'short_description' => $this->short_description,
                 'category' => $this->category ?: $this->name,
+                'product_type' => $this->product_type,
                 'audio_type' => 'tts',
                 'language' => $this->editingProduct ? ($this->language ?: $this->editingProduct->language) : $this->language,
                 'price' => $this->price,
+                'sale_price' => $this->sale_price !== '' ? $this->sale_price : null,
+                'student_audio_price' => $this->student_audio_price !== '' ? $this->student_audio_price : null,
+                'student_audio_price_inr' => $this->student_audio_price_inr !== '' ? $this->student_audio_price_inr : null,
+                'student_pdf_price' => $this->student_pdf_price !== '' ? $this->student_pdf_price : null,
+                'student_pdf_price_inr' => $this->student_pdf_price_inr !== '' ? $this->student_pdf_price_inr : null,
+                'student_bundle_price' => $this->student_bundle_price !== '' ? $this->student_bundle_price : null,
+                'student_bundle_price_inr' => $this->student_bundle_price_inr !== '' ? $this->student_bundle_price_inr : null,
+                'linked_audiobook_id' => $this->linked_audiobook_id ?: null,
                 'tags' => $this->tags
                     ? (str_starts_with(trim($this->tags), '[')
                         ? $this->tags
@@ -603,6 +652,8 @@ class TtsProductManager extends AdminComponent
                     ? ($this->background_music_url ?: $resolvedBackgroundMusicUrl)
                     : null,
                 'cover_image_path' => $this->cover_image_path ?: null,
+                'pdf_file_path' => $this->pdf_file_path ?: null,
+                'pdf_file_url' => $this->pdf_file_url ?: null,
                 'meta_title' => $this->meta_title,
                 'meta_description' => $this->meta_description,
                 'meta_keywords' => $this->meta_keywords,
@@ -639,7 +690,16 @@ class TtsProductManager extends AdminComponent
                 $data['cover_image_path'] = $path;
             }
 
+            if ($this->pdf_book) {
+                $pdfPath = $this->pdf_book->store('tts-products/pdfs', 'public');
+                $data['pdf_file_path'] = $pdfPath;
+                $data['pdf_file_url'] = Storage::disk('public')->url($pdfPath);
+            }
+
             if ($this->editingProduct) {
+                if ($this->pdf_book && $this->editingProduct->pdf_file_path) {
+                    Storage::disk('public')->delete($this->editingProduct->pdf_file_path);
+                }
                 $this->editingProduct->update($data);
                 session()->flash('success', 'Product updated successfully!');
                 Log::info('TTS Product Save - Updated product ID: ' . $this->editingProduct->id);
@@ -722,6 +782,12 @@ class TtsProductManager extends AdminComponent
         $this->category = '';
         $this->price = '';
         $this->sale_price = '';
+        $this->student_audio_price = '';
+        $this->student_audio_price_inr = '';
+        $this->student_pdf_price = '';
+        $this->student_pdf_price_inr = '';
+        $this->student_bundle_price = '';
+        $this->student_bundle_price_inr = '';
         $this->tags = '';
         $this->preview_duration = 30;
         $this->sort_order = 0;
@@ -733,6 +799,14 @@ class TtsProductManager extends AdminComponent
         $this->meta_title = '';
         $this->meta_description = '';
         $this->meta_keywords = '';
+        $this->product_type = 'audio';
+        $this->linked_audiobook_id = '';
+        $this->pdf_book = null;
+        $this->pdf_file_path = '';
+        $this->pdf_file_url = '';
+        $this->linkedAudiobookPreviewUrl = '';
+        $this->linkedAudiobookPreviewTitle = '';
+        $this->linkedAudiobookChapterCount = 0;
         $this->language = 'en';
         $this->backend_category_id = '';
         $this->backend_category_name = '';
@@ -927,6 +1001,63 @@ class TtsProductManager extends AdminComponent
     {
         // Just call the same method since it handles existing audio correctly
         $this->generateAudioPreview();
+    }
+
+    public function playLinkedAudiobookPreview(): void
+    {
+        if (!$this->linked_audiobook_id) {
+            session()->flash('error', 'Select a linked audiobook first.');
+            return;
+        }
+
+        $audiobook = TtsAudiobook::with('chapters')->find($this->linked_audiobook_id);
+        if (!$audiobook) {
+            session()->flash('error', 'Linked audiobook could not be found.');
+            return;
+        }
+
+        $audioUrls = $audiobook->chapters
+            ->filter(function ($chapter) {
+                return ($chapter->status === 'done' || $chapter->status === null) && ($chapter->audio_path || $chapter->audio_url);
+            })
+            ->take(3)
+            ->map(function ($chapter) {
+                if ($chapter->audio_path && Storage::disk('local')->exists($chapter->audio_path)) {
+                    return app(AudioSecurityService::class)->generateSignedUrl($chapter->audio_path, null, 60 * 24 * 30);
+                }
+
+                return $chapter->audio_url;
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        if ($audioUrls === []) {
+            session()->flash('error', 'No audiobook preview audio is available yet.');
+            return;
+        }
+
+        $audioConfig = [
+            'audioUrls' => $audioUrls,
+            'messageRepeatCount' => 1,
+            'repeatInterval' => 0,
+            'messageInterval' => 1.5,
+            'fadeInDuration' => 0,
+            'fadeOutDuration' => 0,
+            'silenceStart' => 0,
+            'silenceEnd' => 0,
+            'hasBackgroundMusic' => $this->has_background_music,
+            'backgroundMusicUrl' => $this->background_music_url,
+            'bgMusicVolume' => (float) $this->bg_music_volume,
+            'previewDuration' => $this->preview_duration,
+            'backgroundMusicType' => $this->background_music_type,
+            'backgroundMusicTrack' => $this->background_music_track ?: null,
+            'previewTitle' => $audiobook->book_title,
+            'enforceTimeline' => true,
+        ];
+
+        session()->flash('success', 'Starting linked audiobook preview.');
+        $this->dispatch('playSequentialAudio', config: $audioConfig);
     }
 
     /**
@@ -1288,7 +1419,7 @@ class TtsProductManager extends AdminComponent
         try {
             Log::info('TtsProductManager: Starting getViewData()');
             
-            $products = TtsAudioProduct::query()
+            $products = TtsAudioProduct::with('linkedAudiobook')
                 ->when($this->search, function ($query) {
                     $query->where(function ($q) {
                         $q->where('name', 'like', '%' . $this->search . '%')
@@ -1304,9 +1435,14 @@ class TtsProductManager extends AdminComponent
                 ->paginate(10);
 
             Log::info('TtsProductManager: Found ' . $products->count() . ' products');
+
+            $audiobooks = TtsAudiobook::withCount('chapters')
+                ->orderBy('book_title')
+                ->get();
             
             return [
-                'products' => $products
+                'products' => $products,
+                'audiobooks' => $audiobooks,
             ];
         } catch (\Exception $e) {
             Log::error('TtsProductManager getViewData error: ' . $e->getMessage());
@@ -1314,8 +1450,29 @@ class TtsProductManager extends AdminComponent
             
             // Return empty data to prevent complete failure
             return [
-                'products' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10)
+                'products' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 10),
+                'audiobooks' => collect(),
             ];
         }
+    }
+
+    protected function syncLinkedAudiobookPreview(): void
+    {
+        $this->linkedAudiobookPreviewUrl = '';
+        $this->linkedAudiobookPreviewTitle = '';
+        $this->linkedAudiobookChapterCount = 0;
+
+        if (!$this->linked_audiobook_id) {
+            return;
+        }
+
+        $audiobook = TtsAudiobook::with('chapters')->find($this->linked_audiobook_id);
+        if (!$audiobook) {
+            return;
+        }
+
+        $this->linkedAudiobookPreviewTitle = $audiobook->resolvePreviewTitle();
+        $this->linkedAudiobookChapterCount = $audiobook->chapters->count();
+        $this->linkedAudiobookPreviewUrl = $audiobook->resolvePreviewUrl();
     }
 }

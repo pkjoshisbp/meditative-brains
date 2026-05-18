@@ -3,15 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Services\OtpLoginService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use App\Models\User;
-use App\Models\OtpCode;
-use Carbon\Carbon;
 
 class AuthController extends Controller
 {
+    public function __construct(private readonly OtpLoginService $otpLoginService)
+    {
+    }
+
     // LOGIN  (email | mobile | username  +  password)
     public function login(Request $request)
     {
@@ -20,7 +23,7 @@ class AuthController extends Controller
             'password'   => 'required|string',
         ]);
 
-        $user = $this->findUser(trim($request->input('identifier')));
+        $user = $this->otpLoginService->findUser(trim($request->input('identifier')));
 
         if (!$user || !Hash::check($request->input('password'), $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
@@ -137,24 +140,7 @@ class AuthController extends Controller
     {
         $request->validate(['identifier' => 'required|string']);
 
-        $id   = trim($request->input('identifier'));
-        $user = $this->findUser($id);
-
-        if ($user) {
-            OtpCode::where('identifier', $id)->where('used', false)->update(['used' => true]);
-
-            $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-
-            OtpCode::create([
-                'identifier' => $id,
-                'type'       => str_contains($id, '@') ? 'email' : 'sms',
-                'code'       => $code,
-                'expires_at' => Carbon::now()->addMinutes(10),
-            ]);
-
-            // TODO: Integrate SMS gateway (MSG91 / Twilio) here
-            \Log::info("[OTP] identifier={$id} code={$code}");
-        }
+        $this->otpLoginService->issue(trim($request->input('identifier')));
 
         // Always return generic to prevent user enumeration
         return response()->json(['message' => 'If an account exists, an OTP has been sent.']);
@@ -168,23 +154,13 @@ class AuthController extends Controller
             'code'       => 'required|string|size:6',
         ]);
 
-        $id  = trim($request->input('identifier'));
-        $otp = OtpCode::where('identifier', $id)
-            ->where('code', trim($request->input('code')))
-            ->where('used', false)
-            ->where('expires_at', '>', Carbon::now())
-            ->latest()
-            ->first();
+        $user = $this->otpLoginService->verify(
+            trim($request->input('identifier')),
+            trim($request->input('code'))
+        );
 
-        if (!$otp) {
+        if (! $user) {
             return response()->json(['message' => 'Invalid or expired OTP'], 401);
-        }
-
-        $otp->update(['used' => true]);
-
-        $user = $this->findUser($id);
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
         }
 
         $user->tokens()->where('name', 'mobile')->delete();
@@ -241,17 +217,6 @@ class AuthController extends Controller
     }
 
     // HELPERS
-    private function findUser(string $identifier): ?User
-    {
-        if (str_contains($identifier, '@')) {
-            return User::where('email', $identifier)->first();
-        }
-        if (preg_match('/^\+?[0-9]{7,15}$/', $identifier)) {
-            return User::where('mobile', $identifier)->first();
-        }
-        return User::where('username', $identifier)->orWhere('name', $identifier)->first();
-    }
-
     private function userPayload(User $u): array
     {
         return [
