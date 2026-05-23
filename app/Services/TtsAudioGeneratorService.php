@@ -386,18 +386,28 @@ class TtsAudioGeneratorService
 
     /**
      * Convert any FFmpeg-supported audio input (webm, ogg, wav, mp4, …) to AAC.
-     * Used for browser voice recordings uploaded from the admin panel.
+     * Used for browser voice recordings, background music imports, and format
+     * normalization of legacy assets.
+     *
+     * Supported options:
+     *  - bitrate: e.g. 96k, 128k, 192k
+     *  - channels: 1 for mono, 2 for stereo
+     *  - sample_rate: e.g. 44100, 48000
      */
-    public function convertAudioToAac(string $inputPath, string $outputPath): void
+    public function convertAudioToAac(string $inputPath, string $outputPath, array $options = []): void
     {
-        $this->wavToAac($inputPath, $outputPath);
+        $this->wavToAac($inputPath, $outputPath, $options);
     }
 
-    private function wavToAac(string $wavPath, string $aacPath): void
+    private function wavToAac(string $wavPath, string $aacPath, array $options = []): void
     {
+        $bitrate = (string) ($options['bitrate'] ?? '192k');
+        $channels = (string) ($options['channels'] ?? '1');
+        $sampleRate = (string) ($options['sample_rate'] ?? '48000');
+
         $process = new Process([
             'ffmpeg', '-i', $wavPath,
-            '-c:a', 'aac', '-b:a', '192k', '-ac', '1', '-ar', '48000',
+            '-c:a', 'aac', '-b:a', $bitrate, '-ac', $channels, '-ar', $sampleRate,
             $aacPath, '-y'
         ]);
         $process->setTimeout(60);

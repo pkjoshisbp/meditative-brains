@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\OtpLoginService;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
@@ -52,5 +56,34 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
+    }
+
+    protected function validateLogin(Request $request): void
+    {
+        $request->validate([
+            'email' => 'required|string',
+            'password' => 'required|string',
+        ]);
+    }
+
+    protected function attemptLogin(Request $request): bool
+    {
+        $identifier = trim((string) $request->input('email'));
+        $user = app(OtpLoginService::class)->findUser($identifier);
+
+        if (! $user || ! Hash::check((string) $request->input('password'), (string) $user->password)) {
+            return false;
+        }
+
+        $this->guard()->login($user, $request->boolean('remember'));
+
+        return true;
+    }
+
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        throw ValidationException::withMessages([
+            'email' => [trans('auth.failed')],
+        ]);
     }
 }

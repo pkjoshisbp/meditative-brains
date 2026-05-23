@@ -19,7 +19,7 @@
             <h3>1.1 Information You Provide</h3>
             <ul>
                 <li>Name and email address when registering an account</li>
-                <li>Payment information (processed securely by PayPal or Razorpay — we do not store card details)</li>
+                <li>Payment information (processed securely by PayPal or CCAvenue — we do not store card details)</li>
                 <li>Communication you send us</li>
             </ul>
             <h3>1.2 Information Collected Automatically</h3>
@@ -46,7 +46,7 @@
             <h2>4. Payment Processing</h2>
             <p>Payments are processed by:</p>
             <ul>
-                <li><strong>Razorpay</strong> — for users in India (subject to <a href="https://razorpay.com/privacy/" target="_blank" rel="noopener">Razorpay's Privacy Policy</a>)</li>
+                <li><strong>CCAvenue</strong> — for users in India (subject to CCAvenue's merchant and privacy terms)</li>
                 <li><strong>PayPal</strong> — for international users (subject to <a href="https://www.paypal.com/us/legalhub/privacy-full" target="_blank" rel="noopener">PayPal's Privacy Policy</a>)</li>
             </ul>
             <p>We do not store your payment card details on our servers.</p>
@@ -54,7 +54,7 @@
             <h2>5. Data Sharing</h2>
             <p>We do not sell or rent your personal information to third parties. We may share data with:</p>
             <ul>
-                <li>Payment processors (PayPal, Razorpay) to complete transactions</li>
+                <li>Payment processors (PayPal, CCAvenue) to complete transactions</li>
                 <li>Email service providers to send transactional emails</li>
                 <li>Legal authorities when required by law</li>
             </ul>

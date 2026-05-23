@@ -106,6 +106,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::post('/settings/payments', function (\Illuminate\Http\Request $request) {
         $request->validate([
+            'ccavenue_merchant_id' => 'nullable|string',
+            'ccavenue_access_code' => 'nullable|string',
+            'ccavenue_working_key' => 'nullable|string',
+            'ccavenue_mode' => 'required|in:test,live',
             'razorpay_key_id'      => 'nullable|string',
             'razorpay_key_secret'  => 'nullable|string',
             'razorpay_webhook_secret' => 'nullable|string',
@@ -119,6 +123,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         $env = file_get_contents($envPath);
 
         $updates = [
+            'CCAVENUE_MERCHANT_ID' => $request->ccavenue_merchant_id,
+            'CCAVENUE_ACCESS_CODE' => $request->ccavenue_access_code,
+            'CCAVENUE_WORKING_KEY' => $request->ccavenue_working_key,
+            'CCAVENUE_MODE' => $request->ccavenue_mode,
             'RAZORPAY_KEY_ID'         => $request->razorpay_key_id,
             'RAZORPAY_KEY_SECRET'     => $request->razorpay_key_secret,
             'RAZORPAY_WEBHOOK_SECRET' => $request->razorpay_webhook_secret,
@@ -178,12 +186,14 @@ Route::middleware(['auth'])->prefix('my-account')->name('account.')->group(funct
 
 // Payment Routes
 Route::middleware(['auth'])->prefix('payment')->name('payment.')->group(function () {
+    Route::post('/ccavenue/start', [PaymentController::class, 'ccavenueStart'])->name('ccavenue.start');
     Route::post('/razorpay/create-order', [PaymentController::class, 'razorpayCreateOrder'])->name('razorpay.create');
     Route::post('/razorpay/verify', [PaymentController::class, 'razorpayVerify'])->name('razorpay.verify');
     Route::get('/paypal/create-order', [PaymentController::class, 'paypalCreateOrder'])->name('paypal.create');
     Route::get('/paypal/success', [PaymentController::class, 'paypalSuccess'])->name('paypal.success');
     Route::get('/paypal/cancel', [PaymentController::class, 'paypalCancel'])->name('paypal.cancel');
 });
+Route::post('/payment/ccavenue/response', [PaymentController::class, 'ccavenueResponse'])->name('payment.ccavenue.response');
 // Razorpay webhook (no auth, verified by signature)
 Route::post('/webhooks/razorpay', [PaymentController::class, 'razorpayWebhook'])->name('webhooks.razorpay');
 
@@ -223,11 +233,13 @@ Route::get('/subscription', [SubscriptionController::class, 'index'])->name('sub
 Route::middleware(['auth'])->group(function () {
     Route::get('/subscription/checkout', [SubscriptionController::class, 'showCheckout'])->name('subscription.checkout.show');
     Route::post('/subscription/checkout', [SubscriptionController::class, 'checkout'])->name('subscription.checkout');
+    Route::post('/subscription/checkout/ccavenue/start', [SubscriptionController::class, 'startCcavenueCheckout'])->name('subscription.checkout.ccavenue.start');
     Route::post('/subscription/checkout/razorpay/create-order', [SubscriptionController::class, 'createRazorpayOrder'])->name('subscription.checkout.razorpay.create');
     Route::post('/subscription/checkout/razorpay/verify', [SubscriptionController::class, 'verifyRazorpayPayment'])->name('subscription.checkout.razorpay.verify');
     Route::get('/subscription/checkout/success', [SubscriptionController::class, 'success'])->name('subscription.success');
     Route::get('/subscription/checkout/cancel', [SubscriptionController::class, 'cancel'])->name('subscription.cancel');
 });
+Route::post('/subscription/checkout/ccavenue/response', [SubscriptionController::class, 'handleCcavenueResponse'])->name('subscription.checkout.ccavenue.response');
 
 // About & Blog
 Route::get('/about', function () { return view('pages.about'); })->name('about');
@@ -250,11 +262,13 @@ Route::post('/cart/remove', [App\Http\Controllers\CartController::class, 'remove
 Route::post('/cart/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
 Route::middleware(['auth'])->group(function () {
     Route::post('/cart/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('cart.checkout');
+    Route::post('/cart/checkout/ccavenue/start', [App\Http\Controllers\CartController::class, 'startCcavenueCheckout'])->name('cart.checkout.ccavenue.start');
     Route::post('/cart/checkout/razorpay/create-order', [App\Http\Controllers\CartController::class, 'createRazorpayOrder'])->name('cart.checkout.razorpay.create');
     Route::post('/cart/checkout/razorpay/verify', [App\Http\Controllers\CartController::class, 'verifyRazorpayPayment'])->name('cart.checkout.razorpay.verify');
     Route::get('/cart/checkout/success', [App\Http\Controllers\CartController::class, 'checkoutSuccess'])->name('cart.checkout.success');
     Route::get('/cart/checkout/cancel', [App\Http\Controllers\CartController::class, 'checkoutCancel'])->name('cart.checkout.cancel');
 });
+Route::post('/cart/checkout/ccavenue/response', [App\Http\Controllers\CartController::class, 'handleCcavenueResponse'])->name('cart.checkout.ccavenue.response');
 
 // Sitemap
 Route::get('/sitemap.xml', App\Http\Controllers\SitemapController::class)->name('sitemap');

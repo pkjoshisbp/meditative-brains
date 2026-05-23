@@ -9,19 +9,19 @@ use Illuminate\Support\Facades\Log;
  * SmsGatewayService
  *
  * Pushes an sms.send event to the Flutter SMS gateway app via the internal
- * TCP push channel that runs inside the Ratchet WebSocket server process.
+ * TCP push channel that runs inside the websocket server process.
  *
  * Flow:
  *   AuthController::sendOtp()
  *       → SmsGatewayService::dispatch()
- *           → TCP socket → 127.0.0.1:8092 (Ratchet push channel)
+ *           → TCP socket → 127.0.0.1:8092 (compat push channel)
  *               → TtsWebSocketServer::pushSmsEvent()
  *                   → Flutter SMS gateway WebSocket connection
  *                       → Android SmsManager → actual SMS
  */
 class SmsGatewayService
 {
-    /** Port where the Ratchet process listens for internal push commands. */
+    /** Port where the websocket process listens for internal push commands. */
     private int $pushPort;
 
     public function __construct()
@@ -57,9 +57,12 @@ class SmsGatewayService
         fwrite($socket, $payload . "\n");
         fclose($socket);
 
-        Log::info("[SMS] Dispatched sms.send to push channel", [
+        $decoded = json_decode($payload, true) ?? [];
+
+        Log::info('[SMS] Dispatched sms.send to push channel', [
             'phone_raw'  => $phone,
             'phone_e164' => $normalized,
+            'request_id' => $decoded['request_id'] ?? null,
             'port'       => $this->pushPort,
         ]);
 

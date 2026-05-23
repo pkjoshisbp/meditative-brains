@@ -77,15 +77,15 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label for="email" class="form-label text-light">Email address</label>
+                    <label for="email" class="form-label text-light">Email, username, or mobile number</label>
                     <div class="input-group">
                         <span class="input-group-text border-secondary" style="background:#2d3748;color:#94a3b8;">
                             <i class="fas fa-envelope"></i>
                         </span>
-                        <input id="email" type="email"
+                        <input id="email" type="text"
                             class="form-control bg-dark border-secondary text-white @error('email') is-invalid @enderror"
-                            name="email" value="{{ old('email') }}" required autocomplete="email" autofocus
-                            placeholder="your@email.com">
+                            name="email" value="{{ old('email') }}" required autocomplete="email webauthn" autofocus
+                            placeholder="your@email.com, username, or +15551234567">
                         @error('email')
                             <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
                         @enderror
@@ -122,6 +122,21 @@
                 <button type="submit" class="btn btn-primary w-100 btn-lg mb-3 fw-semibold">
                     <i class="fas fa-sign-in-alt me-2"></i>Sign In
                 </button>
+
+                <button
+                    type="button"
+                    class="btn btn-outline-light w-100 btn-lg mb-3 fw-semibold"
+                    data-passkey-login
+                    data-busy-label="Checking passkey..."
+                >
+                    <i class="fas fa-fingerprint me-2"></i>Sign In with Passkey
+                </button>
+
+                <div class="small mb-3" style="color:#94a3b8;" data-passkey-login-help>
+                    Use Face ID, Touch ID, Windows Hello, or a saved passkey from this device.
+                </div>
+
+                <div data-passkey-login-feedback></div>
 
                 <p class="text-center mb-0" style="color:#94a3b8;">
                     Don't have an account?

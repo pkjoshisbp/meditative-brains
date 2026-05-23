@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -16,6 +17,8 @@ class OtpLoginService
 {
     public const TRUSTED_DEVICE_COOKIE = 'trusted_login_device';
     public const TRUSTED_DEVICE_DAYS = 30;
+
+    private ?array $userColumns = null;
 
     public function findUser(string $identifier): ?User
     {
@@ -30,6 +33,10 @@ class OtpLoginService
         }
 
         if (preg_match('/^\+?[0-9]{7,15}$/', $identifier)) {
+            if (! $this->hasUserColumn('mobile')) {
+                return null;
+            }
+
             $candidates = array_unique(array_filter([
                 $identifier,
                 ltrim($identifier, '+'),
@@ -39,9 +46,15 @@ class OtpLoginService
             return User::whereIn('mobile', $candidates)->first();
         }
 
-        return User::where('username', $identifier)
-            ->orWhere('name', $identifier)
-            ->first();
+        $query = User::query();
+
+        if ($this->hasUserColumn('username')) {
+            $query->where('username', $identifier)->orWhere('name', $identifier);
+        } else {
+            $query->where('name', $identifier);
+        }
+
+        return $query->first();
     }
 
     public function issue(string $identifier): ?array
@@ -313,5 +326,19 @@ class OtpLoginService
         }
 
         return $device;
+    }
+
+    private function hasUserColumn(string $column): bool
+    {
+        return in_array($column, $this->userColumns(), true);
+    }
+
+    private function userColumns(): array
+    {
+        if ($this->userColumns !== null) {
+            return $this->userColumns;
+        }
+
+        return $this->userColumns = Schema::getColumnListing((new User())->getTable());
     }
 }

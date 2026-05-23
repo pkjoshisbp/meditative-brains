@@ -1,10 +1,10 @@
 @extends('account.layout')
-@section('title', 'Profile & Password')
+@section('title', 'Profile, Security & Password')
 
 @section('account-content')
 <div>
     <h2 class="fw-bold mb-1">Profile & Password</h2>
-    <p class="text-muted mb-4">Manage your personal details, account security, and student verification.</p>
+    <p class="text-muted mb-4">Manage your personal details, account security, passkeys, and student verification.</p>
 
     {{-- Flash messages --}}
     @if(session('success'))
@@ -102,6 +102,77 @@
     </div>
 
     <div class="row g-4 mt-1">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" data-passkey-manager>
+                <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span><i class="fas fa-fingerprint me-2 text-info"></i>Passkeys</span>
+                    <span class="badge bg-light text-dark border">{{ $user->passkeys->count() }} registered</span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">Add a passkey to sign in with biometrics or your device PIN instead of typing your password.</p>
+
+                    <form class="row g-3 align-items-end" data-passkey-register-form>
+                        <div class="col-md-8 col-lg-6">
+                            <label for="passkey_name" class="form-label fw-semibold">Passkey Name</label>
+                            <input
+                                id="passkey_name"
+                                type="text"
+                                class="form-control"
+                                placeholder="My iPhone, Work Laptop, Home PC"
+                                value="{{ old('passkey_name') }}"
+                                maxlength="255"
+                                data-passkey-name
+                            >
+                        </div>
+                        <div class="col-md-4 col-lg-3">
+                            <button
+                                type="submit"
+                                class="btn btn-outline-primary w-100 fw-semibold"
+                                data-passkey-register-button
+                                data-busy-label="Adding passkey..."
+                            >
+                                <i class="fas fa-plus me-1"></i>Add Passkey
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-3" data-passkey-feedback></div>
+
+                    <div class="mt-4">
+                        @forelse($user->passkeys as $passkey)
+                            <div class="border rounded-3 p-3 mb-3 d-flex justify-content-between align-items-start flex-wrap gap-3">
+                                <div>
+                                    <div class="fw-semibold">{{ $passkey->name }}</div>
+                                    <div class="small text-muted d-flex flex-wrap gap-2">
+                                        <span>Added {{ optional($passkey->created_at)->format('d M Y, H:i') }}</span>
+                                        @if($passkey->last_used_at)
+                                            <span>Last used {{ $passkey->last_used_at->diffForHumans() }}</span>
+                                        @endif
+                                        @if($passkey->authenticator)
+                                            <span>{{ $passkey->authenticator }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger btn-sm"
+                                    data-passkey-delete
+                                    data-passkey-delete-url="{{ route('passkey.destroy', $passkey) }}"
+                                    data-passkey-name-label="{{ $passkey->name }}"
+                                >
+                                    <i class="fas fa-trash-alt me-1"></i>Remove
+                                </button>
+                            </div>
+                        @empty
+                            <div class="border rounded-3 p-4 bg-light text-muted">
+                                No passkeys registered yet. Add one from a secure device to enable passwordless sign-in.
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">

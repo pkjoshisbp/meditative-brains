@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('BROADCAST_DRIVER', 'null'),
+    'default' => env('BROADCAST_DRIVER', env('BROADCAST_CONNECTION', 'null')),
 
     /*
     |--------------------------------------------------------------------------
@@ -32,16 +32,16 @@ return [
 
         'pusher' => [
             'driver' => 'pusher',
-            'key' => env('PUSHER_APP_KEY'),
-            'secret' => env('PUSHER_APP_SECRET'),
-            'app_id' => env('PUSHER_APP_ID'),
+            'key' => env('PUSHER_APP_KEY', env('REVERB_APP_KEY', 'mentalfitness-reverb-key')),
+            'secret' => env('PUSHER_APP_SECRET', env('REVERB_APP_SECRET', 'mentalfitness-reverb-secret')),
+            'app_id' => env('PUSHER_APP_ID', env('REVERB_APP_ID', 'mentalfitness-reverb-app')),
             'options' => [
-                'cluster' => env('PUSHER_APP_CLUSTER'),
-                'host' => env('PUSHER_HOST') ?: 'api-'.env('PUSHER_APP_CLUSTER', 'mt1').'.pusher.com',
-                'port' => env('PUSHER_PORT', 443),
-                'scheme' => env('PUSHER_SCHEME', 'https'),
-                'encrypted' => true,
-                'useTLS' => env('PUSHER_SCHEME', 'https') === 'https',
+                'cluster' => env('PUSHER_APP_CLUSTER', env('REVERB_APP_CLUSTER', 'mt1')),
+                'host' => env('PUSHER_HOST', env('REVERB_HOST', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST) ?: '127.0.0.1')),
+                'port' => env('PUSHER_PORT', env('REVERB_PORT', 8080)),
+                'scheme' => env('PUSHER_SCHEME', env('REVERB_SCHEME', 'http')),
+                'encrypted' => env('PUSHER_SCHEME', env('REVERB_SCHEME', 'http')) === 'https',
+                'useTLS' => env('PUSHER_SCHEME', env('REVERB_SCHEME', 'http')) === 'https',
             ],
             'client_options' => [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html

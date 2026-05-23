@@ -74,7 +74,7 @@
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-mf-dropdown-toggle aria-expanded="false">
                             <i class="fas fa-list me-1"></i>Categories
                         </a>
                         <ul class="dropdown-menu">
@@ -151,7 +151,7 @@
                             </a>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-mf-dropdown-toggle aria-expanded="false">
                                 <i class="fas fa-user-circle me-2"></i>{{ Auth::user()->name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">

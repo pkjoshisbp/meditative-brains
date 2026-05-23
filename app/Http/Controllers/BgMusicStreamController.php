@@ -4,12 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\AudioSecurityService;
+use App\Services\TtsAudioGeneratorService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class BgMusicStreamController extends Controller
 {
-    public function __construct(private AudioSecurityService $audioSecurityService) {}
+    public function __construct(
+        private AudioSecurityService $audioSecurityService,
+        private TtsAudioGeneratorService $ttsAudioGeneratorService,
+    ) {}
 
     // Issue a temporary signed URL (token based) for a background music track name (without extension)
     public function issue(Request $request)
@@ -35,8 +39,8 @@ class BgMusicStreamController extends Controller
                 }
             }
             if (!$candidate) {
-                // fallback assume mp3
-                $candidate = $track . '.mp3';
+                // fallback assume normalized AAC storage
+                $candidate = $track . '.aac';
             }
             $this->audioSecurityService->encryptBgMusicFile($candidate);
             $encryptedPath = 'bg-music/encrypted/' . pathinfo($candidate, PATHINFO_FILENAME) . '.enc';
@@ -92,27 +96,31 @@ class BgMusicStreamController extends Controller
 
         $name    = Str::slug($request->input('track_name'));
         $file    = $request->file('audio_file');
-        $ext     = strtolower($file->getClientOriginalExtension());
-        $filename = $name . '.' . $ext;
+        $filename = $name . '.aac';
 
         // Security: prevent traversal
         if ($filename !== basename($filename) || str_contains($filename, '..')) {
             return back()->withErrors(['audio_file' => 'Invalid filename.']);
         }
 
-        // Store original
+        // Store normalized AAC original
         $originalPath = storage_path('app/bg-music/original');
         if (!is_dir($originalPath)) {
             mkdir($originalPath, 0755, true);
         }
-        $file->move($originalPath, $filename);
+        $targetFile = $originalPath . '/' . $filename;
+        $this->ttsAudioGeneratorService->convertAudioToAac(
+            $file->getRealPath(),
+            $targetFile,
+            ['bitrate' => '128k', 'channels' => 2, 'sample_rate' => 44100],
+        );
 
         // Copy to public/bg-music for home-screen playback (no auth required)
         $publicPath = public_path('bg-music');
         if (!is_dir($publicPath)) {
             mkdir($publicPath, 0755, true);
         }
-        copy($originalPath . '/' . $filename, $publicPath . '/' . $filename);
+        copy($targetFile, $publicPath . '/' . $filename);
 
         // Encrypt for secure Flutter streaming
         $encryptError = null;

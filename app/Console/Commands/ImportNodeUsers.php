@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use App\Models\User;
 use Throwable;
 
@@ -14,10 +15,14 @@ use Throwable;
  */
 class ImportNodeUsers extends Command
 {
+    private ?array $userColumns = null;
+
     protected $signature = 'users:import-node 
         {--file= : Path to JSON or CSV export of Node users} 
         {--hash-type=auto : auto|bcrypt|argon2|plaintext (plaintext means provided value is raw password)} 
         {--email-field=email : Field name for email in source} 
+        {--username-field=username : Field name for username in source} 
+        {--mobile-field=phone : Field name for mobile/phone in source} 
         {--name-field= : Single field for full name (optional if first/last provided)} 
         {--first-name-field= : Field containing first name (optional)} 
         {--last-name-field= : Field containing last name (optional)} 
@@ -41,9 +46,11 @@ class ImportNodeUsers extends Command
 
         $hashType = strtolower($this->option('hash-type') ?? 'auto');
         $emailField = $this->option('email-field');
-    $nameField = $this->option('name-field');
-    $firstNameField = $this->option('first-name-field');
-    $lastNameField = $this->option('last-name-field');
+        $usernameField = $this->option('username-field');
+        $mobileField = $this->option('mobile-field');
+        $nameField = $this->option('name-field');
+        $firstNameField = $this->option('first-name-field');
+        $lastNameField = $this->option('last-name-field');
         $passwordField = $this->option('password-field');
         $limit = (int)$this->option('limit');
         $dry = (bool)$this->option('dry-run');
@@ -94,15 +101,37 @@ class ImportNodeUsers extends Command
                 $user = User::where('email',$email)->first();
                 if ($user) { $skipped++; continue; }
 
-                $passwordToStore = $pwRaw;
-                if (!$isHash) { $passwordToStore = Hash::make($pwRaw); }
+                $passwordToStore = $isHash
+                    ? $this->normalizeImportedHash($pwRaw)
+                    : Hash::make($pwRaw);
 
                 if (!$dry) {
-                    User::create([
+                    $attributes = [
                         'name' => $name ?: 'Imported User',
                         'email' => $email,
                         'password' => $passwordToStore,
-                    ]);
+                    ];
+
+                    if ($usernameField && $this->hasUserColumn('username')) {
+                        $username = trim((string) ($row[$usernameField] ?? ''));
+
+                        if ($username !== '') {
+                            $attributes['username'] = $username;
+                        }
+                    }
+
+                    if ($mobileField && $this->hasUserColumn('mobile')) {
+                        $mobile = trim((string) ($row[$mobileField] ?? ''));
+
+                        if ($mobile !== '') {
+                            $attributes['mobile'] = $mobile;
+                        }
+                    }
+
+                    $attributes['created_at'] = now();
+                    $attributes['updated_at'] = now();
+
+                    User::query()->insert($attributes);
                 }
                 $created++;
             } catch (Throwable $e) {
@@ -119,6 +148,20 @@ class ImportNodeUsers extends Command
         return Command::SUCCESS;
     }
 
+    protected function hasUserColumn(string $column): bool
+    {
+        return in_array($column, $this->userColumns(), true);
+    }
+
+    protected function userColumns(): array
+    {
+        if ($this->userColumns !== null) {
+            return $this->userColumns;
+        }
+
+        return $this->userColumns = Schema::getColumnListing((new User())->getTable());
+    }
+
     protected function isHashLike(string $value, string $hashType): bool
     {
         if ($hashType === 'plaintext') return false;
@@ -126,6 +169,15 @@ class ImportNodeUsers extends Command
         if ($hashType === 'argon2') return str_starts_with($value,'$argon2');
         // auto
         return (bool)(preg_match('/^\$2[aby]\$/',$value) || str_starts_with($value,'$argon2'));
+    }
+
+    protected function normalizeImportedHash(string $value): string
+    {
+        if (str_starts_with($value, '$2a$') || str_starts_with($value, '$2b$')) {
+            return '$2y$'.substr($value, 4);
+        }
+
+        return $value;
     }
 
     protected function readCsv(string $path): array

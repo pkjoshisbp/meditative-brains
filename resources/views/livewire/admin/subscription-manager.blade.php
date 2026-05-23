@@ -92,6 +92,9 @@
                                 <td>
                                     <div class="fw-semibold">{{ $sub->user?->name ?? '—' }}</div>
                                     <div class="small text-muted">{{ $sub->user?->email }}</div>
+                                    @if($sub->user?->mobile)
+                                        <div class="small text-muted">{{ $sub->user->mobile }}</div>
+                                    @endif
                                 </td>
                                 <td>
                                     <span class="badge bg-primary">{{ $sub->plan_type }}</span>

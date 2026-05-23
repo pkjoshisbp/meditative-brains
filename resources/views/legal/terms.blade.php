@@ -31,7 +31,7 @@
             <p>Subscriptions renew automatically unless cancelled at least 24 hours before the renewal date.</p>
 
             <h2>5. Pricing &amp; Currency</h2>
-            <p>Prices are displayed in USD ($) for international users and in Indian Rupees (₹) for users in India. The applicable exchange rate is $1 = ₹100 as set by the store. We accept PayPal for international payments and Razorpay for Indian payments.</p>
+            <p>Prices are displayed in USD ($) for international users and in Indian Rupees (₹) for users in India. The applicable exchange rate is $1 = ₹100 as set by the store. We accept PayPal for international payments and CCAvenue for Indian payments.</p>
 
             <h2>6. Refund Policy</h2>
             <p>Due to the digital nature of our products, all sales are final. If you experience a technical issue preventing access to your purchased product, please contact us within 7 days of purchase at <a href="mailto:support@mentalfitness.store">support@mentalfitness.store</a>.</p>

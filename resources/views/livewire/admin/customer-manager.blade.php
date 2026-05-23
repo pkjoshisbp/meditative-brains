@@ -63,8 +63,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th>#</th>
-                            <th>Name</th>
-                            <th>Email</th>
+                            <th>User</th>
                             <th>Orders</th>
                             <th>Joined</th>
                             <th>Actions</th>
@@ -74,8 +73,13 @@
                         @forelse($customers as $customer)
                             <tr>
                                 <td>{{ $customer->id }}</td>
-                                <td><strong>{{ $customer->name }}</strong></td>
-                                <td>{{ $customer->email }}</td>
+                                <td>
+                                    <div class="fw-semibold">{{ $customer->name }}</div>
+                                    <div class="small text-muted">{{ $customer->email }}</div>
+                                    @if($customer->mobile)
+                                        <div class="small text-muted">{{ $customer->mobile }}</div>
+                                    @endif
+                                </td>
                                 <td>
                                     <span class="badge bg-{{ $customer->orders_count > 0 ? 'success' : 'secondary' }}">
                                         {{ $customer->orders_count }}
@@ -100,7 +104,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-4">
+                                <td colspan="5" class="text-center text-muted py-4">
                                     <i class="fas fa-users fa-2x mb-2 d-block"></i>
                                     No customers found.
                                 </td>

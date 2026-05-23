@@ -96,7 +96,7 @@
                                     <small class="text-muted">
                                         Go to <a href="{{ route('admin.tts.messages') }}" target="_blank">TTS Messages</a> to write/edit motivation messages for each category.
                                         The backend synthesises each message line into speech using Azure/Neural voices.
-                                        The generated audio files are streamed from <code>mentalfitness.store:3001/api/tts/audio/&lt;id&gt;.mp3</code>.
+                                        Fresh generation now writes original <code>.aac</code> files in Laravel storage and serves customers from signed <code>.enc</code> streams.
                                     </small>
                                 </div>
                             </div>
@@ -106,8 +106,8 @@
                                 <div>
                                     <strong>Storage: original/ &amp; encrypted/</strong><br>
                                     <small class="text-muted">
-                                        <code>storage/app/audio/original/</code> — Raw generated <code>.mp3</code> files per category (used for admin preview &amp; as the source for encryption).<br>
-                                        <code>storage/app/audio/encrypted/</code> — AES-256 <code>.enc</code> files served to paying customers via signed streaming URLs.
+                                        <code>storage/app/audio-cache/</code>, <code>storage/app/products-audio/</code> and <code>storage/app/audiobook/</code> hold the underlying original <code>.aac</code> files.<br>
+                                        <code>storage/app/audio/encrypted/</code> holds the AES-256 <code>.enc</code> copies served to customers via signed streaming URLs.
                                         The <strong>Audio Stream Controller</strong> decrypts on-the-fly; the key never hits the browser.
                                         Only users with a valid subscription/purchase can request a signed stream URL.
                                     </small>
@@ -153,7 +153,7 @@
                                 </tr>
                                 <tr>
                                     <td>Encrypt generated audio</td>
-                                    <td>Generated .mp3 in <code>original/</code> → <code>encrypted/</code> via Encrypt button</td>
+                                    <td>Generated <code>.aac</code> originals are mirrored to <code>.enc</code> signed streams automatically</td>
                                 </tr>
                                 <tr>
                                     <td>Sell / give access to product</td>
@@ -772,7 +772,7 @@
                                         <label for="background_music_url">Background Music URL</label>
                                         <input wire:model="background_music_url" type="url" 
                                                class="form-control @error('background_music_url') is-invalid @enderror" id="background_music_url"
-                                               placeholder="https://example.com/background-music.mp3">
+                                                 placeholder="https://example.com/background-music.aac">
                                         @error('background_music_url') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                         <small class="form-text text-muted">Direct URL to background music file</small>
                                     </div>

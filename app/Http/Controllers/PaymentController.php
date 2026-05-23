@@ -7,20 +7,123 @@ use App\Models\TtsAudioProduct;
 use App\Models\ProductVersion;
 use App\Models\TtsProductPurchase;
 use App\Services\AffiliateService;
+use App\Services\CcAvenueService;
 use App\Services\StudentPricingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
-    public function __construct(private StudentPricingService $studentPricing, private AffiliateService $affiliateService)
+    public function __construct(
+        private StudentPricingService $studentPricing,
+        private AffiliateService $affiliateService,
+        private CcAvenueService $ccAvenueService,
+    )
     {
     }
 
     // ─────────────────────────────────────────────
-    //  Razorpay – create order (India)
+    //  CCAvenue – hosted checkout (India)
+    // ─────────────────────────────────────────────
+
+    public function ccavenueStart(Request $request)
+    {
+        $request->validate([
+            'product_id'   => 'required|integer',
+            'version_id'   => 'nullable|integer',
+            'product_type' => 'nullable|string|in:audio,ebook_pdf,ebook_bundle',
+        ]);
+
+        if (! $this->usesCcavenueCheckout()) {
+            return redirect()->back()->with('error', 'CCAvenue checkout is available only for India / INR orders.');
+        }
+
+        $user = $request->user();
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        $product = TtsAudioProduct::findOrFail($request->integer('product_id'));
+        $productType = $request->input('product_type', $product->product_type ?? 'audio');
+        $amountInr = $this->resolveInrAmount($product, $productType, $request->integer('version_id'));
+        $affiliateData = $this->affiliateService->attributionData($amountInr, $user);
+        $orderId = 'tts_' . $user->id . '_' . Str::upper(Str::random(10));
+
+        Cache::put('ccavenue.product.' . $orderId, [
+            'affiliate' => $affiliateData,
+        ], now()->addHour());
+
+        try {
+            $checkout = $this->ccAvenueService->buildCheckoutPayload([
+                'merchant_id' => $this->ccAvenueService->merchantId(),
+                'order_id' => $orderId,
+                'currency' => 'INR',
+                'amount' => $this->ccAvenueService->formatAmount($amountInr),
+                'redirect_url' => route('payment.ccavenue.response'),
+                'cancel_url' => route('payment.ccavenue.response'),
+                'language' => 'EN',
+                'billing_name' => $user->name,
+                'billing_email' => $user->email,
+                'billing_tel' => $user->mobile,
+                'merchant_param1' => 'product',
+                'merchant_param2' => (string) $user->id,
+                'merchant_param3' => (string) $product->id,
+                'merchant_param4' => (string) ($request->input('version_id') ?? ''),
+                'merchant_param5' => (string) $productType,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('CCAvenue product checkout failed', [
+                'user_id' => $user->id,
+                'product_id' => $product->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', 'Unable to start CCAvenue checkout right now.');
+        }
+
+        return view('payments.ccavenue-redirect', [
+            'gatewayUrl' => $checkout['gateway_url'],
+            'encRequest' => $checkout['enc_request'],
+            'accessCode' => $checkout['access_code'],
+        ]);
+    }
+
+    public function ccavenueResponse(Request $request)
+    {
+        $response = $this->ccAvenueService->decryptResponse($request->input('encResp'));
+        $orderId = (string) ($response['order_id'] ?? '');
+        $userId = (int) ($response['merchant_param2'] ?? 0);
+
+        if ($userId > 0) {
+            Auth::loginUsingId($userId);
+            $request->session()->regenerate();
+        }
+
+        if ($orderId === '' || strtoupper((string) ($response['order_status'] ?? '')) !== 'SUCCESS') {
+            return redirect('/')->with('error', 'Payment was not completed.');
+        }
+
+        $cached = Cache::pull('ccavenue.product.' . $orderId, []);
+
+        $this->recordPurchase(
+            (int) ($response['merchant_param3'] ?? 0),
+            ($response['merchant_param4'] ?? '') !== '' ? (int) $response['merchant_param4'] : null,
+            (string) ($response['merchant_param5'] ?? 'audio'),
+            'ccavenue',
+            (string) ($response['tracking_id'] ?? $orderId),
+            $cached['affiliate'] ?? [],
+            (float) ($response['amount'] ?? 0),
+            'INR'
+        );
+
+        return redirect('/')->with('success', 'Payment successful! Your purchase is now available.');
+    }
+
+    // ─────────────────────────────────────────────
+    //  Razorpay – create order (disabled fallback)
     // ─────────────────────────────────────────────
 
     public function razorpayCreateOrder(Request $request)
@@ -334,5 +437,10 @@ class PaymentController extends Controller
         )->asForm()->post($base . '/v1/oauth2/token', ['grant_type' => 'client_credentials']);
 
         return $response->json('access_token');
+    }
+
+    private function usesCcavenueCheckout(): bool
+    {
+        return session('user_currency') === 'INR' || session('payment_gateway') === 'ccavenue';
     }
 }

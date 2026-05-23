@@ -131,7 +131,7 @@
                     <div id="sf2" class="accordion-collapse collapse" data-bs-parent="#subFaq">
                         <div class="accordion-body">
                             @if($isIndia)
-                                We accept payments via Razorpay — UPI, debit/credit cards, net banking, and wallets.
+                                We accept payments via CCAvenue for India — cards, net banking, UPI, and supported wallets.
                             @else
                                 We accept PayPal and all major credit/debit cards via PayPal.
                             @endif

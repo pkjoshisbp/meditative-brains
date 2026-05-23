@@ -1,0 +1,89 @@
+{
+    "name": "cboden/ratchet",
+    "description": "PHP WebSocket library",
+    "keywords": [
+        "websocket",
+        "sockets",
+        "server",
+        "WebSockets",
+        "Ratchet"
+    ],
+    "type": "library",
+    "homepage": "http://socketo.me",
+    "names": [
+        "cboden/ratchet"
+    ],
+    "versions": [
+        "v0.5.x-dev",
+        "0.4.x-dev",
+        "v0.4.4",
+        "v0.4.3",
+        "v0.4.2",
+        "v0.4.1",
+        "v0.4",
+        "v0.3.6",
+        "v0.3.5",
+        "v0.3.4",
+        "v0.3.3",
+        "v0.3.2",
+        "v0.3.1",
+        "v0.3.0",
+        "v0.2.8",
+        "v0.2.7",
+        "v0.2.6",
+        "v0.2.5",
+        "v0.2.4",
+        "v0.2.3",
+        "v0.2.2",
+        "v0.2.1",
+        "v0.2.0",
+        "v0.1.5",
+        "v0.1.4",
+        "v0.1.3",
+        "v0.1.2",
+        "0.1.1",
+        "v0.1",
+        "dev-container",
+        "dev-wamp-sync-bug"
+    ],
+    "licenses": [
+        {
+            "name": "MIT License",
+            "osi": "MIT",
+            "url": "https://spdx.org/licenses/MIT.html#licenseText"
+        }
+    ],
+    "source": {
+        "type": "git",
+        "url": "https://github.com/ratchetphp/Ratchet.git",
+        "reference": "5012dc954541b40c5599d286fd40653f5716a38f"
+    },
+    "dist": {
+        "type": "zip",
+        "url": "https://api.github.com/repos/ratchetphp/Ratchet/zipball/5012dc954541b40c5599d286fd40653f5716a38f",
+        "reference": "5012dc954541b40c5599d286fd40653f5716a38f"
+    },
+    "released": "2021-12-14T00:20:41+00:00",
+    "support": {
+        "chat": "https://gitter.im/reactphp/reactphp",
+        "issues": "https://github.com/ratchetphp/Ratchet/issues",
+        "source": "https://github.com/ratchetphp/Ratchet/tree/v0.4.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ratchet\\": "src/Ratchet"
+        }
+    },
+    "requires": {
+        "php": ">=5.4.2",
+        "ratchet/rfc6455": "^0.3.1",
+        "react/socket": "^1.0 || ^0.8 || ^0.7 || ^0.6 || ^0.5",
+        "react/event-loop": ">=0.4",
+        "guzzlehttp/psr7": "^1.7|^2.0",
+        "symfony/http-foundation": "^2.6|^3.0|^4.0|^5.0|^6.0",
+        "symfony/routing": "^2.6|^3.0|^4.0|^5.0|^6.0"
+    },
+    "devRequires": {
+        "phpunit/phpunit": "~4.8"
+    }
+}

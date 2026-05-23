@@ -5,7 +5,7 @@
 @section('content')
 @php
     $isIndia = session('user_currency') === 'INR';
-    $usesRazorpay = $isIndia || session('payment_gateway') === 'razorpay';
+    $usesCcavenue = $isIndia || session('payment_gateway') === 'ccavenue';
 @endphp
 <div class="py-4 bg-light border-bottom">
     <div class="container">
@@ -120,10 +120,13 @@
                         </div>
 
                         @auth
-                            @if($usesRazorpay)
-                                <button type="button" class="btn btn-primary w-100 btn-lg mb-3" id="cart-razorpay-button">
-                                    <i class="fas fa-bolt me-2"></i>Proceed to Razorpay
-                                </button>
+                            @if($usesCcavenue)
+                                <form method="POST" action="{{ route('cart.checkout.ccavenue.start') }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+                                        <i class="fas fa-lock me-2"></i>Continue to CCAvenue
+                                    </button>
+                                </form>
                             @else
                                 <form method="POST" action="{{ route('cart.checkout') }}">
                                     @csrf
@@ -145,8 +148,8 @@
 
                         <div class="text-center text-muted small">
                             <i class="fas fa-shield-alt me-1"></i>
-                            @if($usesRazorpay)
-                                Secure checkout via Razorpay for India / INR orders
+                            @if($usesCcavenue)
+                                Secure checkout via CCAvenue for India / INR orders
                             @else
                                 Secure checkout via PayPal for international / USD orders
                             @endif
@@ -158,92 +161,4 @@
     @endif
 </div>
 
-@if($usesRazorpay && auth()->check() && $cartItems->isNotEmpty())
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const button = document.getElementById('cart-razorpay-button');
-
-    if (!button) {
-        return;
-    }
-
-    button.addEventListener('click', function () {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-        button.disabled = true;
-
-        fetch('{{ route('cart.checkout.razorpay.create') }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({})
-        })
-            .then(function (response) {
-                return response.json().then(function (data) {
-                    if (!response.ok) {
-                        throw new Error(data.message || 'Could not create Razorpay order.');
-                    }
-
-                    return data;
-                });
-            })
-            .then(function (data) {
-                const razorpay = new Razorpay({
-                    key: data.key_id,
-                    amount: data.amount,
-                    currency: data.currency,
-                    name: 'Mental Fitness Store',
-                    description: 'Cart purchase',
-                    order_id: data.order_id,
-                    handler: function (response) {
-                        fetch('{{ route('cart.checkout.razorpay.verify') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_signature: response.razorpay_signature
-                            })
-                        })
-                            .then(function (verifyResponse) {
-                                return verifyResponse.json().then(function (verifyData) {
-                                    if (!verifyResponse.ok || !verifyData.success) {
-                                        throw new Error(verifyData.message || 'Payment verification failed.');
-                                    }
-
-                                    window.location.href = verifyData.redirect || '{{ route('account.library') }}';
-                                });
-                            })
-                            .catch(function (error) {
-                                button.disabled = false;
-                                alert(error.message || 'Payment verification failed.');
-                            });
-                    },
-                    theme: {
-                        color: '#0d6efd'
-                    }
-                });
-
-                razorpay.on('payment.failed', function (event) {
-                    button.disabled = false;
-                    alert(event.error.description || 'Payment failed.');
-                });
-
-                razorpay.open();
-            })
-            .catch(function (error) {
-                button.disabled = false;
-                alert(error.message || 'Payment service unavailable. Please try again.');
-            });
-    });
-});
-</script>
-@endif
 @endsection

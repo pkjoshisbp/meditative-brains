@@ -49,6 +49,8 @@ return [
     'sms_gateway' => [
         'secret' => env('SMS_GATEWAY_SECRET', ''),
         'ws_url' => env('SMS_GATEWAY_WS_URL', 'wss://mentalfitness.store:8091'),
+        'pending_ttl' => (int) env('SMS_GATEWAY_PENDING_TTL', 900),
+        'max_pending' => (int) env('SMS_GATEWAY_MAX_PENDING', 25),
     ],
 
 ];

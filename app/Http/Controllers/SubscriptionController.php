@@ -7,13 +7,17 @@ use App\Models\PromoCode;
 use App\Models\SubscriptionPlan;
 use App\Services\AccessControlService;
 use App\Services\AffiliateService;
+use App\Services\CcAvenueService;
 use App\Services\PayPalService;
 use App\Services\PromoCodeService;
 use App\Services\StudentPricingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class SubscriptionController extends Controller
 {
@@ -23,6 +27,7 @@ class SubscriptionController extends Controller
         private PayPalService $payPalService,
         private AccessControlService $accessControlService,
         private AffiliateService $affiliateService,
+        private CcAvenueService $ccAvenueService,
     ) {
     }
 
@@ -214,6 +219,163 @@ class SubscriptionController extends Controller
             ]);
 
             return response()->json(['message' => 'Unable to start Razorpay checkout right now.'], 500);
+        }
+    }
+
+    public function startCcavenueCheckout(Request $request)
+    {
+        if (! $this->usesRazorpayCheckout()) {
+            return redirect()->route('subscription')->with('error', 'CCAvenue checkout is available only for India / INR orders.');
+        }
+
+        $request->validate([
+            'plan_id' => 'required|exists:subscription_plans,id',
+            'billing_interval' => 'required|in:monthly,yearly',
+            'promo_code' => 'nullable|string|max:50',
+        ]);
+
+        $user = $request->user();
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        if ($user->hasActiveSubscription()) {
+            return redirect()->route('account.dashboard')->with('message', 'You already have an active subscription.');
+        }
+
+        $plan = SubscriptionPlan::findOrFail($request->integer('plan_id'));
+        $billingInterval = $this->normaliseBillingInterval($request->string('billing_interval')->toString());
+        $promoCodeValue = strtoupper(trim((string) $request->input('promo_code', '')));
+        $promoCode = $promoCodeValue !== ''
+            ? $this->promoCodeService->findUsableCode($promoCodeValue)
+            : null;
+        $pricing = $this->studentPricing->forSubscriptionPlan($plan, $user, $billingInterval);
+        $amountInr = $promoCode
+            ? $promoCode->applyDiscount($pricing['final_inr'], 'INR')
+            : $pricing['final_inr'];
+        $affiliateData = $this->affiliateService->attributionData((float) $amountInr, $user);
+        $orderId = 'sub_' . $user->id . '_' . Str::upper(Str::random(10));
+
+        Cache::put('ccavenue.subscription.' . $orderId, [
+            'affiliate' => $affiliateData,
+        ], now()->addHour());
+
+        try {
+            $checkout = $this->ccAvenueService->buildCheckoutPayload([
+                'merchant_id' => $this->ccAvenueService->merchantId(),
+                'order_id' => $orderId,
+                'currency' => 'INR',
+                'amount' => $this->ccAvenueService->formatAmount((float) $amountInr),
+                'redirect_url' => route('subscription.checkout.ccavenue.response'),
+                'cancel_url' => route('subscription.checkout.ccavenue.response'),
+                'language' => 'EN',
+                'billing_name' => $user->name,
+                'billing_email' => $user->email,
+                'billing_tel' => $user->mobile,
+                'merchant_param1' => 'subscription',
+                'merchant_param2' => (string) $user->id,
+                'merchant_param3' => (string) $plan->id,
+                'merchant_param4' => $billingInterval,
+                'merchant_param5' => $promoCode?->code,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('CCAvenue subscription checkout failed', [
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->route('subscription.checkout.show', [
+                'plan' => $plan->id,
+                'interval' => $billingInterval,
+                'promo' => $promoCode?->code,
+            ])->with('error', 'Unable to start checkout right now.');
+        }
+
+        return view('payments.ccavenue-redirect', [
+            'gatewayUrl' => $checkout['gateway_url'],
+            'encRequest' => $checkout['enc_request'],
+            'accessCode' => $checkout['access_code'],
+        ]);
+    }
+
+    public function handleCcavenueResponse(Request $request)
+    {
+        $response = $this->ccAvenueService->decryptResponse($request->input('encResp'));
+        $orderId = (string) ($response['order_id'] ?? '');
+        $userId = (int) ($response['merchant_param2'] ?? 0);
+
+        if ($userId > 0) {
+            Auth::loginUsingId($userId);
+            $request->session()->regenerate();
+        }
+
+        $status = strtoupper((string) ($response['order_status'] ?? 'FAILED'));
+        if ($orderId === '' || $status !== 'SUCCESS') {
+            return redirect()->route('subscription')->with('error', 'Payment was not completed.');
+        }
+
+        $user = $userId > 0 ? Auth::user() : null;
+        if (! $user) {
+            return redirect()->route('login')->with('error', 'Unable to restore your session after payment.');
+        }
+
+        if ($user->hasActiveSubscription()) {
+            return redirect()->route('account.dashboard')->with('success', 'Your subscription is already active.');
+        }
+
+        $trackingId = (string) ($response['tracking_id'] ?? $orderId);
+        $existingSubscription = Subscription::query()
+            ->where('payment_method', 'ccavenue')
+            ->where('stripe_subscription_id', $trackingId)
+            ->first();
+
+        if ($existingSubscription) {
+            return redirect()->route('account.dashboard')->with('success', 'Your subscription is already active.');
+        }
+
+        $plan = SubscriptionPlan::findOrFail((int) ($response['merchant_param3'] ?? 0));
+        $billingInterval = $this->normaliseBillingInterval((string) ($response['merchant_param4'] ?? 'monthly'));
+        $promoCodeValue = strtoupper(trim((string) ($response['merchant_param5'] ?? '')));
+        $promoCode = $promoCodeValue !== ''
+            ? PromoCode::where('code', $promoCodeValue)->first()
+            : null;
+        $cached = Cache::pull('ccavenue.subscription.' . $orderId, []);
+
+        DB::beginTransaction();
+
+        try {
+            $subscription = $this->activateCcavenueSubscription(
+                $user,
+                $plan,
+                $billingInterval,
+                $trackingId,
+                $promoCode,
+                $cached['affiliate'] ?? []
+            );
+
+            if ($promoCode) {
+                $this->promoCodeService->markRedeemed($promoCode);
+            }
+
+            DB::commit();
+
+            return redirect()->route('account.dashboard')->with('success', 'Subscription activated successfully.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            Log::error('CCAvenue subscription verification failed', [
+                'user_id' => $user->id,
+                'plan_id' => $plan->id,
+                'order_id' => $orderId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->route('subscription.checkout.show', [
+                'plan' => $plan->id,
+                'interval' => $billingInterval,
+                'promo' => $promoCodeValue,
+            ])->with('error', 'Unable to activate subscription after payment.');
         }
     }
 
@@ -438,6 +600,53 @@ class SubscriptionController extends Controller
 
         $this->affiliateService->recordSubscriptionConversion($subscription, 'INR');
         session()->forget('subscription_razorpay_affiliate_data');
+
+        return $subscription;
+    }
+
+    private function activateCcavenueSubscription(
+        $user,
+        SubscriptionPlan $plan,
+        string $billingInterval,
+        string $paymentId,
+        ?PromoCode $promoCode = null,
+        array $affiliateData = []
+    ): Subscription {
+        $startsAt = now();
+        $endsAt = $billingInterval === 'yearly'
+            ? $startsAt->copy()->addYear()
+            : $startsAt->copy()->addMonth();
+
+        $price = $this->studentPricing->forSubscriptionPlan($plan, $user, $billingInterval)['final_inr'];
+        if ($promoCode) {
+            $price = $promoCode->applyDiscount($price, 'INR');
+        }
+
+        $subscription = Subscription::create([
+            'user_id' => $user->id,
+            'affiliate_profile_id' => $affiliateData['affiliate_profile_id'] ?? null,
+            'affiliate_click_id' => $affiliateData['affiliate_click_id'] ?? null,
+            'affiliate_referral_code' => $affiliateData['affiliate_referral_code'] ?? null,
+            'affiliate_commission_rate' => $affiliateData['affiliate_commission_rate'] ?? null,
+            'affiliate_commission_amount' => $affiliateData['affiliate_commission_amount'] ?? null,
+            'plan_type' => $plan->slug,
+            'price' => $price,
+            'status' => 'active',
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
+            'payment_method' => 'ccavenue',
+            'stripe_subscription_id' => $paymentId,
+            'auto_renew' => false,
+        ]);
+
+        $this->accessControlService->grantSubscriptionAccess(
+            $user,
+            $plan,
+            $endsAt,
+            (string) $subscription->id
+        );
+
+        $this->affiliateService->recordSubscriptionConversion($subscription, 'INR');
 
         return $subscription;
     }

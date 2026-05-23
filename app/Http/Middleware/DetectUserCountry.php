@@ -42,7 +42,7 @@ class DetectUserCountry
         }
 
         $currency = $country === 'IN' ? 'INR' : 'USD';
-        $gateway = $country === 'IN' ? 'razorpay' : 'paypal';
+        $gateway = $country === 'IN' ? 'ccavenue' : 'paypal';
 
         return [$country, $currency, $gateway];
     }

@@ -2,8 +2,6 @@
 
 namespace App\WebSocket;
 
-use Ratchet\MessageComponentInterface;
-use Ratchet\ConnectionInterface;
 use App\Models\TtsSourceCategory;
 use App\Models\TtsMotivationMessage;
 use App\Models\TtsLanguage;
@@ -12,6 +10,7 @@ use App\Models\TtsAudiobookChapter;
 use App\Models\TtsAudioProduct;
 use App\Services\TtsAudioGeneratorService;
 use App\Services\AudioSecurityService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +20,8 @@ use Illuminate\Support\Str;
 /**
  * TtsWebSocketServer
  *
- * Replaces the Node.js HTTP API with a Ratchet bi-directional WebSocket.
+ * Preserves the legacy action-based Flutter websocket protocol on top of the
+ * Reverb socket transport.
  *
  * ┌─────────────────────────────────────────────────────────────────────────┐
  * │  Authenticate: send {"action":"auth","token":"<token-or-secret>"}       │
@@ -83,11 +83,21 @@ class TtsWebSocketServer implements MessageComponentInterface
             return;
         }
 
+        $meta = $this->clients[$from] ?? ['authed' => false, 'user' => null, 'role' => null];
+        $meta['request_id'] = $payload['request_id'] ?? $payload['requestId'] ?? null;
+        $this->clients[$from] = $meta;
+
         $action = $payload['action'];
 
         // Auth is always allowed un-gated
         if ($action === 'auth') {
-            $this->handleAuth($from, $payload);
+            try {
+                $this->handleAuth($from, $payload);
+            } finally {
+                $meta = $this->clients[$from] ?? ['authed' => false, 'user' => null, 'role' => null];
+                $meta['request_id'] = null;
+                $this->clients[$from] = $meta;
+            }
             return;
         }
 
@@ -96,16 +106,25 @@ class TtsWebSocketServer implements MessageComponentInterface
         if (!$meta['authed']) {
             Log::warning("[WS] #{$from->resourceId} sent '{$action}' without auth");
             if ($action === 'sms.gateway.register') {
-                $this->handleAuth($from, $payload);
+                try {
+                    $this->handleAuth($from, $payload);
 
-                $meta = $this->clients[$from] ?? ['authed' => false, 'role' => null];
-                if (($meta['authed'] ?? false) && ($meta['role'] ?? null) === 'sms_gateway') {
-                    $this->handleSmsGatewayRegister($from);
+                    $meta = $this->clients[$from] ?? ['authed' => false, 'role' => null];
+                    if (($meta['authed'] ?? false) && ($meta['role'] ?? null) === 'sms_gateway') {
+                        $this->handleSmsGatewayRegister($from);
+                    }
+                } finally {
+                    $meta = $this->clients[$from] ?? ['authed' => false, 'user' => null, 'role' => null];
+                    $meta['request_id'] = null;
+                    $this->clients[$from] = $meta;
                 }
                 return;
             }
 
             $this->sendError($from, 'Not authenticated. Send {"action":"auth","token":"<token-or-secret>"} first.');
+            $meta = $this->clients[$from] ?? ['authed' => false, 'user' => null, 'role' => null];
+            $meta['request_id'] = null;
+            $this->clients[$from] = $meta;
             return;
         }
 
@@ -167,6 +186,10 @@ class TtsWebSocketServer implements MessageComponentInterface
         } catch (\Throwable $e) {
             Log::error("[WS] Action {$action} threw: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             $this->sendError($from, $e->getMessage());
+        } finally {
+            $meta = $this->clients[$from] ?? ['authed' => false, 'user' => null, 'role' => null];
+            $meta['request_id'] = null;
+            $this->clients[$from] = $meta;
         }
     }
 
@@ -257,6 +280,8 @@ class TtsWebSocketServer implements MessageComponentInterface
         if ($emitEvent) {
             $this->send($conn, ['event' => 'sms.gateway.registered']);
         }
+
+        $this->flushQueuedSmsEvents();
     }
 
     /**
@@ -292,7 +317,22 @@ class TtsWebSocketServer implements MessageComponentInterface
     public function pushSmsEvent(array $payload): bool
     {
         if ($this->smsGatewayConn === null) {
-            Log::error('[WS][SMS] Cannot send SMS — no gateway connected');
+            $queued = $this->queueSmsEvent($payload);
+
+            Log::warning('[WS][SMS] Cannot send SMS — no gateway connected, queued for retry', [
+                'request_id' => $payload['request_id'] ?? '?',
+                'queued' => $queued,
+            ]);
+
+            return false;
+        }
+
+        return $this->dispatchSmsEvent($payload);
+    }
+
+    private function dispatchSmsEvent(array $payload): bool
+    {
+        if ($this->smsGatewayConn === null) {
             return false;
         }
 
@@ -301,7 +341,63 @@ class TtsWebSocketServer implements MessageComponentInterface
             'phone'      => $payload['phone']      ?? '?',
             'request_id' => $payload['request_id'] ?? '?',
         ]);
+
         return true;
+    }
+
+    private function queueSmsEvent(array $payload): bool
+    {
+        $queue = Cache::get($this->pendingSmsCacheKey(), []);
+        if (! is_array($queue)) {
+            $queue = [];
+        }
+
+        $queue[] = $payload;
+
+        $maxPending = max(1, (int) config('services.sms_gateway.max_pending', 25));
+        if (count($queue) > $maxPending) {
+            $queue = array_slice($queue, -$maxPending);
+        }
+
+        return Cache::put(
+            $this->pendingSmsCacheKey(),
+            $queue,
+            now()->addSeconds(max(60, (int) config('services.sms_gateway.pending_ttl', 900)))
+        );
+    }
+
+    private function flushQueuedSmsEvents(): void
+    {
+        $queue = Cache::pull($this->pendingSmsCacheKey(), []);
+        if (! is_array($queue) || $queue === []) {
+            return;
+        }
+
+        $remaining = [];
+
+        foreach ($queue as $payload) {
+            if (! $this->dispatchSmsEvent($payload)) {
+                $remaining[] = $payload;
+            }
+        }
+
+        if ($remaining !== []) {
+            Cache::put(
+                $this->pendingSmsCacheKey(),
+                $remaining,
+                now()->addSeconds(max(60, (int) config('services.sms_gateway.pending_ttl', 900)))
+            );
+        }
+
+        Log::info('[WS][SMS] Flushed queued SMS events', [
+            'attempted' => count($queue),
+            'remaining' => count($remaining),
+        ]);
+    }
+
+    private function pendingSmsCacheKey(): string
+    {
+        return 'sms_gateway.pending_messages';
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -452,7 +548,18 @@ class TtsWebSocketServer implements MessageComponentInterface
 
         $this->send($conn, ['event' => 'audio.generating', 'text' => substr($text, 0, 80)]);
         $result = $this->tts->generateForMessage($text, $options);
-        $this->send($conn, ['event' => 'audio.generated', 'data' => $result]);
+        $signedUrl = $this->security->encryptRawAudioAndSign(
+            $result['absolutePath'],
+            $result['relativePath']
+        );
+        $encRelative = 'audio/encrypted/tts-messages/' .
+            preg_replace('/\.[^.]+$/', '', ltrim($result['relativePath'], '/')) . '.enc';
+
+        $this->send($conn, ['event' => 'audio.generated', 'data' => array_merge($result, [
+            'audioUrl' => $signedUrl,
+            'audio_path' => $result['relativePath'],
+            'encrypted_path' => $encRelative,
+        ])]);
     }
 
     private function handleAudioGenerateCategory(ConnectionInterface $conn, array $payload): void
@@ -493,8 +600,12 @@ class TtsWebSocketServer implements MessageComponentInterface
                     ]);
 
                     $result       = $this->tts->generateForMessage($text, $opts);
+                    $signedUrl    = $this->security->encryptRawAudioAndSign(
+                        $result['absolutePath'],
+                        $result['relativePath']
+                    );
                     $audioPaths[] = $result['relativePath'];
-                    $audioUrls[]  = $result['audioUrl'];
+                    $audioUrls[]  = $signedUrl;
                 } catch (\Throwable $e) {
                     $errors[] = $e->getMessage();
                 }
@@ -576,7 +687,18 @@ class TtsWebSocketServer implements MessageComponentInterface
             'category' => 'reminders',
         ]);
 
-        $this->send($conn, ['event' => 'audio.reminder', 'data' => $result]);
+        $signedUrl = $this->security->encryptRawAudioAndSign(
+            $result['absolutePath'],
+            $result['relativePath']
+        );
+        $encRelative = 'audio/encrypted/tts-messages/' .
+            preg_replace('/\.[^.]+$/', '', ltrim($result['relativePath'], '/')) . '.enc';
+
+        $this->send($conn, ['event' => 'audio.reminder', 'data' => array_merge($result, [
+            'audioUrl' => $signedUrl,
+            'audio_path' => $result['relativePath'],
+            'encrypted_path' => $encRelative,
+        ])]);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -764,6 +886,11 @@ class TtsWebSocketServer implements MessageComponentInterface
 
     private function send(ConnectionInterface $conn, array $data): void
     {
+        $requestId = $this->clients[$conn]['request_id'] ?? null;
+        if ($requestId !== null && !array_key_exists('request_id', $data) && !array_key_exists('requestId', $data)) {
+            $data['request_id'] = $requestId;
+        }
+
         $event = $data['event'] ?? 'unknown';
         // Build a compact log summary — omit large data arrays, truncate audio_urls
         $summary = [];
@@ -781,7 +908,12 @@ class TtsWebSocketServer implements MessageComponentInterface
     private function sendError(ConnectionInterface $conn, string $message): void
     {
         Log::warning("[WS] → #{$conn->resourceId} event:error", ['message' => $message]);
-        $conn->send(json_encode(['event' => 'error', 'message' => $message]));
+        $payload = ['event' => 'error', 'message' => $message];
+        $requestId = $this->clients[$conn]['request_id'] ?? null;
+        if ($requestId !== null) {
+            $payload['request_id'] = $requestId;
+        }
+        $conn->send(json_encode($payload));
     }
 
     // ─────────────────────────────────────────────────────────────────────────

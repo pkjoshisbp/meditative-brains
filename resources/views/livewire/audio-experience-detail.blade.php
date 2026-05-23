@@ -199,8 +199,8 @@
                                 data-product-id="{{ $p->id }}"
                                 data-amount="{{ $pricing['final_inr'] }}"
                                 data-name="{{ $p->name }}"
-                                onclick="initiateRazorpay(this)">
-                                <i class="fas fa-lock me-2"></i>Pay with Razorpay &#8377;{{ number_format($pricing['final_inr'], 0) }}
+                                onclick="initiateCcavenue(this)">
+                                <i class="fas fa-lock me-2"></i>Continue to CCAvenue &#8377;{{ number_format($pricing['final_inr'], 0) }}
                             </button>
                         @else
                             <a href="{{ route('payment.paypal.create', ['product_id' => $p->id]) }}"
@@ -338,50 +338,36 @@ function selectPurchaseOption(el) {
     }
 }
 
-// Razorpay payment initiator
-function initiateRazorpay(btn) {
+// CCAvenue payment initiator
+function initiateCcavenue(btn) {
     const productId = btn.dataset.productId;
-    const amount = parseFloat(btn.dataset.amount) * 100; // paise
-    const name = btn.dataset.name || 'Audio Product';
     const versionId = btn.dataset.versionId || null;
     const purchaseType = btn.dataset.purchaseType || 'audio';
 
-    fetch('{{ route("payment.razorpay.create") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ product_id: productId, version_id: versionId, purchase_type: purchaseType })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (!data.order_id) { alert('Could not create order. Please try again.'); return; }
-        const options = {
-            key: data.key,
-            amount: data.amount,
-            currency: 'INR',
-            name: 'Mental Fitness Store',
-            description: name,
-            order_id: data.order_id,
-            handler: function(response) {
-                fetch('{{ route("payment.razorpay.verify") }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-                    body: JSON.stringify({ razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature, product_id: productId, version_id: versionId, purchase_type: purchaseType })
-                }).then(r => r.json()).then(d => {
-                    if (d.success) { window.location.href = d.redirect || '/'; }
-                    else { alert(d.message || 'Payment verification failed.'); }
-                });
-            },
-            theme: { color: '#6d28d9' }
-        };
-        const rzp = new Razorpay(options);
-        rzp.open();
-    })
-    .catch(() => alert('Payment service unavailable. Please try again.'));
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("payment.ccavenue.start") }}';
+    form.style.display = 'none';
+
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = '_token';
+    csrf.value = document.querySelector('meta[name="csrf-token"]').content;
+    form.appendChild(csrf);
+
+    [
+        ['product_id', productId],
+        ['version_id', versionId || ''],
+        ['product_type', purchaseType],
+    ].forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
 }
 </script>
-@if(session('user_currency') === 'INR')
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-@endif

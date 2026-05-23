@@ -50,6 +50,8 @@ class AccountController extends Controller
     {
         $user = Auth::user();
         $this->studentPricing->refreshUserStatus($user);
+        $user->load(['passkeys' => fn ($query) => $query->latest()]);
+
         return view('account.profile', compact('user'));
     }
 

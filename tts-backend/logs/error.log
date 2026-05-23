@@ -11705,3 +11705,47 @@ ImportError: cannot import name 'is_arabic' from 'charset_normalizer.utils' (/va
 2026-05-17 10:30:41.557 [ERROR]: API endpoint not found: /api/v2/static/not.found
 2026-05-17 19:28:55.996 [ERROR]: API endpoint not found: /api/v2/static/not.found
 2026-05-17 19:28:55.998 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-18 15:17:03.625 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-18 15:17:03.630 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-18 19:17:51.189 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-18 19:17:51.192 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-19 18:03:20.627 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-19 18:03:20.629 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-19 18:56:33.895 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-19 18:56:33.896 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-20 00:16:33.268 [ERROR]: TypeError: Cannot read properties of undefined (reading 'replace')
+    at file:///var/www/clients/client1/web71/web/tts-backend/routes/motivationMessage.js:35:73
+    at Layer.handle [as handle_request] (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/layer.js:95:5)
+    at next (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/layer.js:95:5)
+    at /var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/index.js:346:12)
+    at next (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/index.js:280:10)
+    at /var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/index.js:646:15
+    at next (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/index.js:265:14)
+2026-05-20 00:16:34.103 [ERROR]: API endpoint not found: /api/route
+2026-05-20 19:08:32.926 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-20 19:08:32.931 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-21 17:58:10.412 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-21 17:58:10.416 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-21 18:32:00.238 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-21 18:32:00.241 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-22 13:26:21.047 [ERROR]: TypeError: Cannot read properties of undefined (reading 'replace')
+    at file:///var/www/clients/client1/web71/web/tts-backend/routes/motivationMessage.js:35:73
+    at Layer.handle [as handle_request] (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/layer.js:95:5)
+    at next (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/layer.js:95:5)
+    at /var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/index.js:346:12)
+    at next (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/index.js:280:10)
+    at /var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/index.js:646:15
+    at next (/var/www/clients/client1/web71/web/tts-backend/node_modules/express/lib/router/index.js:265:14)
+2026-05-22 13:26:22.362 [ERROR]: API endpoint not found: /api/route
+2026-05-22 18:48:55.867 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-22 18:48:55.870 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-22 18:48:57.882 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-22 18:48:57.886 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-23 08:06:01.129 [ERROR]: API endpoint not found: /api/v2/static/not.found
+2026-05-23 08:06:01.132 [ERROR]: API endpoint not found: /api/v2/static/not.found

@@ -31,7 +31,7 @@
         </div>
         <div class="card-body">
             <p class="text-muted">
-                Uploaded tracks are saved to <code>storage/app/bg-music/original/</code>,
+                Uploaded tracks are normalized to original <code>.aac</code> files in <code>storage/app/bg-music/original/</code>,
                 <code>public/bg-music/</code> (for home-screen playback), and automatically
                 AES-256 encrypted to <code>storage/app/bg-music/encrypted/</code> for
                 secure Flutter streaming.
@@ -47,7 +47,7 @@
                                    placeholder="e.g. Positive Attitude"
                                    value="{{ old('track_name') }}" required>
                             <small class="form-text text-muted">
-                                Will be converted to slug. E.g. "Positive Attitude" → <code>positive-attitude.mp3</code>
+                                Will be converted to slug and stored as AAC. E.g. "Positive Attitude" → <code>positive-attitude.aac</code>
                             </small>
                             @error('track_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
@@ -61,7 +61,7 @@
                                        accept=".mp3,.aac,.m4a,.wav,.ogg" required>
                                 <label class="custom-file-label" for="audio_file">Choose file…</label>
                             </div>
-                            <small class="form-text text-muted">MP3, AAC, M4A, WAV or OGG — max 30 MB</small>
+                            <small class="form-text text-muted">MP3, AAC, M4A, WAV or OGG input accepted; stored output is AAC — max 30 MB</small>
                             @error('audio_file')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
                     </div>

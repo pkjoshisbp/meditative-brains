@@ -8,12 +8,14 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Services\AccessControlService;
 use App\Services\AffiliateService;
+use App\Services\CcAvenueService;
 use App\Services\StudentPricingService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class CartController extends Controller
 {
@@ -21,6 +23,7 @@ class CartController extends Controller
         private StudentPricingService $studentPricing,
         private AccessControlService $accessControlService,
         private AffiliateService $affiliateService,
+        private CcAvenueService $ccAvenueService,
     )
     {
     }
@@ -225,6 +228,165 @@ class CartController extends Controller
 
             return response()->json(['message' => 'Unable to start Razorpay checkout right now.'], 500);
         }
+    }
+
+    public function startCcavenueCheckout(Request $request)
+    {
+        if (! $this->usesRazorpayCheckout()) {
+            return redirect()->route('cart')->with('error', 'CCAvenue checkout is available only for India / INR orders.');
+        }
+
+        $user = $request->user();
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        $cartItems = $this->getCartItems();
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart')->with('error', 'Your cart is empty.');
+        }
+
+        $orderItems = $this->buildOrderItems($cartItems, 'INR');
+        $total = round(collect($orderItems)->sum('total'), 2);
+        $affiliateData = $this->affiliateService->attributionData($total, $user);
+        $orderId = 'cart_' . $user->id . '_' . Str::upper(Str::random(10));
+
+        $order = Order::create([
+            'user_id' => $user->id,
+            'affiliate_profile_id' => $affiliateData['affiliate_profile_id'] ?? null,
+            'affiliate_click_id' => $affiliateData['affiliate_click_id'] ?? null,
+            'affiliate_referral_code' => $affiliateData['affiliate_referral_code'] ?? null,
+            'affiliate_commission_rate' => $affiliateData['affiliate_commission_rate'] ?? null,
+            'affiliate_commission_amount' => $affiliateData['affiliate_commission_amount'] ?? null,
+            'subtotal' => $total,
+            'tax_amount' => 0,
+            'total_amount' => $total,
+            'status' => 'pending',
+            'payment_method' => 'ccavenue',
+            'payment_status' => 'pending',
+            'payment_transaction_id' => $orderId,
+            'order_items' => $orderItems,
+            'notes' => 'Cart checkout via CCAvenue',
+        ]);
+
+        try {
+            $checkout = $this->ccAvenueService->buildCheckoutPayload([
+                'merchant_id' => $this->ccAvenueService->merchantId(),
+                'order_id' => $orderId,
+                'currency' => 'INR',
+                'amount' => $this->ccAvenueService->formatAmount($total),
+                'redirect_url' => route('cart.checkout.ccavenue.response'),
+                'cancel_url' => route('cart.checkout.ccavenue.response'),
+                'language' => 'EN',
+                'billing_name' => $user->name,
+                'billing_email' => $user->email,
+                'billing_tel' => $user->mobile,
+                'merchant_param1' => 'cart',
+                'merchant_param2' => (string) $user->id,
+                'merchant_param3' => (string) $order->id,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Cart CCAvenue checkout failed', [
+                'user_id' => $user->id,
+                'order_id' => $orderId,
+                'error' => $e->getMessage(),
+            ]);
+
+            $order->delete();
+
+            return redirect()->route('cart')->with('error', 'Unable to start checkout right now.');
+        }
+
+        return view('payments.ccavenue-redirect', [
+            'gatewayUrl' => $checkout['gateway_url'],
+            'encRequest' => $checkout['enc_request'],
+            'accessCode' => $checkout['access_code'],
+        ]);
+    }
+
+    public function handleCcavenueResponse(Request $request)
+    {
+        $response = $this->ccAvenueService->decryptResponse($request->input('encResp'));
+        $orderId = (string) ($response['order_id'] ?? '');
+        $userId = (int) ($response['merchant_param2'] ?? 0);
+
+        if ($userId > 0) {
+            Auth::loginUsingId($userId);
+            $request->session()->regenerate();
+        }
+
+        $order = Order::where('payment_method', 'ccavenue')
+            ->where('payment_transaction_id', $orderId)
+            ->latest()
+            ->first();
+
+        if (! $order) {
+            return redirect()->route('cart')->with('error', 'Unable to find the pending cart order.');
+        }
+
+        $status = strtoupper((string) ($response['order_status'] ?? 'FAILED'));
+
+        if ($status !== 'SUCCESS') {
+            $order->update([
+                'payment_status' => strtolower($status),
+                'billing_details' => array_merge($order->billing_details ?? [], [
+                    'ccavenue' => $response,
+                ]),
+            ]);
+
+            return redirect()->route('cart')->with('error', 'Payment was not completed.');
+        }
+
+        if ($order->status === 'completed') {
+            return redirect()->route('account.library')->with('success', 'Your purchase is already available in your library.');
+        }
+
+        try {
+            DB::transaction(function () use ($order, $response) {
+                $order->update([
+                    'status' => 'completed',
+                    'payment_status' => 'completed',
+                    'completed_at' => now(),
+                    'billing_details' => array_merge($order->billing_details ?? [], [
+                        'ccavenue' => $response,
+                    ]),
+                ]);
+
+                $user = $order->user;
+
+                foreach ($this->normaliseOrderItems($order->order_items) as $item) {
+                    if (empty($item['product_id']) || ! $user) {
+                        continue;
+                    }
+
+                    if (! $user->hasMusicProductAccess((int) $item['product_id'])) {
+                        $this->accessControlService->grantMusicProductAccess(
+                            $user,
+                            (int) $item['product_id'],
+                            'single_purchase',
+                            null,
+                            (string) $order->id
+                        );
+                    }
+                }
+
+                if ($user) {
+                    $user->cartItems()->delete();
+                }
+
+                session()->forget('cart');
+                $this->affiliateService->recordOrderConversion($order, 'INR');
+            });
+        } catch (\Throwable $e) {
+            Log::error('Cart CCAvenue verification failed', [
+                'order_id' => $orderId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->route('cart')->with('error', 'Unable to complete your cart payment.');
+        }
+
+        return redirect()->route('account.library')->with('success', 'Payment successful. Your cart items are now available in your library.');
     }
 
     public function verifyRazorpayPayment(Request $request)
