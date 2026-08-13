@@ -7,6 +7,7 @@ use App\Models\TtsMotivationMessage;
 use App\Models\TtsLanguage;
 use App\Models\TtsAudiobook;
 use App\Models\TtsAudiobookChapter;
+use App\Events\MentalFitnessCatalogUpdated;
 use App\Models\TtsAudioProduct;
 use App\Services\TtsAudioGeneratorService;
 use App\Services\AudioSecurityService;
@@ -35,8 +36,11 @@ class TtsWebSocketServer implements MessageComponentInterface
     /** @var \SplObjectStorage<ConnectionInterface, array> */
     protected \SplObjectStorage $clients;
 
+    public const CATALOG_VERSION_CACHE_KEY = 'tts.catalog.version.v2';
+
     private TtsAudioGeneratorService $tts;
     private AudioSecurityService $security;
+    private ?string $lastCatalogVersionToken = null;
 
     /** The currently registered SMS gateway connection (one at a time). */
     private ?ConnectionInterface $smsGatewayConn = null;
@@ -46,6 +50,10 @@ class TtsWebSocketServer implements MessageComponentInterface
         $this->clients  = new \SplObjectStorage();
         $this->tts      = app(TtsAudioGeneratorService::class);
         $this->security = app(AudioSecurityService::class);
+        $cachedVersion = Cache::get(self::CATALOG_VERSION_CACHE_KEY);
+        if (is_array($cachedVersion)) {
+            $this->lastCatalogVersionToken = $this->extractCatalogVersionToken($cachedVersion);
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -707,7 +715,7 @@ class TtsWebSocketServer implements MessageComponentInterface
 
     private function handleAudiobookList(ConnectionInterface $conn): void
     {
-        $books = TtsAudiobook::with('chapters:id,audiobook_id,chapter_number,title,plain_content,status,audio_path,audio_url')->get();
+        $books = TtsAudiobook::with('chapters:id,audiobook_id,chapter_number,title,plain_content,status,audio_path,audio_url,updated_at')->get();
         $data  = $books->map(fn($b) => $this->audiobookWithFreshUrls($b->toArray()))->values()->toArray();
         $this->send($conn, ['event' => 'audiobook.list', 'data' => $data]);
     }
@@ -721,10 +729,33 @@ class TtsWebSocketServer implements MessageComponentInterface
     /** Re-sign chapter audio URLs so Flutter always gets unexpired links. */
     private function audiobookWithFreshUrls(array $book): array
     {
+        $internalSpeaker = trim((string) ($book['speaker'] ?? ''));
+        $displaySpeaker = trim((string) ($book['public_speaker_name'] ?? ''));
+        if ($displaySpeaker === '') {
+            $displaySpeaker = $internalSpeaker;
+        }
+
+        $book['internal_speaker'] = $internalSpeaker;
+        $book['speaker_display_name'] = $displaySpeaker;
+        $book['speaker'] = $displaySpeaker;
+
         if (empty($book['chapters'])) return $book;
         $book['chapters'] = array_map(function (array $ch) {
-            $path = $ch['audio_path'] ?? null;
-            if ($path && Storage::disk('local')->exists($path)) {
+            $existingPath = is_string($ch['audio_path'] ?? null)
+                ? trim((string) $ch['audio_path'])
+                : '';
+            $path = $this->resolveAudiobookChapterPath($ch);
+            if ($path) {
+                $ch['audio_path'] = $path;
+                $ch['status'] = 'done';
+
+                if ($existingPath === '' && !empty($ch['id'])) {
+                    TtsAudiobookChapter::whereKey($ch['id'])->update([
+                        'audio_path' => $path,
+                        'status' => 'done',
+                    ]);
+                }
+
                 try {
                     $ch['audio_url'] = URL::temporarySignedRoute(
                         'audio.signed-stream',
@@ -738,6 +769,39 @@ class TtsWebSocketServer implements MessageComponentInterface
             return $ch;
         }, $book['chapters']);
         return $book;
+    }
+
+    private function resolveAudiobookChapterPath(array $chapter): ?string
+    {
+        $storedPath = is_string($chapter['audio_path'] ?? null)
+            ? trim((string) $chapter['audio_path'])
+            : '';
+        if ($storedPath !== '' && Storage::disk('local')->exists($storedPath)) {
+            return $storedPath;
+        }
+
+        $url = $chapter['audio_url'] ?? null;
+        if (!is_string($url) || $url === '' || !str_contains($url, '/audio/signed-stream')) {
+            return null;
+        }
+
+        $queryStr = parse_url($url, PHP_URL_QUERY);
+        if (!$queryStr) {
+            return null;
+        }
+
+        parse_str($queryStr, $params);
+        $encodedPath = $params['path'] ?? null;
+        if (!is_string($encodedPath) || $encodedPath === '') {
+            return null;
+        }
+
+        $decodedPath = base64_decode($encodedPath, true);
+        if (!is_string($decodedPath) || $decodedPath === '') {
+            return null;
+        }
+
+        return Storage::disk('local')->exists($decodedPath) ? $decodedPath : null;
     }
 
     private function handleAudiobookUpsert(ConnectionInterface $conn, array $payload): void
@@ -764,12 +828,19 @@ class TtsWebSocketServer implements MessageComponentInterface
             );
         }
 
+        $book->touch();
+        self::touchCatalogVersion($book->language, 'audiobook.updated');
+
         $this->send($conn, ['event' => 'audiobook.upserted', 'data' => $book->load('chapters')]);
     }
 
     private function handleAudiobookDelete(ConnectionInterface $conn, array $payload): void
     {
-        TtsAudiobook::findOrFail($payload['id'])->delete();
+        $book = TtsAudiobook::findOrFail($payload['id']);
+        $language = $book->language;
+        $book->delete();
+        self::touchCatalogVersion($language, 'audiobook.deleted');
+
         $this->send($conn, ['event' => 'audiobook.deleted', 'id' => $payload['id']]);
     }
 
@@ -814,6 +885,8 @@ class TtsWebSocketServer implements MessageComponentInterface
                 'audio_url'  => $signedUrl,
                 'status'     => 'done',
             ]);
+            $book->touch();
+            self::touchCatalogVersion($book->language, 'audiobook.chapter.updated');
 
             $this->send($conn, ['event' => 'audiobook.chapter.done', 'data' => $chapter->fresh()]);
         } catch (\Throwable $e) {
@@ -891,18 +964,112 @@ class TtsWebSocketServer implements MessageComponentInterface
             $data['request_id'] = $requestId;
         }
 
+        $this->sendRaw($conn, $data, '[WS] →');
+    }
+
+    private function sendPush(ConnectionInterface $conn, array $data): void
+    {
+        $this->sendRaw($conn, $data, '[WS] ⇢ push');
+    }
+
+    private function sendRaw(ConnectionInterface $conn, array $data, string $prefix): void
+    {
         $event = $data['event'] ?? 'unknown';
-        // Build a compact log summary — omit large data arrays, truncate audio_urls
         $summary = [];
         if (isset($data['data']) && is_array($data['data'])) {
             $summary['data_keys'] = array_keys($data['data']);
             $summary['data_count'] = count($data['data']);
         }
-        foreach (['id', 'total', 'done', 'generated', 'messageId', 'chapterId', 'categoryId', 'message'] as $k) {
+        foreach (['id', 'total', 'done', 'generated', 'messageId', 'chapterId', 'categoryId', 'message', 'language', 'reason', 'updated_at', 'token'] as $k) {
             if (isset($data[$k])) $summary[$k] = $data[$k];
         }
-        Log::info("[WS] → #{$conn->resourceId} event:{$event}", $summary);
+        Log::info("{$prefix} #{$conn->resourceId} event:{$event}", $summary);
         $conn->send(json_encode($data));
+    }
+
+    private function extractCatalogVersionToken(array $payload): ?string
+    {
+        $token = $payload['token'] ?? null;
+        if (!is_string($token)) {
+            return null;
+        }
+        $token = trim($token);
+        return $token === '' ? null : $token;
+    }
+
+    public static function touchCatalogVersion(?string $language = null, string $reason = 'changed'): void
+    {
+        $normalizedLanguage = is_string($language) ? trim($language) : '';
+        $normalizedReason = trim($reason) !== '' ? trim($reason) : 'changed';
+        $payload = [
+            'token' => now()->format('Y-m-d\TH:i:s.uP') . '-' . Str::random(8),
+            'language' => $normalizedLanguage !== '' ? $normalizedLanguage : null,
+            'reason' => $normalizedReason,
+            'updated_at' => now()->toIso8601String(),
+        ];
+
+        Cache::forever(self::CATALOG_VERSION_CACHE_KEY, $payload);
+        Log::info('[WS][CATALOG] Shared version touched', $payload);
+
+        try {
+            event(new MentalFitnessCatalogUpdated(
+                $payload['language'],
+                $payload['reason'],
+                $payload['token'],
+                $payload['updated_at'],
+            ));
+            Log::info('[WS][CATALOG] Reverb event dispatched', [
+                'token' => $payload['token'],
+                'language' => $payload['language'],
+                'reason' => $payload['reason'],
+            ]);
+        } catch (\Throwable $error) {
+            Log::warning('[WS][CATALOG] Reverb dispatch failed', [
+                'error' => $error->getMessage(),
+                'token' => $payload['token'],
+                'language' => $payload['language'],
+                'reason' => $payload['reason'],
+            ]);
+        }
+    }
+
+    public function broadcastCatalogUpdatesIfNeeded(): void
+    {
+        $cached = Cache::get(self::CATALOG_VERSION_CACHE_KEY);
+        if (!is_array($cached)) {
+            return;
+        }
+
+        $token = $this->extractCatalogVersionToken($cached);
+        if ($token === null || $token === $this->lastCatalogVersionToken) {
+            return;
+        }
+
+        $this->lastCatalogVersionToken = $token;
+        $payload = [
+            'event' => 'tts.catalog.updated',
+            'token' => $token,
+            'language' => $cached['language'] ?? null,
+            'reason' => $cached['reason'] ?? 'changed',
+            'updated_at' => $cached['updated_at'] ?? now()->toIso8601String(),
+        ];
+
+        $recipients = 0;
+        foreach ($this->clients as $client) {
+            $meta = $this->clients[$client] ?? ['authed' => false, 'role' => null];
+            if (!($meta['authed'] ?? false) || (($meta['role'] ?? null) === 'sms_gateway')) {
+                continue;
+            }
+            $recipients++;
+            $this->sendPush($client, $payload);
+        }
+
+        Log::info('[WS][CATALOG] Broadcasted catalog update', [
+            'token' => $token,
+            'language' => $payload['language'],
+            'reason' => $payload['reason'],
+            'recipients' => $recipients,
+        ]);
     }
 
     private function sendError(ConnectionInterface $conn, string $message): void

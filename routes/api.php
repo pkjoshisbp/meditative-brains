@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\DownloadController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TrialAnalyticsController;
 use App\Http\Controllers\Api\AppLogController;
+use App\Http\Controllers\Api\LibraryController;
+use App\Http\Controllers\Api\WhatsAppWebhookController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +36,10 @@ Route::post('/login', [AuthController::class,'login']);
 Route::post('/register', [AuthController::class,'register']);
 Route::post('/otp/send', [AuthController::class,'sendOtp']);
 Route::post('/otp/verify', [AuthController::class,'verifyOtp']);
+Route::get('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify'])
+    ->name('webhooks.whatsapp.verify');
+Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'receive'])
+    ->name('webhooks.whatsapp.receive');
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class,'user']);
     Route::put('/me', [AuthController::class,'updateProfile']);
@@ -126,6 +132,17 @@ Route::prefix('flutter')->name('api.flutter.')->group(function () {
 // New unified catalog & entitlement endpoints
 Route::middleware(['auth:sanctum','device.limit'])->group(function(){
     Route::get('/entitlements', [EntitlementController::class,'summary']);
+    Route::get('/library', [LibraryController::class, 'index'])->name('api.library.index');
+    Route::get('/library/background-music', [LibraryController::class, 'backgroundMusic'])->name('api.library.background-music.index');
+    Route::get('/library/audiobooks/{audiobook}', [LibraryController::class, 'audiobook'])->name('api.library.audiobooks.show');
+    Route::get('/library/products/{product}/html-content', [LibraryController::class, 'productHtmlContent'])->name('api.library.products.html-content');
+    Route::get('/library/products/{product}/html/{assetPath?}', [LibraryController::class, 'productHtmlAsset'])
+        ->where('assetPath', '.*')
+        ->name('api.library.products.html-asset');
+    Route::get('/library/tts-products/{product}/html-content', [LibraryController::class, 'ttsHtmlContent'])->name('api.library.tts-products.html-content');
+    Route::get('/library/tts-products/{product}/html/{assetPath?}', [LibraryController::class, 'ttsHtmlAsset'])
+        ->where('assetPath', '.*')
+        ->name('api.library.tts-products.html-asset');
     Route::post('/devices/register', [EntitlementController::class,'registerDevice']);
     Route::post('/devices/heartbeat', [EntitlementController::class,'heartbeat']);
     Route::delete('/devices/{uuid}', [EntitlementController::class,'revokeDevice']);

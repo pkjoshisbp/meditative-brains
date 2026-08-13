@@ -7,7 +7,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\AffiliateProfile;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\Subscription;
+use App\Models\SubscriptionPlan;
+use App\Models\TtsAudioProduct;
 use App\Services\AffiliateService;
 use App\Services\StudentPricingService;
 use Illuminate\Support\Facades\Storage;
@@ -32,10 +35,134 @@ class AccountController extends Controller
     public function library()
     {
         $user = Auth::user();
-        $purchasedProducts = $user->getPurchasedProducts();
-        $activeSubscription = $user->subscriptions()->where('status', 'active')->latest()->first();
+        $activeSubscription = $user->subscriptions()->active()->latest()->first();
+        $activePlan = $activeSubscription
+            ? SubscriptionPlan::where('slug', $activeSubscription->plan_type)->first()
+            : null;
 
-        return view('account.library', compact('user', 'purchasedProducts', 'activeSubscription'));
+        $purchasedProducts = $user->getPurchasedProducts()
+            ->load(['category', 'media', 'linkedAudiobook.chapters']);
+        $purchasedTtsProducts = $user->completedTtsProductPurchases()
+            ->with('product.linkedAudiobook.chapters')
+            ->latest('purchased_at')
+            ->get()
+            ->pluck('product')
+            ->filter()
+            ->unique('id')
+            ->values();
+
+        $subscriptionProducts = collect();
+        $subscriptionTtsProducts = collect();
+
+        if ($activePlan?->includesMusicLibrary()) {
+            $subscriptionProducts = Product::with(['category', 'media', 'linkedAudiobook.chapters'])
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get();
+        }
+
+        if ($activePlan?->includesAllTtsCategories()) {
+            $subscriptionTtsProducts = TtsAudioProduct::with('linkedAudiobook.chapters')
+                ->active()
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get();
+        } elseif ($activePlan && $activePlan->getIncludedTtsCategories() !== []) {
+            $subscriptionTtsProducts = TtsAudioProduct::with('linkedAudiobook.chapters')
+                ->active()
+                ->whereIn('category', $activePlan->getIncludedTtsCategories())
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get();
+        }
+
+        $libraryProducts = $purchasedProducts
+            ->merge($subscriptionProducts)
+            ->unique('id')
+            ->values();
+
+        $libraryTtsProducts = $purchasedTtsProducts
+            ->merge($subscriptionTtsProducts)
+            ->unique('id')
+            ->values();
+
+        $readingProducts = $libraryProducts
+            ->filter(fn (Product $product) => $product->pdf_file_path || $product->html_book_path || $product->html_book_url)
+            ->values();
+        $readingTtsProducts = $libraryTtsProducts
+            ->filter(fn (TtsAudioProduct $product) => $product->pdf_file_path || $product->html_book_path || $product->html_book_url)
+            ->values();
+
+        return view('account.library', compact(
+            'user',
+            'libraryProducts',
+            'libraryTtsProducts',
+            'readingProducts',
+            'readingTtsProducts',
+            'activeSubscription',
+            'activePlan'
+        ));
+    }
+
+    public function downloadProductPdf(Product $product)
+    {
+        $user = Auth::user();
+        abort_unless($user->hasMusicProductAccess($product->id), 403);
+        abort_unless($product->pdf_file_path, 404);
+
+        $path = $this->resolveBookAssetPath($product->pdf_file_path);
+        abort_unless($path && is_file($path), 404);
+
+        return response()->download($path, ($product->slug ?: 'product-' . $product->id) . '.pdf');
+    }
+
+    public function readProductHtml(Product $product, ?string $assetPath = null)
+    {
+        $user = Auth::user();
+        abort_unless($user->hasMusicProductAccess($product->id), 403);
+
+        if ($product->html_book_url && ! $product->html_book_path && ! $assetPath) {
+            return redirect()->away($product->html_book_url);
+        }
+
+        abort_unless($product->html_book_path, 404);
+
+        return $this->serveHtmlBookAsset(
+            $product->html_book_path,
+            $assetPath,
+            route('account.library.products.read', ['product' => $product]) . '/'
+        );
+    }
+
+    public function downloadTtsProductPdf(TtsAudioProduct $product)
+    {
+        $user = Auth::user();
+        abort_unless($user->hasTtsProductAccess($product->id) || $user->hasTtsCategoryAccess($product->category), 403);
+        abort_unless($product->pdf_file_path, 404);
+
+        $path = $this->resolveBookAssetPath($product->pdf_file_path);
+        abort_unless($path && is_file($path), 404);
+
+        return response()->download($path, $product->slug . '.pdf');
+    }
+
+    public function readTtsProductHtml(TtsAudioProduct $product, ?string $assetPath = null)
+    {
+        $user = Auth::user();
+        abort_unless($user->hasTtsProductAccess($product->id) || $user->hasTtsCategoryAccess($product->category), 403);
+
+        if ($product->html_book_url && ! $product->html_book_path && ! $assetPath) {
+            return redirect()->away($product->html_book_url);
+        }
+
+        abort_unless($product->html_book_path, 404);
+
+        return $this->serveHtmlBookAsset(
+            $product->html_book_path,
+            $assetPath,
+            route('account.library.tts-products.read', ['product' => $product]) . '/'
+        );
     }
 
     public function orders()
@@ -164,5 +291,73 @@ class AccountController extends Controller
         $this->affiliateService->apply($user, $request->only('payout_email', 'application_notes'));
 
         return redirect()->route('account.affiliate')->with('success', 'Affiliate application saved. Once approved, your custom commission rate and referral link will be active.');
+    }
+
+    private function resolveBookAssetPath(string $path): ?string
+    {
+        $path = ltrim($path, '/');
+        $candidates = [
+            base_path($path),
+            public_path($path),
+            storage_path('app/public/' . $path),
+        ];
+
+        foreach ($candidates as $candidate) {
+            $real = realpath($candidate);
+            if (! $real) {
+                continue;
+            }
+
+            $allowedRoots = [
+                realpath(base_path('ebook')),
+                realpath(public_path()),
+                realpath(storage_path('app/public')),
+            ];
+
+            foreach (array_filter($allowedRoots) as $root) {
+                if (str_starts_with($real, $root . DIRECTORY_SEPARATOR) || $real === $root) {
+                    return $real;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function isPathInsideBookFolder(string $resolvedPath, string $htmlBookPath): bool
+    {
+        $bookIndex = $this->resolveBookAssetPath($htmlBookPath);
+        if (! $bookIndex) {
+            return false;
+        }
+
+        $bookRoot = realpath(dirname($bookIndex));
+        return $bookRoot
+            && (str_starts_with($resolvedPath, $bookRoot . DIRECTORY_SEPARATOR) || $resolvedPath === $bookRoot);
+    }
+
+    private function serveHtmlBookAsset(string $htmlBookPath, ?string $assetPath, string $baseUrl)
+    {
+        $path = $assetPath
+            ? $this->resolveBookAssetPath(dirname($htmlBookPath) . '/' . $assetPath)
+            : $this->resolveBookAssetPath($htmlBookPath);
+
+        abort_unless($path && is_file($path), 404);
+
+        if (! $this->isPathInsideBookFolder($path, $htmlBookPath)) {
+            abort(404);
+        }
+
+        if (strtolower(pathinfo($path, PATHINFO_EXTENSION)) !== 'html') {
+            return response()->file($path);
+        }
+
+        $html = file_get_contents($path);
+
+        if (str_contains($html, '<head>')) {
+            $html = str_replace('<head>', '<head><base href="' . e($baseUrl) . '">', $html);
+        }
+
+        return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
     }
 }

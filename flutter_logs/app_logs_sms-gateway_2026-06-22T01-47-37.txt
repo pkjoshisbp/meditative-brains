@@ -1,0 +1,1880 @@
+TIMESTAMP: 2026-06-22T01:47:37+05:30
+DEVICE INFO: android BP2A.250605.031.A3.M536BXXSFGZE2
+SOURCE: sms-gateway
+CLIENT TIMESTAMP: 2026-06-22T01:47:36.582734
+
+Server URL: wss://mentalfitness.store:8091
+Platform: android BP2A.250605.031.A3.M536BXXSFGZE2
+Last task start: 2026-06-21T19:46:58.012256
+Last task heartbeat: 2026-06-22T01:46:59.811088
+Last task destroy: -
+Last task starter: system
+Last known status: connected
+
+Native crash report:
+ync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+	at android.app.ActivityThread.generateForegroundServiceDidNotStopInTimeException(ActivityThread.java:2684)
+	at android.app.ActivityThread.throwRemoteServiceException(ActivityThread.java:2646)
+	at android.app.ActivityThread.-$$Nest$mthrowRemoteServiceException(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3068)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.StackTrace: Last startServiceCommon() call for this service was made here
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2131)
+	at android.app.ContextImpl.startForegroundService(ContextImpl.java:2075)
+	at android.content.ContextWrapper.startForegroundService(ContextWrapper.java:877)
+	at q.c.b(SourceFile:1)
+	at android.support.v4.media.session.a.L(SourceFile:7)
+	at m0.e.e(SourceFile:405)
+	at u0.c.onMethodCall(SourceFile:391)
+	at A0.x.n(SourceFile:26)
+	at C0.c.run(SourceFile:128)
+	at android.os.Handler.handleCallback(Handler.java:995)
+	at android.os.Handler.dispatchMessage(Handler.java:103)
+	... 6 more
+
+
+==== Native crash at 2026-06-16T13:31:55.590+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-16T14:01:55.834+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-16T15:24:03.985+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-16T18:02:58.717+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-16T20:02:59.028+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@4a102b7 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@4a102b7 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-17T01:43:19.026+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-17T02:03:55.975+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-17T08:04:13.905+0530 ====
+Thread: main (2)
+Exception: android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+	at android.app.ActivityThread.generateForegroundServiceDidNotStopInTimeException(ActivityThread.java:2684)
+	at android.app.ActivityThread.throwRemoteServiceException(ActivityThread.java:2646)
+	at android.app.ActivityThread.-$$Nest$mthrowRemoteServiceException(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3068)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.StackTrace: Last startServiceCommon() call for this service was made here
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2131)
+	at android.app.ContextImpl.startForegroundService(ContextImpl.java:2075)
+	at android.content.ContextWrapper.startForegroundService(ContextWrapper.java:877)
+	at q.c.b(SourceFile:1)
+	at android.support.v4.media.session.a.L(SourceFile:7)
+	at m0.e.e(SourceFile:405)
+	at u0.c.onMethodCall(SourceFile:391)
+	at A0.x.n(SourceFile:26)
+	at C0.c.run(SourceFile:128)
+	at android.os.Handler.handleCallback(Handler.java:995)
+	at android.os.Handler.dispatchMessage(Handler.java:103)
+	... 6 more
+
+
+==== Native crash at 2026-06-17T08:04:15.244+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-17T08:34:15.464+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-17T09:34:15.759+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-17T11:04:16.023+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-17T13:32:09.083+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-17T13:32:12.244+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-17T19:32:35.173+0530 ====
+Thread: main (2)
+Exception: android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+	at android.app.ActivityThread.generateForegroundServiceDidNotStopInTimeException(ActivityThread.java:2684)
+	at android.app.ActivityThread.throwRemoteServiceException(ActivityThread.java:2646)
+	at android.app.ActivityThread.-$$Nest$mthrowRemoteServiceException(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3068)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.StackTrace: Last startServiceCommon() call for this service was made here
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2131)
+	at android.app.ContextImpl.startForegroundService(ContextImpl.java:2075)
+	at android.content.ContextWrapper.startForegroundService(ContextWrapper.java:877)
+	at q.c.b(SourceFile:1)
+	at android.support.v4.media.session.a.L(SourceFile:7)
+	at m0.e.e(SourceFile:405)
+	at u0.c.onMethodCall(SourceFile:391)
+	at A0.x.n(SourceFile:26)
+	at C0.c.run(SourceFile:128)
+	at android.os.Handler.handleCallback(Handler.java:995)
+	at android.os.Handler.dispatchMessage(Handler.java:103)
+	... 6 more
+
+
+==== Native crash at 2026-06-17T19:32:36.479+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-17T20:34:35.448+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-17T22:19:16.090+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@4a102b7 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@4a102b7 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-18T01:27:42.212+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-18T03:43:11.980+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-18T06:13:12.276+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-18T09:13:12.591+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-18T20:20:59.370+0530 ====
+Thread: main (2)
+Exception: android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+	at android.app.ActivityThread.generateForegroundServiceDidNotStopInTimeException(ActivityThread.java:2684)
+	at android.app.ActivityThread.throwRemoteServiceException(ActivityThread.java:2646)
+	at android.app.ActivityThread.-$$Nest$mthrowRemoteServiceException(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3068)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.StackTrace: Last startServiceCommon() call for this service was made here
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2131)
+	at android.app.ContextImpl.startForegroundService(ContextImpl.java:2075)
+	at android.content.ContextWrapper.startForegroundService(ContextWrapper.java:877)
+	at q.c.b(SourceFile:1)
+	at android.support.v4.media.session.a.L(SourceFile:7)
+	at m0.e.e(SourceFile:405)
+	at u0.c.onMethodCall(SourceFile:391)
+	at A0.x.n(SourceFile:26)
+	at C0.c.run(SourceFile:128)
+	at android.os.Handler.handleCallback(Handler.java:995)
+	at android.os.Handler.dispatchMessage(Handler.java:103)
+	... 6 more
+
+
+==== Native crash at 2026-06-18T20:21:00.730+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-18T21:16:00.122+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-18T22:46:41.642+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-19T02:25:54.966+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-19T04:25:55.297+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-19T06:55:55.600+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-19T09:55:55.833+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-19T13:25:56.058+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-20T05:26:03.005+0530 ====
+Thread: main (2)
+Exception: android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+	at android.app.ActivityThread.generateForegroundServiceDidNotStopInTimeException(ActivityThread.java:2684)
+	at android.app.ActivityThread.throwRemoteServiceException(ActivityThread.java:2646)
+	at android.app.ActivityThread.-$$Nest$mthrowRemoteServiceException(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3068)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.StackTrace: Last startServiceCommon() call for this service was made here
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2131)
+	at android.app.ContextImpl.startForegroundService(ContextImpl.java:2075)
+	at android.content.ContextWrapper.startForegroundService(ContextWrapper.java:877)
+	at q.c.b(SourceFile:1)
+	at android.support.v4.media.session.a.L(SourceFile:7)
+	at m0.e.e(SourceFile:405)
+	at u0.c.onMethodCall(SourceFile:391)
+	at A0.x.n(SourceFile:26)
+	at C0.c.run(SourceFile:128)
+	at android.os.Handler.handleCallback(Handler.java:995)
+	at android.os.Handler.dispatchMessage(Handler.java:103)
+	... 6 more
+
+
+==== Native crash at 2026-06-20T05:26:04.273+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-20T05:56:04.514+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-20T06:56:04.734+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-20T08:26:04.948+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-20T10:26:05.185+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-20T12:56:05.484+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-20T15:56:05.932+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-20T19:26:06.256+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-20T23:26:06.574+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-21T09:56:16.982+0530 ====
+Thread: main (2)
+Exception: android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+	at android.app.ActivityThread.generateForegroundServiceDidNotStopInTimeException(ActivityThread.java:2684)
+	at android.app.ActivityThread.throwRemoteServiceException(ActivityThread.java:2646)
+	at android.app.ActivityThread.-$$Nest$mthrowRemoteServiceException(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3068)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.StackTrace: Last startServiceCommon() call for this service was made here
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2131)
+	at android.app.ContextImpl.startForegroundService(ContextImpl.java:2075)
+	at android.content.ContextWrapper.startForegroundService(ContextWrapper.java:877)
+	at q.c.b(SourceFile:1)
+	at android.support.v4.media.session.a.L(SourceFile:7)
+	at m0.e.e(SourceFile:405)
+	at u0.c.onMethodCall(SourceFile:391)
+	at A0.x.n(SourceFile:26)
+	at C0.c.run(SourceFile:128)
+	at android.os.Handler.handleCallback(Handler.java:995)
+	at android.os.Handler.dispatchMessage(Handler.java:103)
+	... 6 more
+
+
+==== Native crash at 2026-06-21T09:56:18.282+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-21T10:26:18.528+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-21T11:26:18.830+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-21T12:56:19.070+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-21T14:56:19.353+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-21T17:26:19.638+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@5bab5b6 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+
+==== Native crash at 2026-06-22T01:47:07.731+0530 ====
+Thread: main (2)
+Exception: android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+android.app.RemoteServiceException$ForegroundServiceDidNotStopInTimeException: A foreground service of type dataSync did not stop within its timeout: ComponentInfo{com.mentalfitness.sms_server/com.pravera.flutter_foreground_task.service.ForegroundService}
+	at android.app.ActivityThread.generateForegroundServiceDidNotStopInTimeException(ActivityThread.java:2684)
+	at android.app.ActivityThread.throwRemoteServiceException(ActivityThread.java:2646)
+	at android.app.ActivityThread.-$$Nest$mthrowRemoteServiceException(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3068)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.StackTrace: Last startServiceCommon() call for this service was made here
+	at android.app.ContextImpl.startServiceCommon(ContextImpl.java:2131)
+	at android.app.ContextImpl.startForegroundService(ContextImpl.java:2075)
+	at android.content.ContextWrapper.startForegroundService(ContextWrapper.java:877)
+	at q.c.b(SourceFile:1)
+	at android.support.v4.media.session.a.L(SourceFile:7)
+	at m0.e.e(SourceFile:405)
+	at u0.c.onMethodCall(SourceFile:391)
+	at A0.x.n(SourceFile:26)
+	at C0.c.run(SourceFile:128)
+	at android.os.Handler.handleCallback(Handler.java:995)
+	at android.os.Handler.dispatchMessage(Handler.java:103)
+	... 6 more
+
+
+==== Native crash at 2026-06-22T01:47:08.904+0530 ====
+Thread: main (2)
+Exception: java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@1499443 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+java.lang.RuntimeException: Unable to start service com.pravera.flutter_foreground_task.service.ForegroundService@1499443 with null: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6105)
+	at android.app.ActivityThread.-$$Nest$mhandleServiceArgs(ActivityThread.java:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2974)
+	at android.os.Handler.dispatchMessage(Handler.java:110)
+	at android.os.Looper.loopOnce(Looper.java:273)
+	at android.os.Looper.loop(Looper.java:363)
+	at android.app.ActivityThread.main(ActivityThread.java:10060)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+Caused by: android.app.ForegroundServiceStartNotAllowedException: Time limit already exhausted for foreground service type dataSync
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:54)
+	at android.app.ForegroundServiceStartNotAllowedException$1.createFromParcel(ForegroundServiceStartNotAllowedException.java:50)
+	at android.os.Parcel.readParcelableInternal(Parcel.java:5229)
+	at android.os.Parcel.readParcelable(Parcel.java:5211)
+	at android.os.Parcel.createExceptionOrNull(Parcel.java:3349)
+	at android.os.Parcel.createException(Parcel.java:3338)
+	at android.os.Parcel.readException(Parcel.java:3321)
+	at android.os.Parcel.readException(Parcel.java:3263)
+	at android.app.IActivityManager$Stub$Proxy.setServiceForeground(IActivityManager.java:7539)
+	at android.app.Service.startForeground(Service.java:863)
+	at j.x.j(SourceFile:1)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.f(SourceFile:111)
+	at com.pravera.flutter_foreground_task.service.ForegroundService.onStartCommand(SourceFile:559)
+	at android.app.ActivityThread.handleServiceArgs(ActivityThread.java:6087)
+	... 9 more
+
+Recent events:
+[2026-06-22T01:47:32.862740] INFO Auto-start request accepted.
+[2026-06-22T01:07:56.698403] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-22T01:07:56.698064] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-22T01:07:54.438329] INFO Connected. Authenticating …
+[2026-06-22T01:07:40.141856] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-22T01:07:40.141820] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-22T01:07:35.135196] WARNING Reconnecting in 5s …
+[2026-06-22T01:07:35.057801] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-22T00:12:38.426860] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-22T00:12:38.426520] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-22T00:12:35.046373] INFO Connected. Authenticating …
+[2026-06-22T00:12:27.240376] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-22T00:12:27.238751] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-22T00:12:22.234589] WARNING Reconnecting in 5s …
+[2026-06-22T00:12:22.163074] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-21T23:17:22.449622] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T23:17:22.449362] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T23:17:22.158900] INFO Connected. Authenticating …
+[2026-06-21T23:17:20.768266] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T23:17:20.768219] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T23:17:15.758719] WARNING Reconnecting in 5s …
+[2026-06-21T23:17:15.711388] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-21T22:22:15.957215] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T22:22:15.957065] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T22:22:15.704739] INFO Connected. Authenticating …
+[2026-06-21T22:22:08.213868] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T22:22:08.213846] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T22:22:03.211571] WARNING Reconnecting in 5s …
+[2026-06-21T22:22:03.211553] WARNING Connection closed by server.
+[2026-06-21T22:10:43.613451] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T22:10:43.613328] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T22:10:43.102070] INFO Connected. Authenticating …
+[2026-06-21T22:10:41.860732] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T22:10:41.860720] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T22:10:36.859379] WARNING Reconnecting in 5s …
+[2026-06-21T22:10:36.859372] WARNING Connection closed by server.
+[2026-06-21T22:04:12.309805] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T22:04:12.309647] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T22:04:12.107322] INFO Connected. Authenticating …
+[2026-06-21T22:04:10.568842] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T22:04:10.568817] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T22:04:05.566912] WARNING Reconnecting in 5s …
+[2026-06-21T22:04:05.566896] WARNING Connection closed by server.
+[2026-06-21T22:03:54.193262] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T22:03:54.193120] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T22:03:53.875988] INFO Connected. Authenticating …
+[2026-06-21T22:03:52.470362] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T22:03:52.470351] INFO Using pinned IP 2a01:4f8:172:ee6::2 for mentalfitness.store.
+[2026-06-21T22:03:47.468634] WARNING Reconnecting in 5s …
+[2026-06-21T22:03:47.468603] ERROR Connection failed: SocketException: Connection failed (OS Error: Network is unreachable, errno = 101), address = 138.201.53.244, port = 8091
+[2026-06-21T22:03:47.427981] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T22:03:47.427961] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T22:03:42.425162] WARNING Reconnecting in 5s …
+[2026-06-21T22:03:42.425122] WARNING Connection closed by server.
+[2026-06-21T21:39:17.436559] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T21:39:17.436528] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T21:39:17.207597] INFO Connected. Authenticating …
+[2026-06-21T21:39:16.308745] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T21:39:16.308736] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T21:39:11.308151] WARNING Reconnecting in 5s …
+[2026-06-21T21:39:11.308146] WARNING Connection closed by server.
+[2026-06-21T21:37:21.235527] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T21:37:21.235359] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T21:37:21.020189] INFO Connected. Authenticating …
+[2026-06-21T21:37:20.142075] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T21:37:20.142054] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T21:37:15.138535] WARNING Reconnecting in 5s …
+[2026-06-21T21:37:15.136442] WARNING Connection closed by server.
+[2026-06-21T21:12:08.445343] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T21:12:08.445203] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T21:12:08.205479] INFO Connected. Authenticating …
+[2026-06-21T21:12:06.936001] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T21:12:06.935976] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T21:12:01.932671] WARNING Reconnecting in 5s …
+[2026-06-21T21:12:01.932605] WARNING Connection closed by server.
+[2026-06-21T21:09:50.209777] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T21:09:50.209644] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T21:09:49.747740] INFO Connected. Authenticating …
+[2026-06-21T21:09:48.667235] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T21:09:48.667199] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T21:09:43.662493] WARNING Reconnecting in 5s …
+[2026-06-21T21:09:43.662456] WARNING Connection closed by server.
+[2026-06-21T20:42:06.136473] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T20:42:06.136362] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T20:42:05.786947] INFO Connected. Authenticating …
+[2026-06-21T20:42:04.443634] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T20:42:04.443597] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T20:41:59.436994] WARNING Reconnecting in 5s …
+[2026-06-21T20:41:59.387506] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-21T19:46:59.740849] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T19:46:59.740808] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T19:46:59.377461] INFO Connected. Authenticating …
+[2026-06-21T19:46:58.032522] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T19:46:58.032516] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T19:46:58.027209] INFO Foreground task started via system.
+[2026-06-21T09:25:23.426834] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T09:25:23.426776] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T09:25:23.021204] INFO Connected. Authenticating …
+[2026-06-21T09:25:21.326123] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T09:25:21.326099] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T09:25:16.323979] WARNING Reconnecting in 5s …
+[2026-06-21T09:25:16.297669] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-21T08:30:16.695904] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T08:30:16.695839] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T08:30:16.293913] INFO Connected. Authenticating …
+[2026-06-21T08:30:14.606296] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T08:30:14.606274] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T08:30:09.604539] WARNING Reconnecting in 5s …
+[2026-06-21T08:30:09.572524] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-21T07:35:09.966577] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T07:35:09.966527] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T07:35:09.566161] INFO Connected. Authenticating …
+[2026-06-21T07:35:07.974606] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T07:35:07.974581] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T07:35:02.968327] WARNING Reconnecting in 5s …
+[2026-06-21T07:35:02.941917] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-21T06:40:03.345174] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T06:40:03.345118] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T06:40:02.936846] INFO Connected. Authenticating …
+[2026-06-21T06:40:01.251670] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T06:40:01.251646] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T06:39:56.248047] WARNING Reconnecting in 5s …
+[2026-06-21T06:39:56.221313] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-21T05:44:56.616423] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T05:44:56.616352] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T05:44:56.214919] INFO Connected. Authenticating …
+[2026-06-21T05:44:54.773100] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T05:44:54.773076] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T05:44:49.771418] WARNING Reconnecting in 5s …
+[2026-06-21T05:44:49.745236] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-21T04:49:49.982616] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T04:49:49.982478] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T04:49:49.742265] INFO Connected. Authenticating …
+[2026-06-21T04:49:48.610297] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T04:49:48.610286] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T04:49:43.607871] WARNING Reconnecting in 5s …
+[2026-06-21T04:49:43.607860] WARNING Connection closed by server.
+[2026-06-21T04:47:46.334105] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T04:47:46.333982] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T04:47:46.107792] INFO Connected. Authenticating …
+[2026-06-21T04:47:44.631947] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T04:47:44.631923] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T04:47:39.629360] WARNING Reconnecting in 5s …
+[2026-06-21T04:47:39.629344] WARNING Connection closed by server.
+[2026-06-21T03:56:18.390842] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-21T03:56:18.390707] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-21T03:56:14.916097] INFO Connected. Authenticating …
+[2026-06-21T03:56:07.270708] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-21T03:56:07.270700] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-21T03:56:07.260958] INFO Foreground task started via system.
+[2026-06-20T04:50:29.854922] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-20T04:50:29.854762] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-20T04:50:26.340458] INFO Connected. Authenticating …
+[2026-06-20T04:50:18.733112] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-20T04:50:18.733091] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-20T04:50:13.727691] WARNING Reconnecting in 5s …
+[2026-06-20T04:50:13.692510] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-20T03:55:15.932157] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-20T03:55:15.932039] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-20T03:55:13.685863] INFO Connected. Authenticating …
+[2026-06-20T03:54:59.211309] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-20T03:54:59.211285] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-20T03:54:59.199332] INFO Foreground task started via system.
+[2026-06-19T21:54:07.838567] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-19T21:54:07.838198] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-19T21:54:07.594959] INFO Connected. Authenticating …
+[2026-06-19T21:54:06.293138] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-19T21:54:06.293105] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-19T21:54:01.287675] WARNING Reconnecting in 5s …
+[2026-06-19T21:54:01.239362] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-19T20:59:01.507406] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-19T20:59:01.507318] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-19T20:59:01.231987] INFO Connected. Authenticating …
+[2026-06-19T20:59:00.039388] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-19T20:59:00.039379] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-19T20:58:55.037843] WARNING Reconnecting in 5s …
+[2026-06-19T20:58:55.037833] WARNING Connection closed by server.
+[2026-06-19T20:58:44.894446] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-19T20:58:44.894300] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-19T20:58:44.573989] INFO Connected. Authenticating …
+[2026-06-19T20:58:42.111608] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-19T20:58:42.111597] INFO Using pinned IP 2a01:4f8:172:ee6::2 for mentalfitness.store.
+[2026-06-19T20:58:37.109758] WARNING Reconnecting in 5s …
+[2026-06-19T20:58:37.109738] ERROR Connection failed: SocketException: Connection failed (OS Error: Network is unreachable, errno = 101), address = 138.201.53.244, port = 8091
+[2026-06-19T20:58:37.050532] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-19T20:58:37.050507] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-19T20:58:32.047376] WARNING Reconnecting in 5s …
+[2026-06-19T20:58:32.046514] WARNING Connection closed by server.
+[2026-06-19T20:33:00.748497] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-19T20:33:00.748296] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-19T20:33:00.536653] INFO Connected. Authenticating …
+[2026-06-19T20:32:59.609283] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-19T20:32:59.609271] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-19T20:32:54.608402] WARNING Reconnecting in 5s …
+[2026-06-19T20:32:54.608395] WARNING Connection closed by server.
+[2026-06-19T20:32:20.702726] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-19T20:32:20.702610] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-19T20:32:20.091521] INFO Connected. Authenticating …
+[2026-06-19T20:32:18.833272] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-19T20:32:18.833258] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-19T20:32:13.830010] WARNING Reconnecting in 5s …
+[2026-06-19T20:32:13.829862] WARNING Connection closed by server.
+[2026-06-19T20:29:13.876074] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-19T20:29:13.875946] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-19T20:29:13.049058] INFO Connected. Authenticating …
+[2026-06-19T20:29:11.421411] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-19T20:29:11.421380] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-19T20:29:06.409979] WARNING Reconnecting in 5s …
+[2026-06-19T20:29:06.408757] WARNING Connection closed by server.
+[2026-06-19T19:55:19.827484] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-19T19:55:19.827263] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-19T19:55:19.469205] INFO Connected. Authenticating …
+[2026-06-19T19:55:18.060602] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-19T19:55:18.060582] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-19T19:55:13.055575] WARNING Reconnecting in 5s …
+[2026-06-19T19:55:13.006115] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-19T19:00:13.308222] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-19T19:00:13.308006] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-19T19:00:12.995889] INFO Connected. Authenticating …
+[2026-06-19T19:00:11.733468] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-19T19:00:11.733429] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-19T19:00:06.728815] WARNING Reconnecting in 5s …
+[2026-06-19T19:00:06.728210] WARNING Connection closed by server.
+[2026-06-19T18:21:04.563089] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-19T18:21:04.562938] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-19T18:21:04.155419] INFO Connected. Authenticating …
+[2026-06-19T18:21:02.861335] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-19T18:21:02.861307] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-19T18:20:57.851051] WARNING Reconnecting in 5s …
+[2026-06-19T18:20:57.801926] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-19T17:25:58.020485] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-19T17:25:58.020322] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-19T17:25:57.794571] INFO Connected. Authenticating …
+[2026-06-19T17:25:56.539232] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-19T17:25:56.539221] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-19T17:25:56.528216] INFO Foreground task started via system.
+[2026-06-18T20:12:59.856670] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-18T20:12:59.856460] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-18T20:12:59.463456] INFO Connected. Authenticating …
+[2026-06-18T20:12:57.818286] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-18T20:12:57.818252] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-18T20:12:52.812830] WARNING Reconnecting in 5s …
+[2026-06-18T20:12:52.745896] WARNING Scheduled connection refresh. Reconnecting...
+[2026-06-18T19:17:53.093718] SUCCESS SMS gateway registered. Ready for OTP requests.
+[2026-06-18T19:17:53.093602] SUCCESS Authenticated as SMS Gateway — registering as SMS gateway…
+[2026-06-18T19:17:52.743024] INFO Connected. Authenticating …
+[2026-06-18T19:17:51.307351] INFO Connecting to wss://mentalfitness.store:8091 …
+[2026-06-18T19:17:51.307321] INFO Using pinned IP 138.201.53.244 for mentalfitness.store.
+[2026-06-18T19:17:46.303124] WARNING Reconnecting in 5s …
+[2026-06-18T19:17:46.302493] WARNING Connection closed by server.

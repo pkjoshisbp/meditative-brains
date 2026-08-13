@@ -26,18 +26,25 @@ class Product extends Model implements HasMedia
         'short_description',
         'price',
         'sale_price',
+        'inr_price',
+        'inr_sale_price',
         'student_price',
         'student_inr_price',
         'type',
+        'content_type',
         'audio_type',
         'audio_features',
         'audio_path',
         'linked_audiobook_id',
+        'related_audio_product_id',
         'preview_duration',
         'preview_file',
         'full_file',
         'pdf_file_path',
+        'mobile_pdf_file_path',
         'pdf_file_url',
+        'html_book_path',
+        'html_book_url',
         'tags',
         'meta_title',
         'meta_description',
@@ -54,10 +61,13 @@ class Product extends Model implements HasMedia
     protected $casts = [
         'audio_features' => 'array',
         'linked_audiobook_id' => 'integer',
+        'related_audio_product_id' => 'integer',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
         'price' => 'decimal:2',
         'sale_price' => 'decimal:2',
+        'inr_price' => 'decimal:2',
+        'inr_sale_price' => 'decimal:2',
         'student_price' => 'decimal:2',
         'student_inr_price' => 'decimal:2',
         'average_rating' => 'decimal:2',
@@ -78,6 +88,11 @@ class Product extends Model implements HasMedia
     public function linkedAudiobook()
     {
         return $this->belongsTo(TtsAudiobook::class, 'linked_audiobook_id');
+    }
+
+    public function relatedAudioProduct()
+    {
+        return $this->belongsTo(Product::class, 'related_audio_product_id');
     }
 
     public function cartItems()
@@ -116,6 +131,10 @@ class Product extends Model implements HasMedia
 
     public function resolvePreviewUrl(): ?string
     {
+        if ($this->isPdfOnlyBook()) {
+            return null;
+        }
+
         if ($this->audio_path) {
             return app(AudioSecurityService::class)->generateSignedUrl(
                 $this->audio_path,
@@ -132,6 +151,22 @@ class Product extends Model implements HasMedia
         }
 
         return $audiobook->resolvePreviewUrl() ?: null;
+    }
+
+    public function isPdfOnlyBook(): bool
+    {
+        return $this->content_type === 'pdf_book';
+    }
+
+    public function isBookWithAudio(): bool
+    {
+        return $this->content_type === 'book_with_audio';
+    }
+
+    public function hasAudioPreviewSource(): bool
+    {
+        return ! $this->isPdfOnlyBook()
+            && ($this->audio_path || $this->linked_audiobook_id);
     }
 
     public function previewDisplayDuration(): ?int

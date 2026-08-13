@@ -399,6 +399,57 @@ class TtsAudioGeneratorService
         $this->wavToAac($inputPath, $outputPath, $options);
     }
 
+    /**
+     * Concatenate AAC tracks into a single AAC output via ffmpeg concat demuxer.
+     * The input list must contain absolute file paths in the intended playback order.
+     */
+    public function concatenateAudioFiles(array $inputPaths, string $outputPath): void
+    {
+        $inputPaths = array_values(array_filter($inputPaths, fn ($path) => is_string($path) && $path !== ''));
+
+        if ($inputPaths === []) {
+            throw new \InvalidArgumentException('No audio files were provided for concatenation.');
+        }
+
+        foreach ($inputPaths as $path) {
+            if (!file_exists($path)) {
+                throw new \RuntimeException('Audio chunk missing for concatenation: ' . $path);
+            }
+        }
+
+        $dir = dirname($outputPath);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+
+        $concatList = tempnam(sys_get_temp_dir(), 'audiobook-concat-');
+        if ($concatList === false) {
+            throw new \RuntimeException('Unable to create temporary concat manifest.');
+        }
+
+        try {
+            $lines = array_map(
+                fn ($path) => "file '" . str_replace(["'", "\n", "\r"], ["'\\''", '', ''], $path) . "'",
+                $inputPaths
+            );
+            file_put_contents($concatList, implode(PHP_EOL, $lines) . PHP_EOL);
+
+            $process = new Process([
+                'ffmpeg', '-f', 'concat', '-safe', '0', '-i', $concatList,
+                '-c:a', 'copy',
+                $outputPath, '-y',
+            ]);
+            $process->setTimeout(120);
+            $process->run();
+
+            if (!$process->isSuccessful() || !file_exists($outputPath)) {
+                throw new \RuntimeException('ffmpeg concat failed: ' . $process->getErrorOutput());
+            }
+        } finally {
+            @unlink($concatList);
+        }
+    }
+
     private function wavToAac(string $wavPath, string $aacPath, array $options = []): void
     {
         $bitrate = (string) ($options['bitrate'] ?? '192k');

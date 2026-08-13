@@ -52,6 +52,63 @@
   .pillar { background: #fafafa; border: 1px solid #e0d4c0; border-radius: 8px; padding: 18px 20px; }
   .pillar h5 { margin: 0 0 8px; font-size: 15px; color: #1a1a2e; }
   .pillar p { margin: 0; font-size: 14.5px; color: #555; }
+  @media (max-width: 640px) {
+    body { line-height: 1.7; }
+    .page-wrapper { width: 100%; padding: 22px 14px 56px; }
+    .book-header { padding-bottom: 22px; margin-bottom: 34px; }
+    .book-title { font-size: 11px; letter-spacing: 2px; }
+    .chapter-number { font-size: 40px; }
+    .chapter-title { font-size: 26px; line-height: 1.25; }
+    .chapter-subtitle { font-size: 16px; line-height: 1.55; }
+    h2 { font-size: 20px; margin-top: 38px; padding-left: 12px; }
+    h3 { font-size: 17px; margin-top: 30px; }
+    p { font-size: 17px; }
+    blockquote,
+    .story-box,
+    .science-box,
+    .practice-box,
+    .reflection-box,
+    .conditioning-section,
+    .chapter-summary,
+    .culture-box,
+    .objection-box { padding: 20px 18px; margin: 30px 0; }
+    .reflection-box ol,
+    .chapter-summary ul { padding-left: 18px; }
+    .reflection-box li,
+    .chapter-summary li,
+    .conditioning-section ul li { font-size: 16px; }
+    .conditioning-section p { font-size: 14.5px; }
+    .insight-pull { font-size: 18px; padding: 20px 14px; }
+    .image-placeholder { height: 220px; }
+    .nav-links { gap: 14px; flex-direction: column; margin-top: 42px; }
+    .comparison-grid,
+    .two-system-grid,
+    .chemistry-grid,
+    .strength-pillars { grid-template-columns: 1fr; gap: 14px; }
+    .model-comparison,
+    .comparison-strip { flex-direction: column; }
+    .comparison-strip .comp-col:first-child { border-right: 0; border-bottom: 1px solid #e0d4c0; }
+    .system-col,
+    .comparison-col,
+    .model-col,
+    .comp-col,
+    .pillar,
+    .chem-card,
+    .day-block { padding: 18px 16px; }
+  }
+
+  @media (max-width: 380px) {
+    .page-wrapper { padding-left: 10px; padding-right: 10px; }
+    blockquote,
+    .story-box,
+    .science-box,
+    .practice-box,
+    .reflection-box,
+    .conditioning-section,
+    .chapter-summary,
+    .culture-box,
+    .objection-box { padding-left: 14px; padding-right: 14px; }
+  }
 </style>
 </head>
 <body>

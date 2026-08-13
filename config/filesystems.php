@@ -44,6 +44,15 @@ return [
             'throw' => false,
         ],
 
+        // Private disk for licensed downloadable assets (e.g. book PDFs).
+        // storage/app/private is NOT symlinked into the web root, so files
+        // here can only be served through authenticated controllers.
+        'private' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'throw' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

@@ -4,14 +4,14 @@
     <div class="container">
         <div class="row align-items-center min-vh-50">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">Transform Your Mind with Premium Audio</h1>
-                <p class="lead mb-4">Discover our premium mental wellness audio: affirmations, sleep music, meditation tracks, and healing frequencies designed to train your mind and transform your life.</p>
+                <h1 class="display-4 fw-bold mb-4">Train Your Mind with Premium Audio, Ebooks, and Audiobooks</h1>
+                <p class="lead mb-4">Discover mental wellness audio, daily affirmations, sleep music, meditation tracks, healing frequencies, and the <strong>Practicing Happiness</strong> ebook and audiobook designed for emotional resilience and daily mind training.</p>
                 <div class="d-flex gap-3 flex-wrap">
                     <a href="{{ route('products') }}" class="btn btn-light btn-lg">
-                        <i class="fas fa-music me-2"></i>Browse Music
+                        <i class="fas fa-music me-2"></i>Browse Store
                     </a>
-                    <a href="#subscription" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-star me-2"></i>Get Subscription
+                    <a href="{{ route('about') }}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-book-open me-2"></i>About Practicing Happiness
                     </a>
                 </div>
             </div>
@@ -32,42 +32,64 @@
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="display-5 fw-bold">Explore Our Categories</h2>
-            <p class="lead text-muted">Choose from our carefully curated collection of wellness audio</p>
+            <p class="lead text-muted">Choose from wellness audio, mind-training ebooks, audiobooks, and sound therapy tools</p>
         </div>
         <div class="row g-4">
             @foreach($categories as $category)
+                @php
+                    $categoryName = strtolower($category->name ?? '');
+                    if (str_contains($categoryName, 'audio book')) {
+                        $categoryImage = 'happiness.jpg';
+                        $categoryIcon = 'fa-book-open';
+                        $categoryTone = '#0f766e';
+                    } elseif (str_contains($categoryName, 'tts') || str_contains($categoryName, 'affirm')) {
+                        $categoryImage = 'motivation.jpg';
+                        $categoryIcon = 'fa-microphone-alt';
+                        $categoryTone = '#2563eb';
+                    } elseif (str_contains($categoryName, 'sleep')) {
+                        $categoryImage = 'relaxation.jpg';
+                        $categoryIcon = 'fa-moon';
+                        $categoryTone = '#0891b2';
+                    } elseif (str_contains($categoryName, 'meditat')) {
+                        $categoryImage = 'meditation.jpg';
+                        $categoryIcon = 'fa-leaf';
+                        $categoryTone = '#16a34a';
+                    } elseif (str_contains($categoryName, 'binaural') || str_contains($categoryName, 'frequency') || str_contains($categoryName, 'solfeggio')) {
+                        $categoryImage = 'wellness.jpg';
+                        $categoryIcon = 'fa-wave-square';
+                        $categoryTone = '#7c3aed';
+                    } elseif (str_contains($categoryName, 'nature')) {
+                        $categoryImage = 'resilience.jpg';
+                        $categoryIcon = 'fa-tree';
+                        $categoryTone = '#15803d';
+                    } else {
+                        $categoryImage = 'wellness.jpg';
+                        $categoryIcon = 'fa-music';
+                        $categoryTone = '#2563eb';
+                    }
+
+                    $categoryTitle = $category->name === 'TTS Affirmations' ? 'Mental Wellness Audio' : $category->name;
+                    $categoryUrl = $category->name === 'TTS Affirmations'
+                        ? (Route::has('audio.catalog') ? route('audio.catalog') : url('/mind-audio'))
+                        : route('products', ['categoryId' => $category->id]);
+                @endphp
                 <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 border-0 shadow-sm category-card">
-                        <div class="card-body text-center p-4">
-                            <div class="category-icon mb-3">
-                                @switch($category->name)
-                                    @case('TTS Affirmations')
-                                        <i class="fas fa-microphone-alt fa-3x text-primary"></i>
-                                        @break
-                                    @case('Sleep Aid Music')
-                                        <i class="fas fa-moon fa-3x text-info"></i>
-                                        @break
-                                    @case('Meditation Music')
-                                        <i class="fas fa-leaf fa-3x text-success"></i>
-                                        @break
-                                    @case('Binaural Beats')
-                                        <i class="fas fa-wave-square fa-3x text-warning"></i>
-                                        @break
-                                    @case('Nature Sounds')
-                                        <i class="fas fa-tree fa-3x text-success"></i>
-                                        @break
-                                    @case('Solfeggio Frequencies')
-                                        <i class="fas fa-yin-yang fa-3x text-purple"></i>
-                                        @break
-                                    @default
-                                        <i class="fas fa-music fa-3x text-primary"></i>
-                                @endswitch
+                    <div class="card h-100 border-0 shadow-sm category-card overflow-hidden">
+                        <div class="position-relative">
+                            <img src="{{ asset('images/categories/' . $categoryImage) }}" class="card-img-top" alt="{{ $categoryTitle }}" style="height: 170px; object-fit: cover;">
+                            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(15,23,42,0.04), rgba(15,23,42,0.46));"></div>
+                            <span class="position-absolute bottom-0 start-0 m-3 d-inline-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm" style="width: 52px; height: 52px; color: {{ $categoryTone }};">
+                                <i class="fas {{ $categoryIcon }} fa-lg"></i>
+                            </span>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                                <h5 class="card-title mb-0">{{ $categoryTitle }}</h5>
+                                <span class="badge text-nowrap" style="background: rgba(22, 163, 74, 0.12); color: #15803d; border: 1px solid rgba(22, 163, 74, 0.18);">{{ $category->active_products_count }} tracks</span>
                             </div>
-                            <h5 class="card-title">{{ $category->name === 'TTS Affirmations' ? 'Mental Wellness Audio' : $category->name }}</h5>
-                            <p class="card-text text-muted">{{ $category->description }}</p>
-                            <p class="small text-success">{{ $category->active_products_count }} tracks available</p>
-                            <a href="{{ $category->name === 'TTS Affirmations' ? (Route::has('audio.catalog') ? route('audio.catalog') : url('/mind-audio')) : route('products', ['categoryId' => $category->id]) }}" class="btn btn-outline-primary">
-                                Explore {{ $category->name === 'TTS Affirmations' ? 'Mental Wellness Audio' : $category->name }}
+                            <p class="card-text text-muted flex-grow-1">{{ $category->description }}</p>
+                            <a href="{{ $categoryUrl }}" class="btn btn-outline-primary align-self-start">
+                                Explore {{ $categoryTitle }}
                             </a>
                         </div>
                     </div>
@@ -83,7 +105,7 @@
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="display-5 fw-bold">Featured Tracks</h2>
-            <p class="lead text-muted">Hand-picked premium audio for maximum impact</p>
+            <p class="lead text-muted">Hand-picked audio, ebooks, and book bundles for daily mental fitness practice</p>
         </div>
         <div class="row g-4">
             @foreach($featuredProducts as $product)
@@ -121,7 +143,14 @@
 
                         <div class="card-body d-flex flex-column">
                             <h6 class="card-title">{{ $product->name }}</h6>
-                            <p class="card-text text-muted small mb-2">{{ $product->category->name }}</p>
+                                    <p class="card-text text-muted small mb-2">
+                                        {{ $product->category->name }}
+                                        @if($product->isPdfOnlyBook())
+                                            <span class="badge bg-danger ms-1">PDF</span>
+                                        @elseif($product->isBookWithAudio())
+                                            <span class="badge bg-info ms-1">Book + Audio</span>
+                                        @endif
+                                    </p>
                             
                             @if($product->short_description)
                                 <p class="card-text small">{{ Str::limit($product->short_description, 60) }}</p>
@@ -156,9 +185,11 @@
                                 </div>
 
                                 <div class="d-grid gap-2">
-                                    <button class="btn btn-outline-primary btn-sm" onclick="playPreview({{ $product->id }})">
-                                        <i class="fas fa-play"></i> Preview
-                                    </button>
+                                    @if($product->hasAudioPreviewSource())
+                                        <button class="btn btn-outline-primary btn-sm" onclick="playPreview({{ $product->id }})">
+                                            <i class="fas fa-play"></i> Preview
+                                        </button>
+                                    @endif
                                     <button class="btn btn-primary btn-sm" onclick="addToCart({{ $product->id }})">
                                         <i class="fas fa-cart-plus"></i> Add to Cart
                                     </button>
@@ -182,7 +213,7 @@
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="display-5 fw-bold">New Releases</h2>
-            <p class="lead text-muted">Latest additions to our wellness audio collection</p>
+            <p class="lead text-muted">Latest additions to our wellness audio, ebook, and audiobook collection</p>
         </div>
         <div class="row g-4">
             @foreach($newProducts as $product)
@@ -214,7 +245,14 @@
 
                         <div class="card-body">
                             <h6 class="card-title">{{ $product->name }}</h6>
-                            <p class="card-text text-muted small">{{ $product->category->name }}</p>
+                            <p class="card-text text-muted small">
+                                {{ $product->category->name }}
+                                @if($product->isPdfOnlyBook())
+                                    <span class="badge bg-danger ms-1">PDF</span>
+                                @elseif($product->isBookWithAudio())
+                                    <span class="badge bg-info ms-1">Book + Audio</span>
+                                @endif
+                            </p>
                             <div class="d-flex justify-content-between align-items-center">
                                 @php $isIndia = session('user_currency') === 'INR'; @endphp
                                 @if($isIndia)
@@ -222,9 +260,11 @@
                                 @else
                                     <span class="h6 text-primary mb-0">${{ number_format($product->getCurrentPrice(), 2) }}</span>
                                 @endif
-                                <button class="btn btn-outline-primary btn-sm" onclick="playPreview({{ $product->id }})">
-                                    <i class="fas fa-play"></i>
-                                </button>
+                                @if($product->hasAudioPreviewSource())
+                                    <button class="btn btn-outline-primary btn-sm" onclick="playPreview({{ $product->id }})">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -343,15 +383,15 @@
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <h2 class="display-5 fw-bold mb-4">About Mental Fitness Store</h2>
-                <p class="lead">We're dedicated to creating premium audio content that supports your mental fitness and personal development journey.</p>
-                <p>Our expertly crafted affirmations, sleep aid music, and healing frequencies are designed using the latest research in neuroscience and sound therapy. Each track is carefully produced to train your mind and deliver real transformation.</p>
+                <p class="lead">Mental Fitness Store is built around one simple idea from <strong>Practicing Happiness</strong>: happiness becomes stronger when you practice it every day.</p>
+                <p>Our ebook, audiobook, affirmations, meditation audio, and sleep support tracks are created to help you train attention, build emotional resilience, and return to positive self-talk in practical daily moments.</p>
                 <div class="row mt-4">
                     <div class="col-sm-6">
                         <div class="d-flex align-items-center mb-3">
                             <i class="fas fa-award fa-2x text-primary me-3"></i>
                             <div>
-                                <h6 class="mb-0">Premium Quality</h6>
-                                <small class="text-muted">Studio-grade recordings</small>
+                                <h6 class="mb-0">Daily Practice</h6>
+                                <small class="text-muted">Book-led mind training</small>
                             </div>
                         </div>
                     </div>
@@ -359,8 +399,8 @@
                         <div class="d-flex align-items-center mb-3">
                             <i class="fas fa-brain fa-2x text-success me-3"></i>
                             <div>
-                                <h6 class="mb-0">Science-Based</h6>
-                                <small class="text-muted">Researched frequencies</small>
+                                <h6 class="mb-0">Resilience Focused</h6>
+                                <small class="text-muted">Positive self-talk tools</small>
                             </div>
                         </div>
                     </div>

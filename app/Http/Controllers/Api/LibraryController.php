@@ -1,0 +1,520 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\SubscriptionPlan;
+use App\Models\TtsAudioProduct;
+use App\Models\TtsAudiobook;
+use App\Models\TtsAudiobookChapter;
+use App\Services\AudioSecurityService;
+use App\Services\BackgroundMusicService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+class LibraryController extends Controller
+{
+    public function index(Request $request)
+    {
+        $user = $request->user();
+        $subscription = $user->subscriptions()->active()->latest()->first();
+        $plan = $subscription
+            ? SubscriptionPlan::where('slug', $subscription->plan_type)->first()
+            : null;
+
+        $regularProducts = $user->getPurchasedProducts()
+            ->load(['category', 'media', 'linkedAudiobook.chapters'])
+            ->merge($plan?->includesMusicLibrary()
+                ? Product::with(['category', 'media', 'linkedAudiobook.chapters'])->where('is_active', true)->get()
+                : collect())
+            ->unique('id')
+            ->values();
+
+        $ttsProducts = $user->completedTtsProductPurchases()
+            ->with('product.linkedAudiobook.chapters')
+            ->get()
+            ->pluck('product')
+            ->filter()
+            ->merge($this->subscriptionTtsProducts($plan))
+            ->unique('id')
+            ->values();
+
+        return response()->json([
+            'subscription' => $subscription ? [
+                'plan_type' => $subscription->plan_type,
+                'ends_at' => $subscription->ends_at?->toIso8601String(),
+            ] : null,
+            'items' => $regularProducts
+                ->map(fn (Product $product) => $this->regularProductPayload($product, $request))
+                ->merge($ttsProducts->map(fn (TtsAudioProduct $product) => $this->ttsProductPayload($product, $request)))
+                ->values(),
+        ]);
+    }
+
+    public function productHtmlContent(Request $request, int $product)
+    {
+        $regularProduct = Product::find($product);
+        if ($regularProduct) {
+            abort_unless($request->user()->hasMusicProductAccess($regularProduct->id), 403);
+
+            return $this->htmlContentResponse($regularProduct->html_book_path, $regularProduct->html_book_url);
+        }
+
+        // Compatibility for app releases that used the regular-product URL
+        // for library items whose source is "tts_product".
+        $ttsProduct = TtsAudioProduct::active()->findOrFail($product);
+        abort_unless($this->canAccessTtsProduct($request, $ttsProduct), 403);
+
+        return $this->htmlContentResponse($ttsProduct->html_book_path, $ttsProduct->html_book_url);
+    }
+
+    public function productHtmlAsset(Request $request, int $product, ?string $assetPath = null)
+    {
+        $regularProduct = Product::find($product);
+        if ($regularProduct) {
+            abort_unless($request->user()->hasMusicProductAccess($regularProduct->id), 403);
+
+            return $this->htmlAssetResponse($regularProduct->html_book_path, $assetPath);
+        }
+
+        $ttsProduct = TtsAudioProduct::active()->findOrFail($product);
+        abort_unless($this->canAccessTtsProduct($request, $ttsProduct), 403);
+
+        return $this->htmlAssetResponse($ttsProduct->html_book_path, $assetPath);
+    }
+
+    public function ttsHtmlContent(Request $request, TtsAudioProduct $product)
+    {
+        abort_unless($this->canAccessTtsProduct($request, $product), 403);
+        return $this->htmlContentResponse($product->html_book_path, $product->html_book_url);
+    }
+
+    public function ttsHtmlAsset(Request $request, TtsAudioProduct $product, ?string $assetPath = null)
+    {
+        abort_unless($this->canAccessTtsProduct($request, $product), 403);
+        return $this->htmlAssetResponse($product->html_book_path, $assetPath);
+    }
+
+    public function audiobook(Request $request, TtsAudiobook $audiobook)
+    {
+        $user = $request->user();
+        $hasRegularProduct = Product::where('linked_audiobook_id', $audiobook->id)
+            ->where('is_active', true)
+            ->get()
+            ->contains(fn (Product $product) => $user->hasMusicProductAccess($product->id));
+        $hasTtsProduct = TtsAudioProduct::active()
+            ->where('linked_audiobook_id', $audiobook->id)
+            ->get()
+            ->contains(fn (TtsAudioProduct $product) => $this->canAccessTtsProduct($request, $product));
+
+        abort_unless($hasRegularProduct || $hasTtsProduct, 403);
+
+        return response()->json($this->audiobookPayload($audiobook->load('chapters')));
+    }
+
+    public function backgroundMusic(Request $request)
+    {
+        $tracks = app(BackgroundMusicService::class)->listTracks();
+
+        return response()->json([
+            'success' => true,
+            'playback_model' => [
+                'mode' => 'client_side_mix',
+                'supports_independent_volume' => true,
+                'supports_equalizer' => false,
+            ],
+            'defaults' => [
+                'tts_audio_volume' => 1.0,
+                'background_music_volume' => 0.25,
+                'loop_background_music' => true,
+            ],
+            'tracks' => $tracks,
+            'count' => count($tracks),
+        ]);
+    }
+
+    private function subscriptionTtsProducts(?SubscriptionPlan $plan)
+    {
+        if (! $plan) {
+            return collect();
+        }
+
+        if ($plan->includesAllTtsCategories()) {
+            return TtsAudioProduct::with('linkedAudiobook.chapters')->active()->get();
+        }
+
+        $categories = $plan->getIncludedTtsCategories();
+        if ($categories === []) {
+            return collect();
+        }
+
+        return TtsAudioProduct::with('linkedAudiobook.chapters')
+            ->active()
+            ->whereIn('category', $categories)
+            ->get();
+    }
+
+    private function regularProductPayload(Product $product, Request $request): array
+    {
+        $formats = [];
+
+        if ($product->pdf_file_path) {
+            $formats[] = [
+                'type' => 'pdf',
+                'label' => 'PDF',
+                'download_request' => [
+                    'method' => 'POST',
+                    'url' => url('/api/downloads/request'),
+                    'body' => ['product_id' => $product->id],
+                ],
+            ];
+        }
+
+        if ($product->mobile_pdf_file_path) {
+            $formats[] = [
+                'type' => 'mobile_pdf',
+                'label' => 'PDF (Mobile)',
+                'download_request' => [
+                    'method' => 'POST',
+                    'url' => url('/api/downloads/request'),
+                    'body' => ['product_id' => $product->id, 'format' => 'mobile'],
+                ],
+            ];
+        }
+
+        if ($product->html_book_path || $product->html_book_url) {
+            $formats[] = [
+                'type' => 'html',
+                'label' => 'Read',
+                'content_url' => route('api.library.products.html-content', $product),
+                'asset_base_url' => route('api.library.products.html-asset', ['product' => $product, 'assetPath' => '']),
+                'external_url' => $product->html_book_url,
+                'html_version' => $this->htmlBookVersion($product->html_book_path),
+            ];
+        }
+
+        $audio = $this->regularAudioPayload($product);
+        if ($audio) {
+            $formats[] = $audio;
+        }
+
+        return [
+            'source' => 'product',
+            'id' => $product->id,
+            'title' => $product->name,
+            'description' => $product->short_description ?: $product->description,
+            'category' => $product->category?->name,
+            'content_type' => $product->content_type ?: 'audio',
+            'cover_url' => $product->productImageUrl('cover'),
+            'formats' => $formats,
+        ];
+    }
+
+    private function ttsProductPayload(TtsAudioProduct $product, Request $request): array
+    {
+        $formats = [];
+
+        if ($product->pdf_file_path) {
+            $formats[] = [
+                'type' => 'pdf',
+                'label' => 'PDF',
+                'download_request' => [
+                    'method' => 'POST',
+                    'url' => url('/api/downloads/request'),
+                    'body' => ['tts_audio_product_id' => $product->id],
+                ],
+            ];
+        }
+
+        if ($product->mobile_pdf_file_path) {
+            $formats[] = [
+                'type' => 'mobile_pdf',
+                'label' => 'PDF (Mobile)',
+                'download_request' => [
+                    'method' => 'POST',
+                    'url' => url('/api/downloads/request'),
+                    'body' => ['tts_audio_product_id' => $product->id, 'format' => 'mobile'],
+                ],
+            ];
+        }
+
+        if ($product->html_book_path || $product->html_book_url) {
+            $formats[] = [
+                'type' => 'html',
+                'label' => 'Read',
+                'content_url' => route('api.library.tts-products.html-content', $product),
+                'asset_base_url' => route('api.library.tts-products.html-asset', ['product' => $product, 'assetPath' => '']),
+                'external_url' => $product->html_book_url,
+                'html_version' => $this->htmlBookVersion($product->html_book_path),
+            ];
+        }
+
+        $audio = $this->ttsAudioPayload($product);
+        if ($audio) {
+            $formats[] = $audio;
+        }
+
+        return [
+            'source' => 'tts_product',
+            'id' => $product->id,
+            'title' => $product->name,
+            'description' => $product->short_description ?: $product->description,
+            'category' => $product->category,
+            'content_type' => $product->product_type ?: 'audio',
+            'cover_url' => $this->ttsCoverUrl($product),
+            'formats' => $formats,
+        ];
+    }
+
+    private function regularAudioPayload(Product $product): ?array
+    {
+        if ($product->isPdfOnlyBook() && ! $product->linkedAudiobook) {
+            return null;
+        }
+
+        if ($product->audio_path) {
+            return [
+                'type' => 'audio',
+                'label' => 'Audio',
+                'stream_url' => app(AudioSecurityService::class)->generateSignedUrl($product->audio_path, null, 60 * 24),
+            ];
+        }
+
+        if ($product->linkedAudiobook) {
+            return [
+                'type' => 'audiobook',
+                'label' => 'Audiobook',
+                'audiobook' => $this->audiobookPayload($product->linkedAudiobook),
+            ];
+        }
+
+        return null;
+    }
+
+    private function ttsAudioPayload(TtsAudioProduct $product): ?array
+    {
+        if ($product->linkedAudiobook) {
+            return [
+                'type' => 'audiobook',
+                'label' => 'Audiobook',
+                'audiobook' => $this->audiobookPayload($product->linkedAudiobook),
+            ];
+        }
+
+        $urls = collect($product->audio_urls ?? [])->map(function ($item) {
+            return is_array($item)
+                ? ($item['url'] ?? $item['audio_url'] ?? $item['src'] ?? null)
+                : $item;
+        })->filter()->values();
+
+        if ($urls->isNotEmpty() || $product->preview_audio_url) {
+            return [
+                'type' => 'audio',
+                'label' => 'Audio',
+                'stream_url' => $product->preview_audio_url ?: $urls->first(),
+                'tracks' => $urls,
+            ];
+        }
+
+        return null;
+    }
+
+    private function audiobookPayload(TtsAudiobook $audiobook): array
+    {
+        $audiobook->loadMissing('chapters');
+
+        return [
+            'id' => $audiobook->id,
+            'title' => $audiobook->book_title,
+            'author' => $audiobook->book_author,
+            'language' => $audiobook->language,
+            'speaker' => $audiobook->speakerDisplayName(),
+            'updated_at' => $audiobook->updated_at?->toIso8601String(),
+            'audio_version' => $audiobook->updated_at?->toIso8601String(),
+            'background_music' => $this->audiobookBackgroundMusicPayload($audiobook),
+            'chapters' => $audiobook->chapters
+                ->filter(fn (TtsAudiobookChapter $chapter) => ($chapter->status === 'done' || $chapter->status === null) && ($chapter->audio_path || $chapter->audio_url))
+                ->map(fn (TtsAudiobookChapter $chapter) => [
+                    'id' => $chapter->id,
+                    'chapter_number' => $chapter->chapter_number,
+                    'title' => $chapter->title,
+                    'stream_url' => $this->chapterAudioUrl($chapter),
+                    'updated_at' => $chapter->updated_at?->toIso8601String(),
+                    'audio_version' => $chapter->updated_at?->toIso8601String(),
+                ])
+                ->values(),
+        ];
+    }
+
+    private function audiobookBackgroundMusicPayload(TtsAudiobook $audiobook): array
+    {
+        $service = app(BackgroundMusicService::class);
+        $track = $audiobook->has_background_music && $audiobook->background_music_track
+            ? $service->findTrack($audiobook->background_music_track)
+            : null;
+
+        return [
+            'enabled_by_default' => (bool) $audiobook->has_background_music && $track !== null,
+            'selected_track_id' => $track['id'] ?? ($audiobook->background_music_track ?: null),
+            'selected_track' => $track,
+            'tts_audio_volume' => $this->normaliseVolume($audiobook->tts_audio_volume ?? 1.0, 1.0),
+            'background_music_volume' => $this->normaliseVolume($audiobook->background_music_volume ?? 0.25, 0.25),
+            'loop_background_music' => true,
+            'mix_mode' => 'client_side',
+            'supports_independent_volume' => true,
+            'supports_equalizer' => false,
+            'tracks_url' => route('api.library.background-music.index'),
+        ];
+    }
+
+    private function chapterAudioUrl(TtsAudiobookChapter $chapter): ?string
+    {
+        if ($chapter->audio_path && Storage::disk('local')->exists($chapter->audio_path)) {
+            return app(AudioSecurityService::class)->generateSignedUrl($chapter->audio_path, null, 60 * 24);
+        }
+
+        return $chapter->audio_url;
+    }
+
+    private function normaliseVolume(mixed $value, float $default): float
+    {
+        if (!is_numeric($value)) {
+            return $default;
+        }
+
+        return max(0.0, min(1.0, (float) $value));
+    }
+
+    private function htmlContentResponse(?string $htmlBookPath, ?string $htmlBookUrl)
+    {
+        if ($htmlBookUrl && ! $htmlBookPath) {
+            return response()
+                ->json(['external_url' => $htmlBookUrl, 'html_version' => null])
+                ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
+        }
+
+        abort_unless($htmlBookPath, 404);
+
+        $path = $this->resolveBookAssetPath($htmlBookPath);
+        abort_unless($path && is_file($path), 404);
+
+        return response()
+            ->json([
+                'html' => file_get_contents($path),
+                'asset_base_path' => dirname($htmlBookPath),
+                'html_version' => $this->htmlBookVersion($htmlBookPath),
+            ])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate');
+    }
+
+    private function htmlAssetResponse(?string $htmlBookPath, ?string $assetPath)
+    {
+        abort_unless($htmlBookPath && $assetPath, 404);
+
+        $path = $this->resolveBookAssetPath(dirname($htmlBookPath) . '/' . $assetPath);
+        abort_unless($path && is_file($path), 404);
+        abort_unless($this->isPathInsideBookFolder($path, $htmlBookPath), 404);
+
+        return response()->file($path);
+    }
+
+    private function canAccessTtsProduct(Request $request, TtsAudioProduct $product): bool
+    {
+        $user = $request->user();
+
+        return $user->hasTtsProductAccess($product->id)
+            || $user->hasTtsCategoryAccess($product->category)
+            || $user->hasActiveSubscription();
+    }
+
+    private function ttsCoverUrl(TtsAudioProduct $product): ?string
+    {
+        if ($product->cover_image_url) {
+            return $product->cover_image_url;
+        }
+
+        return $product->cover_image_path ? asset($product->cover_image_path) : null;
+    }
+
+    private function resolveBookAssetPath(string $path): ?string
+    {
+        $path = ltrim($path, '/');
+        $candidates = [
+            base_path($path),
+            public_path($path),
+            storage_path('app/public/' . $path),
+        ];
+
+        foreach ($candidates as $candidate) {
+            $real = realpath($candidate);
+            if (! $real) {
+                continue;
+            }
+
+            $allowedRoots = [
+                realpath(base_path('ebook')),
+                realpath(public_path()),
+                realpath(storage_path('app/public')),
+            ];
+
+            foreach (array_filter($allowedRoots) as $root) {
+                if (str_starts_with($real, $root . DIRECTORY_SEPARATOR) || $real === $root) {
+                    return $real;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function htmlBookVersion(?string $htmlBookPath): ?string
+    {
+        if (! $htmlBookPath) {
+            return null;
+        }
+
+        $indexPath = $this->resolveBookAssetPath($htmlBookPath);
+        if (! $indexPath || ! is_file($indexPath)) {
+            return null;
+        }
+
+        $bookRoot = dirname($indexPath);
+        $parts = [];
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($bookRoot, \FilesystemIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $file) {
+            if (! $file->isFile()) {
+                continue;
+            }
+
+            $extension = strtolower($file->getExtension());
+            if (! in_array($extension, ['html', 'css', 'js', 'jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'], true)) {
+                continue;
+            }
+
+            $path = $file->getPathname();
+            $parts[] = str_replace($bookRoot . DIRECTORY_SEPARATOR, '', $path)
+                . ':' . $file->getMTime()
+                . ':' . $file->getSize();
+        }
+
+        sort($parts);
+
+        return substr(hash('sha256', implode('|', $parts)), 0, 20);
+    }
+
+    private function isPathInsideBookFolder(string $resolvedPath, string $htmlBookPath): bool
+    {
+        $bookIndex = $this->resolveBookAssetPath($htmlBookPath);
+        if (! $bookIndex) {
+            return false;
+        }
+
+        $bookRoot = realpath(dirname($bookIndex));
+        return $bookRoot
+            && (str_starts_with($resolvedPath, $bookRoot . DIRECTORY_SEPARATOR) || $resolvedPath === $bookRoot);
+    }
+}

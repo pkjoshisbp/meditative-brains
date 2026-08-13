@@ -146,6 +146,7 @@ function initialiseLoginPasskeys() {
 		return;
 	}
 
+	const identifierInput = document.querySelector('#email');
 	const feedback = document.querySelector('[data-passkey-login-feedback]');
 	const helpText = document.querySelector('[data-passkey-login-help]');
 
@@ -161,11 +162,23 @@ function initialiseLoginPasskeys() {
 	});
 
 	loginButton.addEventListener('click', async () => {
+		const identifier = identifierInput?.value.trim() || '';
+
+		if (! identifier) {
+			renderPasskeyFeedback(feedback, 'Enter your email, username, or mobile number first so we can look up the right passkey.', 'info');
+			identifierInput?.focus();
+			return;
+		}
+
 		renderPasskeyFeedback(feedback, '');
 		setBusyState(loginButton, true);
 
 		try {
-			const response = await Passkeys.verify();
+			const response = await Passkeys.verify({
+				routes: {
+					options: `/passkeys/login/options?identifier=${encodeURIComponent(identifier)}`,
+				},
+			});
 
 			if (response?.redirect) {
 				window.location.assign(response.redirect);

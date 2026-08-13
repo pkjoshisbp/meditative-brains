@@ -60,14 +60,14 @@
             </ul>
 
             <h2>6. Data Retention</h2>
-            <p>We retain your account and purchase data for as long as your account is active, or as required by law. You may request deletion of your account by contacting us.</p>
+            <p>We retain your account and purchase data for as long as your account is active, or as required by law. You may request deletion of your account through our <a href="{{ route('legal.delete-account') }}">Delete Account</a> page.</p>
 
             <h2>7. Your Rights</h2>
             <p>You have the right to:</p>
             <ul>
                 <li>Access the personal data we hold about you</li>
                 <li>Request correction of inaccurate data</li>
-                <li>Request deletion of your data (subject to legal retention requirements)</li>
+                <li>Request deletion of your data through our <a href="{{ route('legal.delete-account') }}">Delete Account</a> page (subject to legal retention requirements)</li>
                 <li>Opt out of marketing communications</li>
             </ul>
 

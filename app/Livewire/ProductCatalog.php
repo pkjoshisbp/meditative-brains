@@ -15,7 +15,6 @@ class ProductCatalog extends Component
     public $categoryId = '';
     public $sortBy = 'featured';
     public $audioFeatures = [];
-    public $priceRange = [0, 100];
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -44,7 +43,6 @@ class ProductCatalog extends Component
             'search',
             'categoryId',
             'audioFeatures',
-            'priceRange',
             'sortBy'
         ]);
     }
@@ -103,9 +101,6 @@ class ProductCatalog extends Component
             });
         }
 
-        // Apply price range filter
-        $query->whereBetween('price', $this->priceRange);
-
         // Apply sorting
         switch ($this->sortBy) {
             case 'price_low':
@@ -150,9 +145,9 @@ class ProductCatalog extends Component
             'categories' => $categories,
             'audioFeatureOptions' => $audioFeatureOptions,
         ])->layout('layouts.app-frontend', [
-            'title' => 'Premium Audio Catalog - Mental Fitness',
-            'description' => 'Browse our collection of wellness audio, audiobooks, meditation tracks, binaural beats, and more.',
-            'keywords' => 'audio catalog, audiobooks, sleep music, meditation, binaural beats, wellness audio'
+            'title' => 'Mental Fitness Store Catalog - Audio, Ebooks & Audiobooks',
+            'description' => 'Browse mental wellness audio, Practicing Happiness ebook and audiobook bundles, affirmations, sleep music, meditation tracks, binaural beats, nature sounds, and solfeggio frequencies.',
+            'keywords' => 'mental wellness audio catalog, practicing happiness ebook, happiness audiobook, affirmations, sleep music, meditation tracks, binaural beats, solfeggio frequencies, nature sounds'
         ]);
     }
 }

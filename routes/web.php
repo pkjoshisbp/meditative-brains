@@ -7,6 +7,10 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\OtpLoginController;
+use App\Http\Controllers\Auth\PasskeyLoginOptionsController;
+use Laravel\Passkeys\Http\Controllers\PasskeyConfirmationController;
+use Laravel\Passkeys\Http\Controllers\PasskeyLoginController;
+use Laravel\Passkeys\Http\Controllers\PasskeyRegistrationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +27,31 @@ use App\Http\Controllers\Auth\OtpLoginController;
 Route::get('/', App\Livewire\Homepage::class)->name('home');
 Route::get('/products', App\Livewire\ProductCatalog::class)->name('products');
 Route::get('/products/{slug}', App\Livewire\ProductDetail::class)->name('products.show');
+// Ebook assets are gated to admins. Book content is served to buyers/subscribers
+// only through the authenticated /api/library/.../html-content endpoints; this
+// public route is intentionally NOT open to avoid leaking the full book text.
+Route::middleware(['auth', 'role:admin'])->get('/ebook/{assetPath?}', function (?string $assetPath = null) {
+    $ebookRoot = realpath(base_path('ebook'));
+    abort_unless($ebookRoot, 404);
+
+    $assetPath = trim((string) $assetPath, '/');
+    $candidate = $ebookRoot . ($assetPath !== '' ? DIRECTORY_SEPARATOR . $assetPath : '');
+
+    if (is_dir($candidate)) {
+        $candidate .= DIRECTORY_SEPARATOR . 'index.html';
+    }
+
+    $path = realpath($candidate);
+
+    abort_unless(
+        $path
+        && is_file($path)
+        && (str_starts_with($path, $ebookRoot . DIRECTORY_SEPARATOR) || $path === $ebookRoot),
+        404
+    );
+
+    return response()->file($path);
+})->where('assetPath', '.*')->name('ebook.asset');
 Route::get('/simple-test', function () {
     return view('test-page');
 })->name('simple-test');
@@ -69,6 +98,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Audiobook Generator
     Route::get('/tts/audiobook', App\Livewire\Admin\AudioBookGenerator::class)->name('tts.audiobook');
+    Route::get('/tts/audiobook/{bookId}/chapters/{chapterNumber}/sections', App\Livewire\Admin\AudioBookChapterSections::class)
+        ->name('tts.audiobook.sections');
 
     // XTTS Voice Training (vast.ai)
     Route::get('/tts/voice-training', App\Livewire\Admin\VoiceTrainingManager::class)->name('tts.voice-training');
@@ -169,12 +200,60 @@ Route::middleware('guest')->group(function () {
         ->name('login.otp.resend');
 });
 
+Route::group(['middleware' => config('passkeys.middleware')], function () {
+    $managementMiddleware = array_values(array_filter((array) config('passkeys.management_middleware', ['password.confirm'])));
+
+    $passkeyMiddleware = function (string ...$middleware): array {
+        $throttle = config('passkeys.throttle');
+
+        return array_values(array_filter([...$middleware, $throttle]));
+    };
+
+    Route::get('/passkeys/login/options', PasskeyLoginOptionsController::class)
+        ->middleware($passkeyMiddleware('guest:'.config('passkeys.guard')))
+        ->name('passkey.login-options');
+
+    Route::post('/passkeys/login', [PasskeyLoginController::class, 'store'])
+        ->middleware($passkeyMiddleware('guest:'.config('passkeys.guard')))
+        ->name('passkey.login');
+
+    Route::middleware('auth:'.config('passkeys.guard'))->group(function () use ($managementMiddleware, $passkeyMiddleware) {
+        Route::get('/passkeys/confirm/options', [PasskeyConfirmationController::class, 'index'])
+            ->middleware($passkeyMiddleware())
+            ->name('passkey.confirm-options');
+
+        Route::post('/passkeys/confirm', [PasskeyConfirmationController::class, 'store'])
+            ->middleware($passkeyMiddleware())
+            ->name('passkey.confirm');
+
+        Route::get('/user/passkeys/options', [PasskeyRegistrationController::class, 'index'])
+            ->middleware($passkeyMiddleware(...$managementMiddleware))
+            ->name('passkey.registration-options');
+
+        Route::post('/user/passkeys', [PasskeyRegistrationController::class, 'store'])
+            ->middleware($passkeyMiddleware(...$managementMiddleware))
+            ->name('passkey.store');
+
+        Route::delete('/user/passkeys/{passkey}', [PasskeyRegistrationController::class, 'destroy'])
+            ->middleware($managementMiddleware)
+            ->name('passkey.destroy');
+    });
+});
+
 Auth::routes();
 
 // Customer Account Panel
 Route::middleware(['auth'])->prefix('my-account')->name('account.')->group(function () {
     Route::get('/',           [AccountController::class, 'dashboard'])->name('dashboard');
     Route::get('/library',    [AccountController::class, 'library'])->name('library');
+    Route::get('/library/products/{product}/pdf', [AccountController::class, 'downloadProductPdf'])->name('library.products.pdf');
+    Route::get('/library/products/{product}/read/{assetPath?}', [AccountController::class, 'readProductHtml'])
+        ->where('assetPath', '.*')
+        ->name('library.products.read');
+    Route::get('/library/tts-products/{product}/pdf', [AccountController::class, 'downloadTtsProductPdf'])->name('library.tts-products.pdf');
+    Route::get('/library/tts-products/{product}/read/{assetPath?}', [AccountController::class, 'readTtsProductHtml'])
+        ->where('assetPath', '.*')
+        ->name('library.tts-products.read');
     Route::get('/orders',     [AccountController::class, 'orders'])->name('orders');
     Route::get('/profile',    [AccountController::class, 'profile'])->name('profile');
     Route::get('/affiliate',  [AccountController::class, 'affiliate'])->name('affiliate');
@@ -201,6 +280,36 @@ Route::post('/webhooks/razorpay', [PaymentController::class, 'razorpayWebhook'])
 Route::get('/terms', function () { return view('legal.terms'); })->name('legal.terms');
 Route::get('/privacy', function () { return view('legal.privacy'); })->name('legal.privacy');
 Route::get('/refund-policy', function () { return view('legal.refund'); })->name('legal.refund');
+Route::get('/delete-account', function () { return view('legal.delete-account'); })->name('legal.delete-account');
+Route::post('/delete-account', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'name'        => 'required|string|max:100',
+        'email'       => 'required|email|max:150',
+        'message'     => 'nullable|string|max:2000',
+        'website'     => 'max:0',
+        'math_answer' => ['required', 'numeric', function ($attribute, $value, $fail) {
+            if ((int) $value !== (int) session('delete_account_math_ans')) {
+                $fail('Incorrect answer. Please solve the math problem correctly.');
+            }
+            session()->forget('delete_account_math_ans');
+        }],
+    ], [
+        'website.max'         => 'Spam detected.',
+        'math_answer.required' => 'Please answer the spam check question.',
+    ]);
+
+    \Illuminate\Support\Facades\Mail::raw(
+        "Account deletion request\n\nName: {$request->name}\nEmail: {$request->email}\n\nAdditional details:\n" . ($request->message ?: 'None provided.'),
+        function ($m) use ($request) {
+            $m->to('privacy@mentalfitness.store')
+              ->cc('support@mentalfitness.store')
+              ->replyTo($request->email, $request->name)
+              ->subject("Account Deletion Request: {$request->email}");
+        }
+    );
+
+    return redirect()->route('legal.delete-account')->with('delete_account_success', true);
+})->name('legal.delete-account.send');
 Route::get('/contact', function () { return view('pages.contact'); })->name('contact');
 Route::post('/contact', function (\Illuminate\Http\Request $request) {
     $request->validate([

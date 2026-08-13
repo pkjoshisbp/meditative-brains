@@ -28,7 +28,7 @@
                 <div class="card border-0 shadow h-100 overflow-hidden">
                     <div class="row g-0 h-100">
                         <div class="col-md-5">
-                            <img src="{{ asset('images/blog/' . $featured['image']) }}"
+                            <img src="{{ $featured['image_url'] ?? asset('images/blog/' . $featured['image']) }}"
                                  alt="{{ $featured['image_alt'] }}"
                                  class="img-fluid h-100 w-100"
                                  style="object-fit:cover;min-height:280px;"
@@ -67,7 +67,7 @@
                     <div class="card border-0 shadow flex-grow-1 overflow-hidden">
                         <div class="row g-0">
                             <div class="col-4">
-                                <img src="{{ asset('images/blog/' . $post['image']) }}"
+                                <img src="{{ $post['image_url'] ?? asset('images/blog/' . $post['image']) }}"
                                      alt="{{ $post['image_alt'] }}"
                                      class="img-fluid h-100 w-100"
                                      style="object-fit:cover;"
@@ -103,7 +103,7 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100 overflow-hidden">
                     <div class="position-relative" style="height:200px;overflow:hidden;">
-                        <img src="{{ asset('images/blog/' . $post['image']) }}"
+                        <img src="{{ $post['image_url'] ?? asset('images/blog/' . $post['image']) }}"
                              alt="{{ $post['image_alt'] }}"
                              class="img-fluid w-100 h-100"
                              style="object-fit:cover;transition:transform 0.3s;"

@@ -10,11 +10,29 @@ class AppLogController extends Controller
 {
     public function store(Request $request)
     {
-        $logs = (string) $request->input('logs', '');
+        $input = $request->all();
+        $rawBody = $request->getContent();
+
+        if (!array_key_exists('logs', $input) && trim($rawBody) !== '') {
+            $decoded = json_decode($rawBody, true);
+            if (is_array($decoded)) {
+                $input = array_merge($decoded, $input);
+            } else {
+                $input['logs'] = $rawBody;
+            }
+        }
+
+        $logs = (string) ($input['logs'] ?? '');
         if (trim($logs) === '') {
             return response()->json([
                 'success' => false,
                 'message' => 'No logs provided',
+                'debug' => [
+                    'contentType' => $request->headers->get('content-type'),
+                    'contentLength' => $request->headers->get('content-length'),
+                    'rawLength' => strlen($rawBody),
+                    'inputKeys' => array_keys($input),
+                ],
             ], 400);
         }
 
@@ -23,7 +41,7 @@ class AppLogController extends Controller
             File::makeDirectory($directory, 0755, true);
         }
 
-        $source = (string) $request->input('source', 'flutter-app');
+        $source = (string) ($input['source'] ?? 'flutter-app');
         $source = preg_replace('/[^A-Za-z0-9._-]/', '-', $source) ?: 'flutter-app';
         $filename = sprintf(
             'app_logs_%s_%s.txt',
@@ -33,9 +51,9 @@ class AppLogController extends Controller
 
         $payload = implode(PHP_EOL, [
             'TIMESTAMP: ' . now()->toIso8601String(),
-            'DEVICE INFO: ' . (string) $request->input('deviceInfo', 'Unknown device'),
+            'DEVICE INFO: ' . (string) ($input['deviceInfo'] ?? 'Unknown device'),
             'SOURCE: ' . $source,
-            'CLIENT TIMESTAMP: ' . (string) $request->input('timestamp', ''),
+            'CLIENT TIMESTAMP: ' . (string) ($input['timestamp'] ?? ''),
             '',
             $logs,
         ]);

@@ -53,4 +53,25 @@ return [
         'max_pending' => (int) env('SMS_GATEWAY_MAX_PENDING', 25),
     ],
 
+    'whatsapp' => [
+        'enabled' => env('WHATSAPP_OTP_ENABLED', true),
+        'graph_version' => env('WHATSAPP_GRAPH_VERSION', 'v25.0'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID', ''),
+        'access_token' => env('WHATSAPP_ACCESS_TOKEN', ''),
+        'app_secret' => env('WHATSAPP_APP_SECRET', ''),
+        'verify_token' => env('WHATSAPP_VERIFY_TOKEN', ''),
+        'template' => env('WHATSAPP_OTP_TEMPLATE', 'mental_fitness_single_param'),
+        'template_language' => env('WHATSAPP_OTP_TEMPLATE_LANGUAGE', 'en'),
+        'template_body_parameter_name' => env('WHATSAPP_OTP_TEMPLATE_BODY_PARAMETER_NAME', ''),
+        'template_body_parameter_names' => env('WHATSAPP_OTP_TEMPLATE_BODY_PARAMETER_NAMES', ''),
+        'template_login_context' => env('WHATSAPP_OTP_TEMPLATE_LOGIN_CONTEXT', ''),
+        'otp_context' => env(
+            'WHATSAPP_OTP_CONTEXT',
+            'https://mentalfitness.store Login/Register. The OTP is valid for 10 minutes. Call support if you did not perform this request.'
+        ),
+        'template_has_copy_code_button' => env('WHATSAPP_OTP_TEMPLATE_HAS_COPY_CODE_BUTTON', true),
+        'template_button_sub_type' => env('WHATSAPP_OTP_TEMPLATE_BUTTON_SUB_TYPE', 'url'),
+        'timeout' => (int) env('WHATSAPP_HTTP_TIMEOUT', 10),
+    ],
+
 ];

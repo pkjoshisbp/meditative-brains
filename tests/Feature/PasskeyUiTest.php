@@ -53,4 +53,38 @@ class PasskeyUiTest extends TestCase
         $response->assertSee('Passkeys');
         $response->assertSee('Add Passkey');
     }
+
+    public function test_passkey_registration_options_prefer_platform_authenticators(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->getJson('/user/passkeys/options');
+
+        $response->assertOk();
+        $response->assertJsonPath('options.authenticatorSelection.authenticatorAttachment', 'platform');
+        $response->assertJsonPath('options.authenticatorSelection.userVerification', 'preferred');
+        $response->assertJsonPath('options.authenticatorSelection.residentKey', 'preferred');
+    }
+
+    public function test_passkey_login_options_require_identifier_for_registered_passkeys(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Passkey User',
+            'username' => 'passkey-user',
+            'email' => 'passkey@example.com',
+        ]);
+
+        $user->passkeys()->create([
+            'name' => 'Work Laptop',
+            'credential_id' => 'AQID',
+            'credential' => [],
+        ]);
+
+        $response = $this->getJson('/passkeys/login/options?identifier=passkey@example.com');
+
+        $response->assertOk();
+        $response->assertJsonPath('options.userVerification', 'preferred');
+        $response->assertJsonCount(1, 'options.allowCredentials');
+        $response->assertJsonPath('options.allowCredentials.0.type', 'public-key');
+    }
 }

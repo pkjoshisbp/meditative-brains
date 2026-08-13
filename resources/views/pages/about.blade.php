@@ -1,7 +1,8 @@
 @extends('layouts.app-frontend')
 
-@section('title', 'About Us — Mental Fitness Store | Our Vision & Mission')
-@section('description', 'Mental Fitness Store is on a mission to provide all proven tools for mental happiness in one place. Discover our story, vision, and the science behind our premium wellness audio.')
+@section('title', 'About Mental Fitness Store — Wellness Audio, Ebooks & Audiobooks')
+@section('description', 'Mental Fitness Store brings together mental wellness audio, affirmations, sleep music, meditation, ebooks, and the Practicing Happiness audiobook to support daily mind training.')
+@section('keywords', 'mental fitness store, practicing happiness ebook, happiness audiobook, mental wellness audio, daily affirmations, sleep music, guided meditation, emotional resilience, neuroplasticity')
 
 @section('content')
 
@@ -9,10 +10,10 @@
 <section class="py-5 text-white" style="background:linear-gradient(135deg,#064e3b 0%,#065f46 40%,#0c4a6e 100%);min-height:380px;display:flex;align-items:center;">
     <div class="container text-center">
         <span class="badge bg-success mb-3 px-3 py-2">OUR STORY</span>
-        <h1 class="display-4 fw-bold mb-3">Striving for Mental Happiness</h1>
+        <h1 class="display-4 fw-bold mb-3">Practical Tools for Mental Fitness and Happiness</h1>
         <p class="lead col-lg-7 mx-auto opacity-90 mb-0">
-            We are dedicated to providing all proven tools to strengthen and improve mental happiness in one place —
-            so you can build a stronger, calmer, and more resilient mind every day.
+            We bring together premium mental wellness audio, daily affirmations, sleep music, meditation, ebooks,
+            and audiobooks so you can train your mind with simple practices that fit real life.
         </p>
     </div>
 </section>
@@ -23,16 +24,17 @@
         <div class="row g-5 align-items-center">
             <div class="col-lg-6">
                 <span class="text-primary fw-semibold small text-uppercase letter-spacing-wide">Our Vision</span>
-                <h2 class="display-6 fw-bold mt-2 mb-4">One Place for All Mental Wellness Tools</h2>
+                <h2 class="display-6 fw-bold mt-2 mb-4">One Place for Mind Training, Calm, and Emotional Resilience</h2>
                 <p class="lead text-muted mb-4">
                     The human mind is the most powerful instrument you own. Yet most people never receive the tools
                     to train it. We believe that mental fitness is just as important as physical fitness — and that
-                    the right audio, practiced consistently, can rewire your thoughts and transform your life.
+                    the right audio, reading practice, and daily repetition can help reshape thought patterns over time.
                 </p>
                 <p class="text-muted">
-                    Mental Fitness Store brings together the world's most proven sound-based mental wellness techniques:
+                    Mental Fitness Store combines sound-based mental wellness techniques with structured learning:
                     positive affirmations, binaural beats, solfeggio frequencies, sleep hypnosis, guided meditation,
-                    and nature soundscapes — all crafted with studio-grade quality and backed by neuroscience.
+                    nature soundscapes, practical ebooks, and audio learning. Our goal is not hype or quick fixes,
+                    but repeatable tools for focus, better sleep, confidence, self-regulation, and happiness practice.
                 </p>
                 <div class="mt-4 d-flex gap-3 flex-wrap">
                     <a href="{{ route('products') }}" class="btn btn-primary">
@@ -80,6 +82,64 @@
                             <h6 class="fw-bold">Constantly Growing</h6>
                             <p class="text-muted small mb-0">New tracks added every week across all categories — your mental fitness library never stops expanding.</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Practicing Happiness -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6">
+                <span class="text-primary fw-semibold small text-uppercase">Featured Book & Audiobook</span>
+                <h2 class="display-6 fw-bold mt-2 mb-4">Practicing Happiness: A Daily System for the Inner Life</h2>
+                <p class="lead text-muted">
+                    <strong>Practicing Happiness</strong> is our flagship ebook and audiobook experience. It was created
+                    for people who want more than motivational lines — they want a practical path for building emotional
+                    resilience, positive attention, gratitude, self-talk, and a more stable inner baseline.
+                </p>
+                <p class="text-muted">
+                    Across its chapters, the book explores happiness and circumstances, rewiring the subconscious,
+                    strength through positivity, emotional resilience, building daily practice, and the power of repetition.
+                    These themes naturally connect with our audio library: morning affirmations, sleep music, guided
+                    meditation, nature sounds, and focus-oriented binaural beats can all support the same daily training.
+                </p>
+                <p class="text-muted mb-4">
+                    The ebook is useful for reading slowly and reflecting. The audiobook is designed for listening on walks,
+                    during quiet evenings, or as part of a morning reset. Together they make mental fitness easier to return
+                    to, one small practice at a time.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ route('products') }}?search=Practicing%20Happiness" class="btn btn-primary">
+                        <i class="fas fa-book-open me-2"></i>Find the Book
+                    </a>
+                    <a href="{{ route('blog') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-newspaper me-2"></i>Read Mental Fitness Articles
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="p-4 rounded-3 h-100" style="background:linear-gradient(135deg,#ecfeff,#f0fdf4);border:1px solid rgba(14,116,144,0.14);">
+                    <h3 class="h5 fw-bold mb-4">Themes We Help You Practice</h3>
+                    <div class="row g-3">
+                        @foreach([
+                            ['Daily happiness practice', 'fa-sun'],
+                            ['Positive self-talk and affirmations', 'fa-comment-dots'],
+                            ['Emotional resilience after setbacks', 'fa-shield-heart'],
+                            ['Sleep, recovery, and nervous-system calm', 'fa-moon'],
+                            ['Focus, attention, and repetition', 'fa-bullseye'],
+                            ['Gratitude, mindfulness, and inner stability', 'fa-leaf'],
+                        ] as [$label, $icon])
+                            <div class="col-sm-6">
+                                <div class="bg-white rounded-3 p-3 h-100 shadow-sm">
+                                    <i class="fas {{ $icon }} text-success me-2"></i>
+                                    <span class="fw-semibold small">{{ $label }}</span>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </div>

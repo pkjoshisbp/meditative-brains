@@ -66,6 +66,47 @@
 
   /* ---- Footer ---- */
   .footer { text-align: center; margin-top: 60px; padding-top: 30px; border-top: 1px solid #e0d4c0; font-size: 13px; color: #aaa; }
+
+  @media (max-width: 640px) {
+    body { line-height: 1.65; }
+    .page-wrapper { width: 100%; padding: 22px 12px 56px; }
+    .book-cover { padding: 34px 8px 34px; margin-bottom: 34px; }
+    .cover-label { font-size: 10px; letter-spacing: 2px; }
+    .cover-title { font-size: 34px; }
+    .cover-subtitle,
+    .cover-description,
+    .preface p,
+    .how-to li,
+    .invitation p { font-size: 16px; }
+    .preface,
+    .copyright-section,
+    .invitation { padding: 22px 18px; margin: 32px 0; }
+    .how-to,
+    .author-section { margin: 34px 0; }
+    .chapters-section h2,
+    .how-to h2 { margin-top: 34px; margin-bottom: 18px; }
+    .chapter-card { gap: 12px; padding: 18px 14px; border-radius: 8px; }
+    .ch-number-badge { min-width: 44px; width: 44px; height: 44px; font-size: 18px; }
+    .ch-content { min-width: 0; }
+    .ch-title { font-size: 16px; line-height: 1.35; }
+    .ch-subtitle { font-size: 13.5px; line-height: 1.6; }
+    .ch-teaser { font-size: 14.5px; line-height: 1.65; }
+    .ch-arrow { display: none; }
+    .author-section { gap: 18px; padding: 22px 18px; border-radius: 8px; }
+    .author-avatar { width: 66px; height: 66px; font-size: 25px; }
+    .author-body { min-width: 0; }
+    blockquote { padding: 16px 18px; font-size: 16px; }
+  }
+
+  @media (max-width: 380px) {
+    .page-wrapper { padding-left: 8px; padding-right: 8px; }
+    .chapter-card,
+    .author-section { padding-left: 12px; padding-right: 12px; }
+    .chapter-card { gap: 10px; }
+    .ch-number-badge { min-width: 40px; width: 40px; height: 40px; }
+    .author-section { align-items: flex-start; gap: 14px; }
+    .author-avatar { width: 58px; height: 58px; font-size: 22px; }
+  }
 </style>
 </head>
 <body>

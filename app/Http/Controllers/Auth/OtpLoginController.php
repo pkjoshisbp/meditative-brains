@@ -28,7 +28,7 @@ class OtpLoginController extends Controller
         if ($otpLoginService->trustedDeviceMatchesUser($request, $user)) {
             auth()->login($user, true);
 
-            return redirect()->intended($this->redirectPathFor($user));
+            return $this->redirectAfterLogin($request, $user);
         }
 
         $recipient = $otpLoginService->issue($data['identifier']);
@@ -98,7 +98,7 @@ class OtpLoginController extends Controller
         auth()->login($user, true);
         $request->session()->forget('otp_login');
 
-        $response = redirect()->intended($this->redirectPathFor($user));
+        $response = $this->redirectAfterLogin($request, $user);
 
         if (! empty($pending['remember_device'])) {
             $cookieValue = $otpLoginService->createTrustedDevice($user, $request);
@@ -150,5 +150,24 @@ class OtpLoginController extends Controller
         }
 
         return route('account.dashboard');
+    }
+
+    private function redirectAfterLogin(Request $request, User $user): RedirectResponse
+    {
+        $fallback = $this->redirectPathFor($user);
+        $intended = $request->session()->pull('url.intended');
+
+        if (! $intended || (! $user->isAdmin() && $this->isAdminUrl($intended))) {
+            return redirect()->to($fallback);
+        }
+
+        return redirect()->to($intended);
+    }
+
+    private function isAdminUrl(string $url): bool
+    {
+        $path = parse_url($url, PHP_URL_PATH) ?: $url;
+
+        return str_starts_with('/' . ltrim($path, '/'), '/admin');
     }
 }

@@ -16,10 +16,14 @@ class TtsAudiobook extends Model
         'speaker_style', 'speaker_personality', 'expression_style',
         'prosody_rate', 'prosody_pitch', 'prosody_volume',
         'preview_chapter_number', 'preview_audio_path', 'preview_audio_url',
+        'has_background_music', 'background_music_track', 'background_music_volume', 'tts_audio_volume',
     ];
 
     protected $casts = [
         'preview_chapter_number' => 'integer',
+        'has_background_music' => 'boolean',
+        'background_music_volume' => 'float',
+        'tts_audio_volume' => 'float',
     ];
 
     public static function variantKeyFromAttributes(array $attributes): string

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\OtpLoginService;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -47,6 +48,18 @@ class LoginController extends Controller
         return route('account.dashboard');
     }
 
+    protected function authenticated(Request $request, $user): RedirectResponse
+    {
+        $fallback = $this->redirectTo();
+        $intended = $request->session()->pull('url.intended');
+
+        if (! $intended || (! $user->isAdmin() && $this->isAdminUrl($intended))) {
+            return redirect()->to($fallback);
+        }
+
+        return redirect()->to($intended);
+    }
+
     /**
      * Create a new controller instance.
      *
@@ -85,5 +98,12 @@ class LoginController extends Controller
         throw ValidationException::withMessages([
             'email' => [trans('auth.failed')],
         ]);
+    }
+
+    private function isAdminUrl(string $url): bool
+    {
+        $path = parse_url($url, PHP_URL_PATH) ?: $url;
+
+        return str_starts_with('/' . ltrim($path, '/'), '/admin');
     }
 }

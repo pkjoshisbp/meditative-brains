@@ -5,6 +5,11 @@
     $hasDiscount = $pricing['student_applied'] || $p->hasDiscount();
     $priceInr = $pricing['base_inr'];
     $salePriceInr = $pricing['final_inr'];
+    $formatLabel = match ($p->content_type) {
+        'pdf_book' => 'PDF Book',
+        'book_with_audio' => 'Book + Audio',
+        default => 'Audio Product',
+    };
 @endphp
 
 <div class="container py-4" style="max-width: 1200px;">
@@ -52,7 +57,10 @@
                     @endif
                 </div>
                 <div class="card-body">
-                    <div class="mb-2 text-muted small">{{ $p->category->name ?? 'Audio Product' }}</div>
+                    <div class="mb-2 d-flex flex-wrap gap-2 align-items-center">
+                        <span class="text-muted small">{{ $p->category->name ?? 'Product' }}</span>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ $formatLabel }}</span>
+                    </div>
                     <h1 class="h2 mb-3">{{ $p->name }}</h1>
                     @if($p->short_description)
                         <p class="lead text-muted">{{ $p->short_description }}</p>
@@ -65,6 +73,18 @@
                     @if($p->linkedAudiobook)
                         <div class="alert alert-info mb-0">
                             <strong>Linked audiobook:</strong> {{ $p->linkedAudiobook->adminSelectionLabel() }}
+                        </div>
+                    @endif
+
+                    @if($p->relatedAudioProduct)
+                        <div class="alert alert-light border mt-3 mb-0 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                            <div>
+                                <strong>Audio edition available:</strong>
+                                <div class="small text-muted">{{ $p->relatedAudioProduct->name }}</div>
+                            </div>
+                            <a href="{{ route('products.show', $p->relatedAudioProduct->slug) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-headphones me-1"></i>View Audio
+                            </a>
                         </div>
                     @endif
                 </div>
@@ -110,14 +130,22 @@
                         </div>
                     @endif
 
-                    <p class="small text-muted mb-3">
-                        <i class="fas fa-clock"></i> {{ $p->preview_duration }}s preview setting
-                    </p>
+                    @if($p->hasAudioPreviewSource())
+                        <p class="small text-muted mb-3">
+                            <i class="fas fa-clock"></i> {{ $p->preview_duration }}s preview setting
+                        </p>
+                    @elseif($p->isPdfOnlyBook())
+                        <p class="small text-muted mb-3">
+                            <i class="fas fa-file-pdf text-danger"></i> PDF-only book. No audio preview available.
+                        </p>
+                    @endif
 
                     <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary" onclick="playPreview({{ $p->id }})">
-                            <i class="fas fa-play"></i> Preview
-                        </button>
+                        @if($p->hasAudioPreviewSource())
+                            <button class="btn btn-outline-primary" onclick="playPreview({{ $p->id }})">
+                                <i class="fas fa-play"></i> Preview
+                            </button>
+                        @endif
                         <button wire:click="addToCart" class="btn btn-primary">
                             <i class="fas fa-cart-plus"></i> Add to Cart
                         </button>
@@ -146,7 +174,41 @@
         </div>
     </div>
 
-    <div class="modal fade" id="previewModal" tabindex="-1">
+    @if(($p->relatedAudioProduct || $similarProducts->count() > 0))
+        <section class="mt-5">
+            <h2 class="h4 mb-3">Related Products</h2>
+            <div class="row g-4">
+                @if($p->relatedAudioProduct)
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge bg-info align-self-start mb-2">Audio Edition</span>
+                                <h3 class="h6">{{ $p->relatedAudioProduct->name }}</h3>
+                                <p class="small text-muted flex-grow-1">{{ Str::limit($p->relatedAudioProduct->short_description ?: $p->relatedAudioProduct->description, 90) }}</p>
+                                <a href="{{ route('products.show', $p->relatedAudioProduct->slug) }}" class="btn btn-outline-primary btn-sm align-self-start">View Product</a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                @foreach($similarProducts as $similar)
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body d-flex flex-column">
+                                <span class="small text-muted mb-2">{{ $similar->category->name ?? 'Product' }}</span>
+                                <h3 class="h6">{{ $similar->name }}</h3>
+                                <p class="small text-muted flex-grow-1">{{ Str::limit($similar->short_description ?: $similar->description, 90) }}</p>
+                                <a href="{{ route('products.show', $similar->slug) }}" class="btn btn-outline-secondary btn-sm align-self-start">View Product</a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    @if($p->hasAudioPreviewSource())
+        <div class="modal fade" id="previewModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -160,8 +222,10 @@
                 </div>
             </div>
         </div>
-    </div>
+        </div>
+    @endif
 
+    @if($p->hasAudioPreviewSource())
     @push('scripts')
     <script>
     function playPreview(productId) {
@@ -196,4 +260,5 @@
     }
     </script>
     @endpush
+    @endif
 </div>

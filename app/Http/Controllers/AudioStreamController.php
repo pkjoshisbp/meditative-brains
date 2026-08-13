@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\AudioSecurityService;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class AudioStreamController extends Controller
 {
@@ -43,7 +44,7 @@ class AudioStreamController extends Controller
                 ->header('Pragma', 'no-cache')
                 ->header('Expires', '0')
                 ->header('X-Content-Type-Options', 'nosniff')
-                ->header('Content-Disposition', 'inline'); // Prevent download, force streaming
+                ->header('Content-Disposition', 'inline');
         } catch (\Exception $e) {
             return response('Unauthorized or expired', 403);
         }
@@ -56,29 +57,27 @@ class AudioStreamController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'preview_length' => 'nullable|integer|min:10|max:600' // 10 seconds to 10 minutes
+            'preview_length' => 'nullable|integer|min:10|max:600'
         ]);
 
         $product = \App\Models\Product::findOrFail($request->product_id);
-        
-        // Check if user has access (implement your own logic)
+
         if (!$this->canAccessPreview($product, auth()->user())) {
             return response()->json(['error' => 'Access denied'], 403);
         }
 
         $previewLength = $request->preview_length ?: $product->preview_duration;
-        
         if ($product->full_file) {
             $url = $this->audioSecurityService->generateSecureUrl(
-                $product->full_file, 
-                $previewLength, 
-                30 // 30 minutes expiry for preview
+                $product->full_file,
+                $previewLength,
+                30
             );
 
             return response()->json([
                 'preview_url' => $url,
                 'duration' => $previewLength,
-                'expires_in' => 30 * 60 // seconds
+                'expires_in' => 30 * 60
             ]);
         }
 
@@ -95,47 +94,38 @@ class AudioStreamController extends Controller
         ]);
 
         $product = \App\Models\Product::findOrFail($request->product_id);
-        
-        // Check if user has purchased the product or has active subscription
+
         if (!$this->canAccessFullAudio($product, auth()->user())) {
             return response()->json(['error' => 'Purchase required'], 403);
         }
 
         if ($product->full_file) {
             $url = $this->audioSecurityService->generateSecureUrl(
-                $product->full_file, 
-                null, // No preview limit for purchased content
-                120 // 2 hours expiry for full audio
+                $product->full_file,
+                null,
+                120
             );
 
             return response()->json([
                 'audio_url' => $url,
-                'expires_in' => 120 * 60 // seconds
+                'expires_in' => 120 * 60
             ]);
         }
 
         return response()->json(['error' => 'No audio file available'], 404);
     }
 
-    /**
-     * Check if user can access preview
-     */
     private function canAccessPreview($product, $user = null)
     {
-        // Allow previews for active products
         return $product->is_active;
     }
 
-    /**
-     * Check if user can access full audio
-     */
     private function canAccessFullAudio($product, $user = null)
     {
         if (!$user) {
             return false;
         }
 
-        // Check if user has active subscription
         $hasActiveSubscription = $user->subscriptions()
             ->where('status', 'active')
             ->where('ends_at', '>', now())
@@ -145,7 +135,6 @@ class AudioStreamController extends Controller
             return true;
         }
 
-        // Check if user has purchased this specific product
         $hasPurchased = $user->orders()
             ->where('status', 'completed')
             ->whereJsonContains('order_items', function ($query) use ($product) {
@@ -161,54 +150,69 @@ class AudioStreamController extends Controller
      */
     public function signedStream(Request $request)
     {
-        // Laravel automatically validates signed URLs
         $startedAt = microtime(true);
-        try {
-            $encodedPath = $request->get('path');
-            $previewLength = $request->get('preview');
+        $requestId = (string) Str::uuid();
+        $encodedPath = $request->get('path');
+        $previewLength = $request->get('preview');
+        $decodedPath = $encodedPath ? (base64_decode($encodedPath, true) ?: $encodedPath) : null;
 
+        Log::info('Audio signed stream request', [
+            'request_id' => $requestId,
+            'path' => $decodedPath,
+            'preview' => $previewLength !== null ? (int) $previewLength : null,
+            'ip' => $request->ip(),
+            'user_agent' => substr((string) $request->userAgent(), 0, 240),
+            'range' => $request->header('Range'),
+            'content_length_header' => $request->header('Content-Length'),
+        ]);
+
+        try {
             if (!$encodedPath) {
-                return response('Invalid parameters', 400);
+                return response('Invalid parameters', 400)
+                    ->header('X-Audio-Request-Id', $requestId);
             }
 
-            $decodedPath = base64_decode($encodedPath, true) ?: $encodedPath;
-
-            // Get decrypted audio content
             $audioContent = $this->audioSecurityService->streamFromSignedUrl($encodedPath, $previewLength);
-
-            // Determine content type based on audio format
             $contentType = $this->getContentType($audioContent);
+            $byteLength = strlen($audioContent);
 
             Log::info('Audio signed stream served', [
+                'request_id' => $requestId,
                 'path' => $decodedPath,
                 'preview' => $previewLength !== null ? (int) $previewLength : null,
                 'content_type' => $contentType,
-                'bytes' => strlen($audioContent),
+                'bytes' => $byteLength,
                 'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
             ]);
 
             return response($audioContent)
                 ->header('Content-Type', $contentType)
+                ->header('Content-Length', (string) $byteLength)
                 ->header('Accept-Ranges', 'bytes')
                 ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
                 ->header('Pragma', 'no-cache')
                 ->header('Expires', '0')
                 ->header('X-Content-Type-Options', 'nosniff')
-                ->header('Content-Disposition', 'inline'); // Prevent download, force streaming
-        } catch (\Exception $e) {
+                ->header('X-Audio-Request-Id', $requestId)
+                ->header('Content-Disposition', 'inline');
+        } catch (\Throwable $e) {
             Log::warning('Audio signed stream failed', [
-                'path' => $request->get('path'),
+                'request_id' => $requestId,
+                'path' => $decodedPath ?? $request->get('path'),
                 'preview' => $request->get('preview'),
                 'error' => $e->getMessage(),
+                'exception' => get_class($e),
                 'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
             ]);
-            return response('Unauthorized or file not found', 403);
+            return response('Unauthorized or file not found', 403)
+                ->header('X-Audio-Request-Id', $requestId);
         }
     }
+
     private function getContentType($audioContent)
     {
         $header = substr($audioContent, 0, 10);
-        
+
         if (substr($header, 0, 3) === 'ID3' || substr($header, 0, 2) === "\xFF\xFB") {
             return 'audio/mpeg';
         } elseif (substr($header, 0, 2) === "\xFF\xF1" || substr($header, 0, 2) === "\xFF\xF9") {
@@ -220,7 +224,7 @@ class AudioStreamController extends Controller
         } elseif (substr($header, 0, 4) === 'OggS') {
             return 'audio/ogg';
         }
-        
-        return 'audio/aac'; // All generated audio is AAC
+
+        return 'audio/aac';
     }
 }

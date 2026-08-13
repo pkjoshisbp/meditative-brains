@@ -11,6 +11,7 @@ use App\Models\TtsAudioProduct;
 use App\Models\TtsAudiobook;
 use App\Models\TtsSourceCategory;
 use App\Models\TtsMotivationMessage;
+use App\WebSocket\TtsWebSocketServer;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -54,6 +55,8 @@ class TtsProductManager extends AdminComponent
     public $pdf_book;
     public $pdf_file_path = '';
     public $pdf_file_url = '';
+    public $html_book_path = '';
+    public $html_book_url = '';
     public $linkedAudiobookPreviewUrl = '';
     public $linkedAudiobookPreviewTitle = '';
     public $linkedAudiobookChapterCount = 0;
@@ -119,6 +122,8 @@ class TtsProductManager extends AdminComponent
         'cover_image_path' => 'nullable|string',
         'linked_audiobook_id' => 'nullable|exists:tts_audiobooks,id',
         'pdf_book' => 'nullable|file|mimes:pdf|max:20480',
+        'pdf_file_path' => 'nullable|string|max:500',
+        'html_book_path' => 'nullable|string|max:500',
         'meta_title' => 'nullable|string|max:255',
         'meta_description' => 'nullable|string|max:500',
         'meta_keywords' => 'nullable|string|max:255',
@@ -552,6 +557,8 @@ class TtsProductManager extends AdminComponent
         $this->linked_audiobook_id = $this->editingProduct->linked_audiobook_id ?? '';
         $this->pdf_file_path = $this->editingProduct->pdf_file_path ?? '';
         $this->pdf_file_url = $this->editingProduct->pdf_file_url ?? '';
+        $this->html_book_path = $this->editingProduct->html_book_path ?? '';
+        $this->html_book_url = $this->editingProduct->html_book_url ?? '';
         $this->language = $this->editingProduct->language ?? 'en';
         $this->backend_category_id = $this->editingProduct->backend_category_id ?? '';
         $this->backend_category_name = $this->editingProduct->backend_category_name ?? '';
@@ -622,6 +629,16 @@ class TtsProductManager extends AdminComponent
 
         try {
             $resolvedBackgroundMusicUrl = $this->resolveBackgroundMusicUrlFromTrack($this->background_music_track);
+            if (!$this->pdf_book && $this->pdf_file_path && !$this->resolveServerBookAssetPath($this->pdf_file_path)) {
+                session()->flash('error', 'Server PDF path was not found or is outside the allowed ebook/public storage folders.');
+                return;
+            }
+
+            if ($this->html_book_path && !$this->resolveServerBookAssetPath($this->html_book_path)) {
+                session()->flash('error', 'HTML book path was not found or is outside the allowed ebook/public storage folders.');
+                return;
+            }
+
             $data = [
                 'name' => $this->name,
                 'description' => $this->description,
@@ -654,6 +671,8 @@ class TtsProductManager extends AdminComponent
                 'cover_image_path' => $this->cover_image_path ?: null,
                 'pdf_file_path' => $this->pdf_file_path ?: null,
                 'pdf_file_url' => $this->pdf_file_url ?: null,
+                'html_book_path' => $this->html_book_path ?: null,
+                'html_book_url' => $this->html_book_url ?: ($this->html_book_path ? url($this->html_book_path) : null),
                 'meta_title' => $this->meta_title,
                 'meta_description' => $this->meta_description,
                 'meta_keywords' => $this->meta_keywords,
@@ -694,19 +713,32 @@ class TtsProductManager extends AdminComponent
                 $pdfPath = $this->pdf_book->store('tts-products/pdfs', 'public');
                 $data['pdf_file_path'] = $pdfPath;
                 $data['pdf_file_url'] = Storage::disk('public')->url($pdfPath);
+            } elseif ($this->pdf_file_path && !$this->pdf_file_url) {
+                $data['pdf_file_url'] = url($this->pdf_file_path);
             }
+
+            $savedProduct = null;
 
             if ($this->editingProduct) {
                 if ($this->pdf_book && $this->editingProduct->pdf_file_path) {
                     Storage::disk('public')->delete($this->editingProduct->pdf_file_path);
                 }
                 $this->editingProduct->update($data);
+                $savedProduct = $this->editingProduct->fresh();
                 session()->flash('success', 'Product updated successfully!');
                 Log::info('TTS Product Save - Updated product ID: ' . $this->editingProduct->id);
             } else {
                 $product = TtsAudioProduct::create($data);
+                $savedProduct = $product;
                 session()->flash('success', 'Product created successfully!');
                 Log::info('TTS Product Save - Created product ID: ' . $product->id);
+            }
+
+            if ($savedProduct instanceof TtsAudioProduct) {
+                $this->touchCatalogVersion(
+                    $savedProduct,
+                    $this->editingProduct ? 'product.updated' : 'product.created'
+                );
             }
 
             $this->resetFormState();
@@ -744,6 +776,7 @@ class TtsProductManager extends AdminComponent
                 Storage::disk('public')->delete($product->cover_image_path);
             }
             
+            $this->touchCatalogVersion($product, 'product.deleted');
             $product->delete();
             session()->flash('success', 'Product deleted successfully!');
             
@@ -760,6 +793,7 @@ class TtsProductManager extends AdminComponent
             $product->update(['is_active' => !$product->is_active]);
             
             $status = $product->is_active ? 'activated' : 'deactivated';
+            $this->touchCatalogVersion($product, 'product.status.updated');
             session()->flash('success', "Product {$status} successfully!");
             
         } catch (\Exception $e) {
@@ -771,6 +805,18 @@ class TtsProductManager extends AdminComponent
     {
         $this->resetFormState();
         $this->showForm = false;
+    }
+
+    protected function touchCatalogVersion(?TtsAudioProduct $product, string $reason): void
+    {
+        try {
+            TtsWebSocketServer::touchCatalogVersion($product?->language, $reason);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to touch catalog version: ' . $e->getMessage(), [
+                'product_id' => $product?->id,
+                'reason' => $reason,
+            ]);
+        }
     }
 
     protected function resetFormState(): void
@@ -804,6 +850,8 @@ class TtsProductManager extends AdminComponent
         $this->pdf_book = null;
         $this->pdf_file_path = '';
         $this->pdf_file_url = '';
+        $this->html_book_path = '';
+        $this->html_book_url = '';
         $this->linkedAudiobookPreviewUrl = '';
         $this->linkedAudiobookPreviewTitle = '';
         $this->linkedAudiobookChapterCount = 0;
@@ -1286,6 +1334,7 @@ class TtsProductManager extends AdminComponent
             'product_id' => $product->id,
             'count' => count($securedUrls),
         ]);
+        $this->touchCatalogVersion($product, 'product.audio.synced');
 
         return count($securedUrls);
     }
@@ -1408,6 +1457,41 @@ class TtsProductManager extends AdminComponent
             $speaker = $segments[$storageRootIndex + $speakerOffset] ?? null;
             if (is_string($speaker) && $speaker !== '') {
                 return $speaker;
+            }
+        }
+
+        return null;
+    }
+
+    private function resolveServerBookAssetPath(string $path): ?string
+    {
+        $path = ltrim(trim($path), '/');
+        if ($path === '' || str_contains($path, '..')) {
+            return null;
+        }
+
+        $candidates = [
+            base_path($path),
+            public_path($path),
+            storage_path('app/public/' . $path),
+        ];
+
+        $allowedRoots = array_filter([
+            realpath(base_path('ebook')),
+            realpath(public_path()),
+            realpath(storage_path('app/public')),
+        ]);
+
+        foreach ($candidates as $candidate) {
+            $real = realpath($candidate);
+            if (!$real || !is_file($real)) {
+                continue;
+            }
+
+            foreach ($allowedRoots as $root) {
+                if ($real === $root || str_starts_with($real, $root . DIRECTORY_SEPARATOR)) {
+                    return $real;
+                }
             }
         }
 

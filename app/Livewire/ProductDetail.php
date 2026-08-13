@@ -11,7 +11,7 @@ class ProductDetail extends Component
 
     public function mount(string $slug): void
     {
-        $this->product = Product::with(['category', 'media', 'linkedAudiobook'])
+        $this->product = Product::with(['category', 'media', 'linkedAudiobook', 'relatedAudioProduct.category'])
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
@@ -46,8 +46,19 @@ class ProductDetail extends Component
 
     public function render()
     {
+        $similarProducts = Product::with(['category', 'media'])
+            ->where('is_active', true)
+            ->where('id', '!=', $this->product->id)
+            ->where('category_id', $this->product->category_id)
+            ->when($this->product->related_audio_product_id, fn ($query) => $query->where('id', '!=', $this->product->related_audio_product_id))
+            ->orderBy('is_featured', 'desc')
+            ->orderBy('sort_order')
+            ->limit(3)
+            ->get();
+
         return view('livewire.product-detail', [
             'product' => $this->product,
+            'similarProducts' => $similarProducts,
         ])->layout('layouts.app-frontend', [
             'title' => $this->product->meta_title ?: $this->product->name,
             'description' => $this->product->meta_description ?: ($this->product->short_description ?: $this->product->description ?: 'Premium audio experience'),

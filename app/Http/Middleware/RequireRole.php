@@ -28,6 +28,10 @@ class RequireRole
                 return response()->json(['message' => 'Forbidden (role)'], 403);
             }
 
+            if (in_array('admin', $roles, true)) {
+                return redirect()->route('account.dashboard');
+            }
+
             abort(403);
         }
 

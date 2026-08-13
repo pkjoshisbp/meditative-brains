@@ -35,9 +35,9 @@ class Homepage extends Component
             'categories' => $categories,
             'newProducts' => $newProducts,
         ])->layout('layouts.app-frontend', [
-            'title' => 'Mental Fitness Store - Premium TTS Affirmations & Sleep Aid Music',
-            'description' => 'Transform your life with our premium collection of TTS affirmations, sleep aid music, meditation tracks, binaural beats, and healing frequencies. Start your wellness journey today.',
-            'keywords' => 'TTS affirmations, sleep music, meditation, binaural beats, solfeggio frequencies, nature sounds, wellness, mindfulness, personal development'
+            'title' => 'Mental Fitness Store - Wellness Audio, Ebooks & Audiobooks',
+            'description' => 'Train your mind with premium TTS affirmations, sleep music, meditation tracks, binaural beats, solfeggio frequencies, nature sounds, and the Practicing Happiness ebook and audiobook.',
+            'keywords' => 'mental fitness, TTS affirmations, sleep music, meditation, binaural beats, solfeggio frequencies, nature sounds, practicing happiness ebook, audiobook, emotional resilience, mindfulness, personal development'
         ]);
     }
 }

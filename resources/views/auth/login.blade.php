@@ -133,7 +133,7 @@
                 </button>
 
                 <div class="small mb-3" style="color:#94a3b8;" data-passkey-login-help>
-                    Use Face ID, Touch ID, Windows Hello, or a saved passkey from this device.
+                    Enter your email, username, or mobile number, then use Windows Hello, Touch ID, Face ID, or a saved passkey from this device.
                 </div>
 
                 <div data-passkey-login-feedback></div>

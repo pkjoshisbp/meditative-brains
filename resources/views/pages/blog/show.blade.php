@@ -36,7 +36,7 @@
 
                 <!-- Hero image -->
                 <div class="mb-4 rounded-3 overflow-hidden" style="max-height:380px;">
-                    <img src="{{ asset('images/blog/' . $post['image']) }}"
+                    <img src="{{ $post['image_url'] ?? asset('images/blog/' . $post['image']) }}"
                          alt="{{ $post['image_alt'] }}"
                          class="img-fluid w-100"
                          style="object-fit:cover;max-height:380px;"
@@ -126,7 +126,7 @@
                     @foreach($related as $r)
                     <a href="{{ route('blog.show', $r['slug']) }}" class="d-flex align-items-start gap-3 p-3 text-decoration-none text-dark border-bottom hover-bg-light">
                         <div class="flex-shrink-0 rounded overflow-hidden" style="width:60px;height:60px;">
-                            <img src="{{ asset('images/blog/' . $r['image']) }}"
+                            <img src="{{ $r['image_url'] ?? asset('images/blog/' . $r['image']) }}"
                                  alt="{{ $r['image_alt'] }}"
                                  class="img-fluid w-100 h-100"
                                  style="object-fit:cover;"

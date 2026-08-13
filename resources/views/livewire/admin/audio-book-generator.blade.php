@@ -126,6 +126,55 @@
         </div>
         @endif
 
+        <div class="row mt-2 align-items-end">
+            <div class="col-md-3">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox"
+                           wire:model="hasBackgroundMusic"
+                           class="custom-control-input"
+                           id="audiobook-bg-enabled">
+                    <label class="custom-control-label" for="audiobook-bg-enabled">
+                        Background music
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="mb-1 small font-weight-bold">Music Track</label>
+                <select wire:model="backgroundMusicTrack" class="form-control form-control-sm">
+                    @forelse ($bgMusicFiles as $track)
+                        <option value="{{ $track }}">{{ Str::headline(str_replace(['-', '_'], ' ', $track)) }}</option>
+                    @empty
+                        <option value="">No tracks found</option>
+                    @endforelse
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="mb-1 small font-weight-bold">Music Volume</label>
+                <input type="number"
+                       wire:model.blur="backgroundMusicVolume"
+                       min="0"
+                       max="1"
+                       step="0.01"
+                       class="form-control form-control-sm">
+            </div>
+            <div class="col-md-2">
+                <label class="mb-1 small font-weight-bold">TTS Volume</label>
+                <input type="number"
+                       wire:model.blur="ttsAudioVolume"
+                       min="0"
+                       max="1"
+                       step="0.01"
+                       class="form-control form-control-sm">
+            </div>
+            <div class="col-md-2">
+                <button type="button"
+                        wire:click="refreshBgMusicFiles"
+                        class="btn btn-sm btn-outline-secondary btn-block">
+                    <i class="fas fa-sync"></i> Refresh Tracks
+                </button>
+            </div>
+        </div>
+
         {{-- Import status feedback --}}
         @if (!empty($importStatus))
             @php [$type, $msg] = explode(':', $importStatus, 2); @endphp
@@ -315,7 +364,7 @@
                             placeholder="Paste SSML / markup text here.
 
 Supported: [pause:800]  [silence:500]  [personality:Warm]…[/personality]  **bold**  *italic*"
-                            style="font-family: 'Courier New', monospace; font-size: 0.82rem; resize: vertical;"></textarea>
+                            style="font-family: 'Inter', 'Segoe UI', sans-serif; font-size: 0.95rem; line-height: 1.6; resize: vertical;"></textarea>
                         <small class="text-muted">
                             Custom markup: <code>[pause:800]</code> · <code>[silence:500]</code> ·
                             <code>[personality:Warm]…[/personality]</code> · <code>**strong emphasis**</code> · <code>*moderate emphasis*</code>
@@ -327,7 +376,7 @@ Supported: [pause:800]  [silence:500]  [personality:Warm]…[/personality]  **bo
                             class="form-control"
                             rows="14"
                             placeholder="Plain text version (no markup). Leave blank if SSML is provided — the backend will use the SSML content."
-                            style="font-size: 0.85rem; resize: vertical;"></textarea>
+                            style="font-family: 'Inter', 'Segoe UI', sans-serif; font-size: 0.95rem; line-height: 1.6; resize: vertical;"></textarea>
                         <small class="text-muted">
                             Plain text is used as a reference. Audio is generated from SSML/Markup when available.
                         </small>
@@ -411,6 +460,15 @@ Supported: [pause:800]  [silence:500]  [personality:Warm]…[/personality]  **bo
                                 <i class="fas fa-spinner fa-spin"></i> Saving…
                             </span>
                         </button>
+
+                        @if ($savedBookId)
+                            <a href="{{ route('admin.tts.audiobook.sections', ['bookId' => $savedBookId, 'chapterNumber' => $activeIndex + 1]) }}"
+                               target="_blank"
+                               rel="noopener"
+                               class="btn btn-sm btn-outline-primary mr-3">
+                                <i class="fas fa-stream"></i> Edit Sections
+                            </a>
+                        @endif
 
                         @if ($chapterSaveStatus === 'success:' . $ch['id'])
                             <span class="text-success small">
@@ -668,15 +726,15 @@ Supported: [pause:800]  [silence:500]  [personality:Warm]…[/personality]  **bo
                 </div>
                 <div class="card-footer py-2">
                     @if ($isCurrentAudioVariant && $ch['status'] === 'done')
-                        <button wire:click="generateChapter({{ $ch['id'] }})"
+                        <button wire:click="generateChapterForce({{ $ch['id'] }})"
                                 wire:loading.attr="disabled"
-                                wire:target="generateChapter"
+                                wire:target="generateChapterForce"
                                 wire:confirm="This chapter already has audio. Regenerate and OVERWRITE?"
                                 class="btn btn-warning mr-2">
-                            <span wire:loading.remove wire:target="generateChapter">
+                            <span wire:loading.remove wire:target="generateChapterForce">
                                 <i class="fas fa-redo"></i> Regenerate (Overwrite)
                             </span>
-                            <span wire:loading wire:target="generateChapter">
+                            <span wire:loading wire:target="generateChapterForce">
                                 <i class="fas fa-spinner fa-spin"></i> Generating…
                             </span>
                         </button>
@@ -694,7 +752,7 @@ Supported: [pause:800]  [silence:500]  [personality:Warm]…[/personality]  **bo
                         </button>
                     @endif
                     <small class="text-muted">
-                        Settings apply to all chapters. Each chapter generates its own audio file.
+                        Settings apply to all chapters. Unchanged sections are reused, and only edited sections need new Azure audio.
                     </small>
                 </div>
             </div>

@@ -1,0 +1,380 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AudioStreamController;
+use App\Http\Controllers\ProductPreviewController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Auth\OtpLoginController;
+use App\Http\Controllers\Auth\PasskeyLoginOptionsController;
+use Laravel\Passkeys\Http\Controllers\PasskeyConfirmationController;
+use Laravel\Passkeys\Http\Controllers\PasskeyLoginController;
+use Laravel\Passkeys\Http\Controllers\PasskeyRegistrationController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
+// Frontend Routes
+Route::get('/', App\Livewire\Homepage::class)->name('home');
+Route::get('/products', App\Livewire\ProductCatalog::class)->name('products');
+Route::get('/products/{slug}', App\Livewire\ProductDetail::class)->name('products.show');
+Route::get('/ebook/{assetPath?}', function (?string $assetPath = null) {
+    $ebookRoot = realpath(base_path('ebook'));
+    abort_unless($ebookRoot, 404);
+
+    $assetPath = trim((string) $assetPath, '/');
+    $candidate = $ebookRoot . ($assetPath !== '' ? DIRECTORY_SEPARATOR . $assetPath : '');
+
+    if (is_dir($candidate)) {
+        $candidate .= DIRECTORY_SEPARATOR . 'index.html';
+    }
+
+    $path = realpath($candidate);
+
+    abort_unless(
+        $path
+        && is_file($path)
+        && (str_starts_with($path, $ebookRoot . DIRECTORY_SEPARATOR) || $path === $ebookRoot),
+        404
+    );
+
+    return response()->file($path);
+})->where('assetPath', '.*')->name('ebook.asset');
+Route::get('/simple-test', function () {
+    return view('test-page');
+})->name('simple-test');
+
+// Audio streaming with signed URLs
+Route::get('/audio/stream', [AudioStreamController::class, 'stream'])->name('audio.stream');
+Route::get('/audio/signed-stream', [AudioStreamController::class, 'signedStream'])
+    ->name('audio.signed-stream')
+    ->middleware('signed');
+
+// Public Audio Experiences (Meditative Minds Audio) - avoid /audio directory conflict
+Route::get('/mind-audio', App\Livewire\AudioExperienceCatalog::class)->name('audio.catalog');
+Route::get('/mind-audio/{slug}', App\Livewire\AudioExperienceDetail::class)->name('audio.detail');
+
+// Background music secure issue endpoint (admin only for now)
+Route::middleware(['auth', 'role:admin'])->get('/bg-music/issue', [App\Http\Controllers\BgMusicStreamController::class, 'issue'])
+    ->name('bg-music.issue');
+
+// Product preview URLs
+Route::post('/audio/preview-url', [ProductPreviewController::class, 'getPreviewUrl'])
+    ->name('audio.preview-url');
+
+// Admin Routes (protected by auth middleware)
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
+    
+    Route::get('/categories', App\Livewire\Admin\CategoryManager::class)->name('categories');
+    Route::get('/products', App\Livewire\Admin\ProductManager::class)->name('products');
+    Route::get('/products-simple', App\Livewire\Admin\ProductManagerSimple::class)->name('products.simple');
+    Route::get('/test', App\Livewire\Admin\TestComponent::class)->name('test');
+    Route::get('/test-fixed', App\Livewire\Admin\TestComponentFixed::class)->name('test-fixed');
+    
+    // TTS Integration Routes
+    Route::get('/tts/messages', App\Livewire\Admin\MotivationMessageForm::class)->name('tts.messages');
+    Route::get('/tts/messages-working', App\Livewire\Admin\MotivationMessageFormWorking::class)->name('tts.messages-working');
+    Route::get('/tts/categories', App\Livewire\Admin\CategoryManagement::class)->name('tts.categories');
+    Route::get('/tts/generator', App\Livewire\Admin\AudioGenerator::class)->name('tts.generator');
+    Route::get('/tts/test', App\Livewire\Admin\TtsTest::class)->name('tts.test');
+    
+    // TTS Products Management Routes  
+    Route::get('/tts/products', App\Livewire\Admin\TtsProductManager::class)->name('tts.products');
+
+    // Audiobook Generator
+    Route::get('/tts/audiobook', App\Livewire\Admin\AudioBookGenerator::class)->name('tts.audiobook');
+    Route::get('/tts/audiobook/{bookId}/chapters/{chapterNumber}/sections', App\Livewire\Admin\AudioBookChapterSections::class)
+        ->name('tts.audiobook.sections');
+
+    // XTTS Voice Training (vast.ai)
+    Route::get('/tts/voice-training', App\Livewire\Admin\VoiceTrainingManager::class)->name('tts.voice-training');
+
+    // Attention Guide Manager
+    Route::get('/tts/attention-guides', App\Livewire\Admin\AttentionGuideManager::class)->name('tts.attention-guides');
+
+    // BG Music Manager
+    Route::get('/bg-music', [App\Http\Controllers\BgMusicStreamController::class, 'adminIndex'])->name('bg-music');
+    Route::post('/bg-music/upload', [App\Http\Controllers\BgMusicStreamController::class, 'adminUpload'])->name('bg-music.upload');
+    Route::post('/bg-music/delete', [App\Http\Controllers\BgMusicStreamController::class, 'adminDelete'])->name('bg-music.delete');
+
+    // Store Management
+    Route::get('/orders', App\Livewire\Admin\OrderManager::class)->name('orders');
+    Route::get('/customers', App\Livewire\Admin\CustomerManager::class)->name('customers');
+    Route::get('/affiliates', App\Livewire\Admin\AffiliateManager::class)->name('affiliates');
+
+    // Subscription Management
+    Route::get('/subscriptions', App\Livewire\Admin\SubscriptionManager::class)->name('subscriptions');
+    Route::get('/subscriptions/plans', App\Livewire\Admin\SubscriptionPlanManager::class)->name('subscriptions.plans');
+    Route::get('/subscriptions/promo-codes', App\Livewire\Admin\PromoCodeManager::class)->name('subscriptions.promo-codes');
+    Route::get('/students', App\Livewire\Admin\StudentVerificationManager::class)->name('students');
+
+    // Payment Settings
+    Route::get('/settings/sms-gateway', function () {
+        return view('admin.settings.sms-gateway', [
+            'smsGatewaySecret' => config('services.sms_gateway.secret'),
+            'smsGatewayWsUrl' => config('services.sms_gateway.ws_url'),
+        ]);
+    })->name('settings.sms-gateway');
+
+    Route::get('/settings/payments', function () {
+        return view('admin.settings.payments');
+    })->name('settings.payments');
+
+    Route::post('/settings/payments', function (\Illuminate\Http\Request $request) {
+        $request->validate([
+            'ccavenue_merchant_id' => 'nullable|string',
+            'ccavenue_access_code' => 'nullable|string',
+            'ccavenue_working_key' => 'nullable|string',
+            'ccavenue_mode' => 'required|in:test,live',
+            'razorpay_key_id'      => 'nullable|string',
+            'razorpay_key_secret'  => 'nullable|string',
+            'razorpay_webhook_secret' => 'nullable|string',
+            'paypal_client_id'     => 'nullable|string',
+            'paypal_client_secret' => 'nullable|string',
+            'paypal_mode'          => 'required|in:sandbox,live',
+            'paypal_webhook_id'    => 'nullable|string',
+        ]);
+
+        $envPath = base_path('.env');
+        $env = file_get_contents($envPath);
+
+        $updates = [
+            'CCAVENUE_MERCHANT_ID' => $request->ccavenue_merchant_id,
+            'CCAVENUE_ACCESS_CODE' => $request->ccavenue_access_code,
+            'CCAVENUE_WORKING_KEY' => $request->ccavenue_working_key,
+            'CCAVENUE_MODE' => $request->ccavenue_mode,
+            'RAZORPAY_KEY_ID'         => $request->razorpay_key_id,
+            'RAZORPAY_KEY_SECRET'     => $request->razorpay_key_secret,
+            'RAZORPAY_WEBHOOK_SECRET' => $request->razorpay_webhook_secret,
+            'PAYPAL_CLIENT_ID'        => $request->paypal_client_id,
+            'PAYPAL_CLIENT_SECRET'    => $request->paypal_client_secret,
+            'PAYPAL_MODE'             => $request->paypal_mode,
+            'PAYPAL_WEBHOOK_ID'       => $request->paypal_webhook_id,
+        ];
+
+        foreach ($updates as $key => $value) {
+            $value = $value ?? '';
+            if (preg_match("/^{$key}=.*/m", $env)) {
+                $env = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $env);
+            } else {
+                $env .= "\n{$key}={$value}";
+            }
+        }
+
+        file_put_contents($envPath, $env);
+
+        \Artisan::call('config:clear');
+
+        return redirect()->route('admin.settings.payments')
+            ->with('success', 'Payment settings saved. Config cache cleared.');
+    })->name('settings.payments.save');
+});
+
+// Authentication routes
+Route::middleware('guest')->group(function () {
+    Route::post('/login/otp/request', [OtpLoginController::class, 'requestOtp'])
+        ->middleware('throttle:6,1')
+        ->name('login.otp.request');
+    Route::get('/login/otp/challenge', [OtpLoginController::class, 'showChallenge'])
+        ->name('login.otp.challenge');
+    Route::post('/login/otp/verify', [OtpLoginController::class, 'verifyOtp'])
+        ->middleware('throttle:6,1')
+        ->name('login.otp.verify');
+    Route::post('/login/otp/resend', [OtpLoginController::class, 'resendOtp'])
+        ->middleware('throttle:3,1')
+        ->name('login.otp.resend');
+});
+
+Route::group(['middleware' => config('passkeys.middleware')], function () {
+    $managementMiddleware = array_values(array_filter((array) config('passkeys.management_middleware', ['password.confirm'])));
+
+    $passkeyMiddleware = function (string ...$middleware): array {
+        $throttle = config('passkeys.throttle');
+
+        return array_values(array_filter([...$middleware, $throttle]));
+    };
+
+    Route::get('/passkeys/login/options', PasskeyLoginOptionsController::class)
+        ->middleware($passkeyMiddleware('guest:'.config('passkeys.guard')))
+        ->name('passkey.login-options');
+
+    Route::post('/passkeys/login', [PasskeyLoginController::class, 'store'])
+        ->middleware($passkeyMiddleware('guest:'.config('passkeys.guard')))
+        ->name('passkey.login');
+
+    Route::middleware('auth:'.config('passkeys.guard'))->group(function () use ($managementMiddleware, $passkeyMiddleware) {
+        Route::get('/passkeys/confirm/options', [PasskeyConfirmationController::class, 'index'])
+            ->middleware($passkeyMiddleware())
+            ->name('passkey.confirm-options');
+
+        Route::post('/passkeys/confirm', [PasskeyConfirmationController::class, 'store'])
+            ->middleware($passkeyMiddleware())
+            ->name('passkey.confirm');
+
+        Route::get('/user/passkeys/options', [PasskeyRegistrationController::class, 'index'])
+            ->middleware($passkeyMiddleware(...$managementMiddleware))
+            ->name('passkey.registration-options');
+
+        Route::post('/user/passkeys', [PasskeyRegistrationController::class, 'store'])
+            ->middleware($passkeyMiddleware(...$managementMiddleware))
+            ->name('passkey.store');
+
+        Route::delete('/user/passkeys/{passkey}', [PasskeyRegistrationController::class, 'destroy'])
+            ->middleware($managementMiddleware)
+            ->name('passkey.destroy');
+    });
+});
+
+Auth::routes();
+
+// Customer Account Panel
+Route::middleware(['auth'])->prefix('my-account')->name('account.')->group(function () {
+    Route::get('/',           [AccountController::class, 'dashboard'])->name('dashboard');
+    Route::get('/library',    [AccountController::class, 'library'])->name('library');
+    Route::get('/library/products/{product}/pdf', [AccountController::class, 'downloadProductPdf'])->name('library.products.pdf');
+    Route::get('/library/products/{product}/read/{assetPath?}', [AccountController::class, 'readProductHtml'])
+        ->where('assetPath', '.*')
+        ->name('library.products.read');
+    Route::get('/library/tts-products/{product}/pdf', [AccountController::class, 'downloadTtsProductPdf'])->name('library.tts-products.pdf');
+    Route::get('/library/tts-products/{product}/read/{assetPath?}', [AccountController::class, 'readTtsProductHtml'])
+        ->where('assetPath', '.*')
+        ->name('library.tts-products.read');
+    Route::get('/orders',     [AccountController::class, 'orders'])->name('orders');
+    Route::get('/profile',    [AccountController::class, 'profile'])->name('profile');
+    Route::get('/affiliate',  [AccountController::class, 'affiliate'])->name('affiliate');
+    Route::post('/profile',   [AccountController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/student-verification', [AccountController::class, 'submitStudentVerification'])->name('profile.student-verification');
+    Route::post('/affiliate', [AccountController::class, 'applyAffiliate'])->name('affiliate.apply');
+    Route::post('/password',  [AccountController::class, 'updatePassword'])->name('password.update');
+});
+
+// Payment Routes
+Route::middleware(['auth'])->prefix('payment')->name('payment.')->group(function () {
+    Route::post('/ccavenue/start', [PaymentController::class, 'ccavenueStart'])->name('ccavenue.start');
+    Route::post('/razorpay/create-order', [PaymentController::class, 'razorpayCreateOrder'])->name('razorpay.create');
+    Route::post('/razorpay/verify', [PaymentController::class, 'razorpayVerify'])->name('razorpay.verify');
+    Route::get('/paypal/create-order', [PaymentController::class, 'paypalCreateOrder'])->name('paypal.create');
+    Route::get('/paypal/success', [PaymentController::class, 'paypalSuccess'])->name('paypal.success');
+    Route::get('/paypal/cancel', [PaymentController::class, 'paypalCancel'])->name('paypal.cancel');
+});
+Route::post('/payment/ccavenue/response', [PaymentController::class, 'ccavenueResponse'])->name('payment.ccavenue.response');
+// Razorpay webhook (no auth, verified by signature)
+Route::post('/webhooks/razorpay', [PaymentController::class, 'razorpayWebhook'])->name('webhooks.razorpay');
+
+// Legal Pages
+Route::get('/terms', function () { return view('legal.terms'); })->name('legal.terms');
+Route::get('/privacy', function () { return view('legal.privacy'); })->name('legal.privacy');
+Route::get('/refund-policy', function () { return view('legal.refund'); })->name('legal.refund');
+Route::get('/delete-account', function () { return view('legal.delete-account'); })->name('legal.delete-account');
+Route::post('/delete-account', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'name'        => 'required|string|max:100',
+        'email'       => 'required|email|max:150',
+        'message'     => 'nullable|string|max:2000',
+        'website'     => 'max:0',
+        'math_answer' => ['required', 'numeric', function ($attribute, $value, $fail) {
+            if ((int) $value !== (int) session('delete_account_math_ans')) {
+                $fail('Incorrect answer. Please solve the math problem correctly.');
+            }
+            session()->forget('delete_account_math_ans');
+        }],
+    ], [
+        'website.max'         => 'Spam detected.',
+        'math_answer.required' => 'Please answer the spam check question.',
+    ]);
+
+    \Illuminate\Support\Facades\Mail::raw(
+        "Account deletion request\n\nName: {$request->name}\nEmail: {$request->email}\n\nAdditional details:\n" . ($request->message ?: 'None provided.'),
+        function ($m) use ($request) {
+            $m->to('privacy@mentalfitness.store')
+              ->cc('support@mentalfitness.store')
+              ->replyTo($request->email, $request->name)
+              ->subject("Account Deletion Request: {$request->email}");
+        }
+    );
+
+    return redirect()->route('legal.delete-account')->with('delete_account_success', true);
+})->name('legal.delete-account.send');
+Route::get('/contact', function () { return view('pages.contact'); })->name('contact');
+Route::post('/contact', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'name'        => 'required|string|max:100',
+        'email'       => 'required|email|max:150',
+        'subject'     => 'required|string|max:150',
+        'message'     => 'required|string|max:2000',
+        'website'     => 'max:0',
+        'math_answer' => ['required', 'numeric', function ($attribute, $value, $fail) {
+            if ((int) $value !== (int) session('contact_math_ans')) {
+                $fail('Incorrect answer. Please solve the math problem correctly.');
+            }
+            session()->forget('contact_math_ans');
+        }],
+    ], [
+        'website.max'         => 'Spam detected.',
+        'math_answer.required' => 'Please answer the spam check question.',
+    ]);
+    \Illuminate\Support\Facades\Mail::raw(
+        "Name: {$request->name}\nEmail: {$request->email}\nSubject: {$request->subject}\n\n{$request->message}",
+        function ($m) use ($request) {
+            $m->to('info@mentalfitness.store')
+              ->replyTo($request->email, $request->name)
+              ->subject("Contact Form: {$request->subject}");
+        }
+    );
+    return redirect()->route('contact')->with('contact_success', true);
+})->name('contact.send');
+Route::get('/subscription', [SubscriptionController::class, 'index'])->name('subscription');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/subscription/checkout', [SubscriptionController::class, 'showCheckout'])->name('subscription.checkout.show');
+    Route::post('/subscription/checkout', [SubscriptionController::class, 'checkout'])->name('subscription.checkout');
+    Route::post('/subscription/checkout/ccavenue/start', [SubscriptionController::class, 'startCcavenueCheckout'])->name('subscription.checkout.ccavenue.start');
+    Route::post('/subscription/checkout/razorpay/create-order', [SubscriptionController::class, 'createRazorpayOrder'])->name('subscription.checkout.razorpay.create');
+    Route::post('/subscription/checkout/razorpay/verify', [SubscriptionController::class, 'verifyRazorpayPayment'])->name('subscription.checkout.razorpay.verify');
+    Route::get('/subscription/checkout/success', [SubscriptionController::class, 'success'])->name('subscription.success');
+    Route::get('/subscription/checkout/cancel', [SubscriptionController::class, 'cancel'])->name('subscription.cancel');
+});
+Route::post('/subscription/checkout/ccavenue/response', [SubscriptionController::class, 'handleCcavenueResponse'])->name('subscription.checkout.ccavenue.response');
+
+// About & Blog
+Route::get('/about', function () { return view('pages.about'); })->name('about');
+Route::get('/blog', function () {
+    $posts = require resource_path('views/pages/blog/posts.php');
+    return view('pages.blog.index', compact('posts'));
+})->name('blog');
+Route::get('/blog/{slug}', function ($slug) {
+    $posts = require resource_path('views/pages/blog/posts.php');
+    $post  = collect($posts)->firstWhere('slug', $slug);
+    if (!$post) abort(404);
+    $related = collect($posts)->where('slug', '!=', $slug)->take(3)->values();
+    return view('pages.blog.show', compact('slug', 'post', 'related'));
+})->name('blog.show');
+
+// Cart
+Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart');
+Route::post('/cart/add', [App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/remove', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/clear', [App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
+Route::middleware(['auth'])->group(function () {
+    Route::post('/cart/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('cart.checkout');
+    Route::post('/cart/checkout/ccavenue/start', [App\Http\Controllers\CartController::class, 'startCcavenueCheckout'])->name('cart.checkout.ccavenue.start');
+    Route::post('/cart/checkout/razorpay/create-order', [App\Http\Controllers\CartController::class, 'createRazorpayOrder'])->name('cart.checkout.razorpay.create');
+    Route::post('/cart/checkout/razorpay/verify', [App\Http\Controllers\CartController::class, 'verifyRazorpayPayment'])->name('cart.checkout.razorpay.verify');
+    Route::get('/cart/checkout/success', [App\Http\Controllers\CartController::class, 'checkoutSuccess'])->name('cart.checkout.success');
+    Route::get('/cart/checkout/cancel', [App\Http\Controllers\CartController::class, 'checkoutCancel'])->name('cart.checkout.cancel');
+});
+Route::post('/cart/checkout/ccavenue/response', [App\Http\Controllers\CartController::class, 'handleCcavenueResponse'])->name('cart.checkout.ccavenue.response');
+
+// Sitemap
+Route::get('/sitemap.xml', App\Http\Controllers\SitemapController::class)->name('sitemap');

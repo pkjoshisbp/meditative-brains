@@ -84,7 +84,7 @@ class OtpLoginService
             $deliveryResults[] = $this->deliverCode($delivery['identifier'], $delivery['type'], $code);
         }
 
-        $recipient['delivery_ok'] = ! in_array(false, $deliveryResults, true);
+        $recipient['delivery_ok'] = in_array(true, $deliveryResults, true);
 
         return $recipient;
     }
@@ -188,7 +188,15 @@ class OtpLoginService
     public function describeDestinations(array $deliveries): string
     {
         $masked = array_map(
-            fn (array $delivery) => $this->maskIdentifier($delivery['identifier']),
+            function (array $delivery): string {
+                $destination = $this->maskIdentifier($delivery['identifier']);
+
+                return match ($delivery['type']) {
+                    'sms' => 'SMS at '.$destination,
+                    'whatsapp' => 'WhatsApp at '.$destination,
+                    default => $destination,
+                };
+            },
             $deliveries
         );
 
@@ -225,6 +233,9 @@ class OtpLoginService
             $deliveries = [[
                 'type' => 'sms',
                 'identifier' => trim($user->mobile),
+            ], [
+                'type' => 'whatsapp',
+                'identifier' => trim($user->mobile),
             ]];
 
             if ($user->email) {
@@ -258,6 +269,9 @@ class OtpLoginService
                 'deliveries' => [[
                     'type' => 'sms',
                     'identifier' => trim($user->mobile),
+                ], [
+                    'type' => 'whatsapp',
+                    'identifier' => trim($user->mobile),
                 ]],
                 'verification_identifiers' => [trim($user->mobile)],
             ];
@@ -287,6 +301,10 @@ class OtpLoginService
 
                 return false;
             }
+        }
+
+        if ($type === 'whatsapp') {
+            return app(WhatsAppService::class)->sendOtp($identifier, $code);
         }
 
         $message = "Your MentalFitness OTP is {$code}. Valid for 10 minutes. Do not share.";

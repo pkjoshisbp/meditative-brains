@@ -5,24 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Mental Fitness Store - Premium Mental Wellness Audio' }}</title>
+    <title>@yield('title', $title ?? 'Mental Fitness Store - Premium Mental Wellness Audio')</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="{{ $description ?? 'Discover premium mental wellness audio: affirmations, sleep music, meditation tracks, and healing frequencies designed to train your mind and transform your life.' }}">
-    <meta name="keywords" content="{{ $keywords ?? 'TTS affirmations, sleep music, meditation, binaural beats, solfeggio frequencies, nature sounds' }}">
+    <meta name="description" content="@yield('description', $description ?? 'Discover premium mental wellness audio, guided affirmations, meditation tracks, sleep music, binaural beats, ebooks, and audiobooks designed to train your mind.')">
+    <meta name="keywords" content="@yield('keywords', $keywords ?? 'mental fitness, mental wellness audio, TTS affirmations, sleep music, meditation, binaural beats, solfeggio frequencies, nature sounds, happiness ebook, audiobook')">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="{{ $title ?? 'Mental Fitness Store' }}">
-    <meta property="og:description" content="{{ $description ?? 'Premium mental wellness audio — train your mind, transform your life.' }}">
+    <meta property="og:title" content="@yield('title', $title ?? 'Mental Fitness Store')">
+    <meta property="og:description" content="@yield('description', $description ?? 'Premium mental wellness audio, ebooks, and audiobooks to train your mind.')">
     <meta property="og:image" content="{{ asset('images/og-image.jpg') }}">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ url()->current() }}">
-    <meta property="twitter:title" content="{{ $title ?? 'Mental Fitness Store' }}">
-    <meta property="twitter:description" content="{{ $description ?? 'Premium mental wellness audio — train your mind, transform your life.' }}">
+    <meta property="twitter:title" content="@yield('title', $title ?? 'Mental Fitness Store')">
+    <meta property="twitter:description" content="@yield('description', $description ?? 'Premium mental wellness audio, ebooks, and audiobooks to train your mind.')">
     <meta property="twitter:image" content="{{ asset('images/og-image.jpg') }}">
 
     <!-- Fonts -->
@@ -35,10 +35,37 @@
     
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     @livewireStyles
+    <style>
+        .storefront-navbar {
+            background: #111827;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .storefront-navbar .nav-link {
+            color: rgba(255,255,255,0.76);
+            font-weight: 600;
+            padding: 0.7rem 0.85rem;
+        }
+        .storefront-navbar .nav-link:hover,
+        .storefront-navbar .nav-link.active {
+            color: #fff;
+        }
+        .storefront-navbar .dropdown-menu {
+            border: 0;
+            border-radius: 8px;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+        }
+        .footer-link {
+            color: rgba(255,255,255,0.78);
+            text-decoration: none;
+        }
+        .footer-link:hover {
+            color: #fff;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top storefront-navbar">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
                 <div class="logo-container me-3">
@@ -57,27 +84,42 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav me-auto align-items-lg-center">
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
-                            <i class="fas fa-home me-1"></i>Home
+                            Home
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('products') ? 'active' : '' }}" href="{{ route('products') }}">
-                            <i class="fas fa-music me-1"></i>Browse Music
+                            Store
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('mind-audio') ? 'active' : '' }}" href="{{ route('audio.catalog') }}">
-                            <i class="fas fa-headphones me-1"></i>Mental Wellness Audio
+                            Audio Library
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('blog*') ? 'active' : '' }}" href="{{ route('blog') }}">
+                            Blog
                         </a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-mf-dropdown-toggle aria-expanded="false">
-                            <i class="fas fa-list me-1"></i>Categories
+                            More
                         </a>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu p-2">
+                            <li><a class="dropdown-item rounded" href="{{ route('subscription') }}">
+                                <i class="fas fa-star me-2 text-warning"></i>Subscription Plans
+                            </a></li>
+                            <li><a class="dropdown-item rounded" href="{{ route('about') }}">
+                                <i class="fas fa-circle-info me-2 text-success"></i>About Mental Fitness Store
+                            </a></li>
+                            <li><a class="dropdown-item rounded" href="{{ route('contact') }}">
+                                <i class="fas fa-envelope me-2 text-primary"></i>Contact
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('audio.catalog') }}">
                                 <i class="fas fa-microphone-alt me-2 text-primary"></i>Mental Wellness Audio
                             </a></li>
@@ -101,26 +143,6 @@
                                 <i class="fas fa-th-large me-2"></i>View All Categories
                             </a></li>
                         </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('subscription') }}">
-                            <i class="fas fa-star me-1"></i>Subscription
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}">
-                            <i class="fas fa-info-circle me-1"></i>About
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('blog*') ? 'active' : '' }}" href="{{ route('blog') }}">
-                            <i class="fas fa-blog me-1"></i>Blog
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" href="{{ route('contact') }}">
-                            <i class="fas fa-envelope me-1"></i>Contact
-                        </a>
                     </li>
                 </ul>
                 
@@ -213,7 +235,9 @@
                             <small class="text-muted" style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;">Train Your Mind</small>
                         </div>
                     </div>
-                    <p class="mb-3">Transform your life with our premium collection of mental wellness audio: affirmations, sleep music, meditation tracks, and healing frequencies.</p>
+                    <p class="mb-3">Practice happiness daily with our ebook, audiobook, affirmations, meditation audio, sleep support, and practical mind-training tools.</p>
+                    <p class="small text-muted mb-3"><strong>Practicing Happiness</strong> guides the experience: emotional resilience, positive self-talk, and simple routines you can return to every day.</p>
+                    <a href="{{ route('about') }}" class="footer-link small fw-semibold">Read more about our mission <i class="fas fa-arrow-right ms-1"></i></a>
                     <div class="d-flex gap-3">
                         <a href="#" class="text-light fs-4"><i class="fab fa-facebook"></i></a>
                         <a href="#" class="text-light fs-4"><i class="fab fa-twitter"></i></a>
@@ -224,14 +248,14 @@
                 </div>
                 
                 <div class="col-lg-2 col-md-4 mb-4">
-                    <h6 class="text-primary mb-3">Categories</h6>
+                    <h6 class="text-primary mb-3">Explore</h6>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{{ route('products', ['categoryId' => 1]) }}" class="text-light text-decoration-none">TTS Affirmations</a></li>
-                        <li class="mb-2"><a href="{{ route('products', ['categoryId' => 2]) }}" class="text-light text-decoration-none">Sleep Aid Music</a></li>
-                        <li class="mb-2"><a href="{{ route('products', ['categoryId' => 3]) }}" class="text-light text-decoration-none">Meditation Music</a></li>
-                        <li class="mb-2"><a href="{{ route('products', ['categoryId' => 4]) }}" class="text-light text-decoration-none">Binaural Beats</a></li>
-                        <li class="mb-2"><a href="{{ route('products', ['categoryId' => 5]) }}" class="text-light text-decoration-none">Nature Sounds</a></li>
-                        <li class="mb-2"><a href="{{ route('products', ['categoryId' => 6]) }}" class="text-light text-decoration-none">Solfeggio Frequencies</a></li>
+                        <li class="mb-2"><a href="{{ route('products') }}" class="footer-link">Store</a></li>
+                        <li class="mb-2"><a href="{{ route('audio.catalog') }}" class="footer-link">Mental Wellness Audio</a></li>
+                        <li class="mb-2"><a href="{{ route('subscription') }}" class="footer-link">Subscription Plans</a></li>
+                        <li class="mb-2"><a href="{{ route('blog') }}" class="footer-link">Mental Fitness Blog</a></li>
+                        <li class="mb-2"><a href="{{ route('products', ['categoryId' => 2]) }}" class="footer-link">Sleep Aid Music</a></li>
+                        <li class="mb-2"><a href="{{ route('products', ['categoryId' => 4]) }}" class="footer-link">Binaural Beats</a></li>
                     </ul>
                 </div>
                 
@@ -239,26 +263,26 @@
                     <h6 class="text-primary mb-3">Account</h6>
                     <ul class="list-unstyled">
                         @guest
-                            <li class="mb-2"><a href="{{ route('login') }}" class="text-light text-decoration-none">Login</a></li>
-                            <li class="mb-2"><a href="{{ route('register') }}" class="text-light text-decoration-none">Register</a></li>
+                            <li class="mb-2"><a href="{{ route('login') }}" class="footer-link">Login</a></li>
+                            <li class="mb-2"><a href="{{ route('register') }}" class="footer-link">Register</a></li>
                         @else
-                            <li class="mb-2"><a href="{{ route('home') }}" class="text-light text-decoration-none">My Dashboard</a></li>
-                            <li class="mb-2"><a href="#my-purchases" class="text-light text-decoration-none">My Downloads</a></li>
+                            <li class="mb-2"><a href="{{ route('account.dashboard') }}" class="footer-link">My Dashboard</a></li>
+                            <li class="mb-2"><a href="{{ route('account.library') }}" class="footer-link">My Library</a></li>
                         @endguest
-                        <li class="mb-2"><a href="#subscription" class="text-light text-decoration-none">Subscription Plans</a></li>
-                        <li class="mb-2"><a href="#support" class="text-light text-decoration-none">Support</a></li>
+                        <li class="mb-2"><a href="{{ route('cart') }}" class="footer-link">Cart</a></li>
+                        <li class="mb-2"><a href="{{ route('contact') }}" class="footer-link">Support</a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-4 mb-4">
                     <h6 class="text-primary mb-3">Company</h6>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{{ route('about') }}" class="text-light text-decoration-none">About Us</a></li>
-                        <li class="mb-2"><a href="{{ route('blog') }}" class="text-light text-decoration-none">Blog</a></li>
-                        <li class="mb-2"><a href="{{ route('contact') }}" class="text-light text-decoration-none">Contact</a></li>
-                        <li class="mb-2"><a href="{{ route('legal.privacy') }}" class="text-light text-decoration-none">Privacy Policy</a></li>
-                        <li class="mb-2"><a href="{{ route('legal.terms') }}" class="text-light text-decoration-none">Terms of Service</a></li>
-                        <li class="mb-2"><a href="{{ route('legal.refund') }}" class="text-light text-decoration-none">Refund Policy</a></li>
+                        <li class="mb-2"><a href="{{ route('about') }}" class="footer-link">About Us</a></li>
+                        <li class="mb-2"><a href="{{ route('contact') }}" class="footer-link">Contact</a></li>
+                        <li class="mb-2"><a href="{{ route('legal.privacy') }}" class="footer-link">Privacy Policy</a></li>
+                        <li class="mb-2"><a href="{{ route('legal.terms') }}" class="footer-link">Terms of Service</a></li>
+                        <li class="mb-2"><a href="{{ route('legal.refund') }}" class="footer-link">Refund Policy</a></li>
+                        <li class="mb-2"><a href="{{ route('legal.delete-account') }}" class="footer-link">Delete Account</a></li>
                     </ul>
                 </div>
                 
@@ -312,5 +336,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @livewireScripts
     @stack('scripts')
+    <!-- AI Chat Support Widget -->
+<!-- Organization: Mental Fitness -->
+<script>
+(function() {
+    var script = document.createElement('script');
+    script.src = 'https://ai-chat.support/widget/mental-fitness/script.js';
+    script.async = true;
+    document.head.appendChild(script);
+})();
+</script>
 </body>
 </html>

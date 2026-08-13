@@ -40,7 +40,9 @@ class StudentPricingService
         $baseUsd = (float) ($product->price ?? 0);
         $baseInr = (float) (($product->inr_price ?? null) ?: ($baseUsd * CurrencyHelper::USD_TO_INR));
         $publicUsd = (float) ($product->sale_price ?? $product->price ?? 0);
-        $publicInr = (float) (($product->inr_sale_price ?? null) ?: (($product->inr_price ?? null) ?: ($publicUsd * CurrencyHelper::USD_TO_INR)));
+        $publicInr = $product->sale_price !== null
+            ? (float) (($product->inr_sale_price ?? null) ?: ($publicUsd * CurrencyHelper::USD_TO_INR))
+            : $baseInr;
 
         return $this->buildPriceData(
             $baseUsd,

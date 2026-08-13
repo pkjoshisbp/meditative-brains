@@ -67,21 +67,35 @@ class EntitlementController extends Controller
         $data = $request->validate([
             'product_id' => 'nullable|integer',
             'tts_audio_product_id' => 'nullable|integer',
-            'device_uuid' => 'nullable|string'
+            'device_uuid' => 'nullable|string',
+            'format' => 'nullable|string|in:pdf,mobile'
         ]);
         $user = $request->user();
-        if (!$data['product_id'] && !$data['tts_audio_product_id']) {
+        $productId = $data['product_id'] ?? null;
+        $ttsAudioProductId = $data['tts_audio_product_id'] ?? null;
+        $format = $data['format'] ?? 'pdf';
+        if (!$productId && !$ttsAudioProductId) {
             return response()->json(['error'=>'missing_target'],422);
         }
         $disk = null; $filePath = null; $downloadName = null; $size = null; $sha256 = null;
-        if ($data['product_id']) {
-            $product = Product::findOrFail($data['product_id']);
-            if (!$product->canUserAccessFull($user)) return response()->json(['error'=>'no_access'],403);
-            [$disk, $filePath, $downloadName] = $this->resolveProductDownload($product);
+        if ($productId) {
+            $product = Product::find($productId);
+            if ($product) {
+                if (!$product->canUserAccessFull($user)) return response()->json(['error'=>'no_access'],403);
+                [$disk, $filePath, $downloadName] = $this->resolveProductDownload($product, $format);
+            } else {
+                // Compatibility for app releases that submitted a TTS library
+                // item ID in product_id instead of tts_audio_product_id.
+                $tts = TtsAudioProduct::active()->findOrFail($productId);
+                if (!$user->hasTtsProductAccess($tts->id) && !$user->hasActiveSubscription()) return response()->json(['error'=>'no_access'],403);
+                [$disk, $filePath, $downloadName] = $this->resolveTtsDownload($tts, $format);
+                $ttsAudioProductId = $tts->id;
+                $productId = null;
+            }
         } else {
-            $tts = TtsAudioProduct::active()->findOrFail($data['tts_audio_product_id']);
+            $tts = TtsAudioProduct::active()->findOrFail($ttsAudioProductId);
             if (!$user->hasTtsProductAccess($tts->id) && !$user->hasActiveSubscription()) return response()->json(['error'=>'no_access'],403);
-            [$disk, $filePath, $downloadName] = $this->resolveTtsDownload($tts);
+            [$disk, $filePath, $downloadName] = $this->resolveTtsDownload($tts, $format);
         }
         if (!$filePath) return response()->json(['error'=>'file_missing'],404);
         $abs = Storage::disk($disk)->path($filePath);
@@ -90,50 +104,92 @@ class EntitlementController extends Controller
             $sha256 = hash_file('sha256',$abs);
         }
         $download = $user->downloads()->create([
-            'product_id' => $data['product_id'],
-            'tts_audio_product_id' => $data['tts_audio_product_id'],
+            'product_id' => $productId,
+            'tts_audio_product_id' => $ttsAudioProductId,
             'device_uuid' => $data['device_uuid'] ?? null,
             'bytes' => $size,
             'sha256' => $sha256,
             'completed' => false
         ]);
         $expires = now()->addMinutes(10);
-        $signedUrl = URL::temporarySignedRoute('secure.download', $expires, ['download'=>$download->id]);
+        $signedUrl = URL::temporarySignedRoute('secure.download', $expires, [
+            'download' => $download->id,
+            'format' => $format,
+        ]);
         return response()->json([
             'download_id' => $download->id,
             'url' => $signedUrl,
+            'download_url' => $signedUrl,
+            'signed_url' => $signedUrl,
             'expires_at' => $expires->toIso8601String(),
             'type' => 'pdf',
+            'format' => $format,
             'filename' => $downloadName,
             'bytes' => $size,
             'sha256' => $sha256
         ]);
     }
 
-    private function resolveProductDownload(Product $product): array
+    private function resolveProductDownload(Product $product, string $format = 'pdf'): array
     {
+        // Mobile-optimized PDF requested: prefer the dedicated mobile file,
+        // falling back to the standard PDF when only one exists.
+        if ($format === 'mobile') {
+            if ($product->mobile_pdf_file_path) {
+                return [
+                    $this->diskContaining($product->mobile_pdf_file_path),
+                    $product->mobile_pdf_file_path,
+                    ($product->slug ?: 'product-' . $product->id) . '-mobile.pdf',
+                ];
+            }
+        }
+
         if (!$product->pdf_file_path) {
             return [null, null, null];
         }
 
         return [
-            'public',
+            $this->diskContaining($product->pdf_file_path),
             $product->pdf_file_path,
             ($product->slug ?: 'product-' . $product->id) . '.pdf',
         ];
     }
 
-    private function resolveTtsDownload(TtsAudioProduct $product): array
+    private function resolveTtsDownload(TtsAudioProduct $product, string $format = 'pdf'): array
     {
+        if ($format === 'mobile') {
+            if ($product->mobile_pdf_file_path) {
+                return [
+                    $this->diskContaining($product->mobile_pdf_file_path),
+                    $product->mobile_pdf_file_path,
+                    ($product->slug ?: 'tts-product-' . $product->id) . '-mobile.pdf',
+                ];
+            }
+        }
+
         if (!$product->pdf_file_path) {
             return [null, null, null];
         }
 
         return [
-            'public',
+            $this->diskContaining($product->pdf_file_path),
             $product->pdf_file_path,
             ($product->slug ?: 'tts-product-' . $product->id) . '.pdf',
         ];
+    }
+
+    /**
+     * Pick the disk that actually holds the file. Licensed book PDFs live on
+     * the (non-web) "private" disk so they can only be served through the
+     * authenticated signed-URL flow; admin-uploaded PDFs remain on the
+     * "public" disk, so we fall back to it.
+     */
+    private function diskContaining(string $path): string
+    {
+        if (Storage::disk('private')->exists($path)) {
+            return 'private';
+        }
+        return 'public';
     }
 
     public function completeDownload(Request $request)

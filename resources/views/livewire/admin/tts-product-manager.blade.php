@@ -328,7 +328,10 @@
                                         @if ($product->pdf_file_path)
                                             <span class="badge badge-primary">PDF</span>
                                         @endif
-                                        @if (!$product->linkedAudiobook && !$product->pdf_file_path)
+                                        @if ($product->html_book_path)
+                                            <span class="badge badge-success">HTML</span>
+                                        @endif
+                                        @if (!$product->linkedAudiobook && !$product->pdf_file_path && !$product->html_book_path)
                                             <span class="badge badge-secondary">None</span>
                                         @endif
                                         <br><small class="text-muted">{{ $product->product_type ?: 'audio' }}</small>
@@ -525,6 +528,26 @@
                                                 <small class="form-text text-muted">Upload the PDF edition linked to this product.</small>
                                             </div>
 
+                                            <div class="form-group mt-3">
+                                                <label for="pdf_file_path">Server PDF Path</label>
+                                                <input wire:model="pdf_file_path" type="text"
+                                                       class="form-control @error('pdf_file_path') is-invalid @enderror"
+                                                       id="pdf_file_path"
+                                                       placeholder="ebook/practicing-happiness-us-edition/Practicing Happiness - Complete Book.pdf">
+                                                @error('pdf_file_path') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                <small class="form-text text-muted">Use this when the PDF is already on this server. Uploading a new PDF will replace this path.</small>
+                                            </div>
+
+                                            <div class="form-group mb-0">
+                                                <label for="html_book_path">HTML Book Path</label>
+                                                <input wire:model="html_book_path" type="text"
+                                                       class="form-control @error('html_book_path') is-invalid @enderror"
+                                                       id="html_book_path"
+                                                       placeholder="ebook/practicing-happiness-us-edition/index.html">
+                                                @error('html_book_path') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                                <small class="form-text text-muted">Customers who bought this product can read this HTML edition in their account library.</small>
+                                            </div>
+
                                             @if($pdf_file_url)
                                                 <div class="border rounded p-3 bg-light mt-3">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -532,6 +555,13 @@
                                                         <a href="{{ $pdf_file_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Open PDF</a>
                                                     </div>
                                                     <iframe src="{{ $pdf_file_url }}#toolbar=0&navpanes=0" style="width: 100%; height: 320px; border: 1px solid #ddd;"></iframe>
+                                                </div>
+                                            @endif
+
+                                            @if($html_book_path)
+                                                <div class="border rounded p-3 bg-light mt-3">
+                                                    <strong>Current HTML</strong>
+                                                    <div class="small text-muted mt-1">{{ $html_book_path }}</div>
                                                 </div>
                                             @endif
                                         </div>

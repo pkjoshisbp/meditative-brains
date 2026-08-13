@@ -8,6 +8,7 @@ use App\Models\TtsAudioProduct;
 use App\Services\AccessControlService;
 use App\Services\AudioSecurityService;
 use App\Services\AudioService;
+use App\Services\BackgroundMusicService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -892,6 +893,8 @@ class TtsBackendController extends Controller
             $tracks = $this->ensureEncryptedProductTracks($encryptionProduct, $tracks);
         }
 
+        $backgroundMusicUrl = $this->resolveBackgroundMusicPlaybackUrl($product);
+
         return response()->json([
             'success' => true,
             'product' => [
@@ -902,9 +905,20 @@ class TtsBackendController extends Controller
                 'language' => $product->language,
                 'total_tracks' => count($tracks),
                 'has_background_music' => $product->has_background_music,
-                'background_music_track' => $this->resolveBackgroundMusicPlaybackUrl($product),
+                'background_music_track' => $backgroundMusicUrl,
                 'background_music_track_name' => $product->background_music_track,
-                'background_music_url' => $this->resolveBackgroundMusicPlaybackUrl($product),
+                'background_music_url' => $backgroundMusicUrl,
+                'background_music' => [
+                    'enabled_by_default' => (bool) $product->has_background_music,
+                    'selected_track_id' => $product->background_music_track,
+                    'stream_url' => $backgroundMusicUrl,
+                    'tts_audio_volume' => 1.0,
+                    'background_music_volume' => max(0.0, min(1.0, (float) ($product->bg_music_volume ?? 0.3))),
+                    'loop_background_music' => true,
+                    'mix_mode' => 'client_side',
+                    'supports_independent_volume' => true,
+                    'supports_equalizer' => false,
+                ],
                 'updated_at' => $product->updated_at?->toISOString(),
             ],
             'tracks' => $tracks,
@@ -926,35 +940,31 @@ class TtsBackendController extends Controller
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
-        // Optional: restrict to admin or trial roles later.
-        $base = storage_path('app/bg-music');
-        $collections = [];
-        $scanDirs = [
-            'original' => $base . '/original',
-            'encrypted' => $base . '/encrypted'
+        $tracks = app(BackgroundMusicService::class)->listTracks();
+        $collections = [
+            'original' => collect($tracks)->map(fn (array $track): array => [
+                'file' => $track['filename'],
+                'variant' => 'original',
+                'path' => 'bg-music/original/' . $track['filename'],
+                'url' => $track['stream_url'],
+            ])->values()->all(),
         ];
-        foreach ($scanDirs as $variant => $dir) {
-            if (!is_dir($dir)) continue;
-            $files = collect(scandir($dir))
-                ->reject(fn($f) => in_array($f, ['.', '..']))
-                ->filter(fn($f) => preg_match('/\.(mp3|wav|m4a|aac|ogg)$/i', $f))
-                ->values()
-                ->map(function ($f) use ($variant) {
-                    $relative = 'bg-music/' . $variant . '/' . $f;
-                    return [
-                        'file' => $f,
-                        'variant' => $variant,
-                        'path' => $relative,
-                        'url' => $this->issueBackgroundMusicSecureUrl($f),
-                    ];
-                });
-            $collections[$variant] = $files->toArray();
-        }
 
         return response()->json([
             'success' => true,
+            'playback_model' => [
+                'mode' => 'client_side_mix',
+                'supports_independent_volume' => true,
+                'supports_equalizer' => false,
+            ],
+            'defaults' => [
+                'tts_audio_volume' => 1.0,
+                'background_music_volume' => 0.25,
+                'loop_background_music' => true,
+            ],
+            'tracks' => $tracks,
             'variants' => $collections,
-            'total' => array_sum(array_map('count', $collections))
+            'total' => count($tracks)
         ]);
     }
 
@@ -1263,6 +1273,9 @@ class TtsBackendController extends Controller
             $normalizedUrl = $this->normalizeAudioUrl($url);
             if (str_contains($normalizedUrl, '/audio/signed-stream')) {
                 $refreshedSignedUrl = $this->refreshSignedProductTrackUrl($normalizedUrl);
+                if (!$refreshedSignedUrl) {
+                    $refreshedSignedUrl = $this->recoverSignedProductTrackUrlFromMetadata($product, $track);
+                }
                 $track['url'] = $refreshedSignedUrl ?? $normalizedUrl;
                 $secured[] = $track;
                 $updatedUrls[] = $track['url'];
@@ -1328,7 +1341,8 @@ class TtsBackendController extends Controller
                 return null;
             }
 
-            if (!Storage::disk('local')->exists($encryptedPath)) {
+            $resolvedPath = $this->resolveExistingEncryptedProductTrackPath($encryptedPath);
+            if (!is_string($resolvedPath) || trim($resolvedPath) === '') {
                 Log::warning('Unable to refresh signed product track URL because encrypted file is missing', [
                     'signed_url' => Str::limit($signedUrl, 220),
                     'encrypted_path' => $encryptedPath,
@@ -1340,10 +1354,10 @@ class TtsBackendController extends Controller
             $previewLength = is_numeric($previewLength) ? (int) $previewLength : null;
 
             // Use 5-year expiry for URLs served to the app to prevent silent playback failures
-            $refreshedUrl = $this->audioSecurityService->generateSignedUrl($encryptedPath, $previewLength, 60 * 24 * 365 * 5);
+            $refreshedUrl = $this->audioSecurityService->generateSignedUrl($resolvedPath, $previewLength, 60 * 24 * 365 * 5);
 
             Log::info('Refreshed signed product track URL for product detail response', [
-                'encrypted_path' => $encryptedPath,
+                'encrypted_path' => $resolvedPath,
                 'old_url_length' => strlen($signedUrl),
                 'new_url_length' => strlen($refreshedUrl),
             ]);
@@ -1356,6 +1370,113 @@ class TtsBackendController extends Controller
             ]);
             return null;
         }
+    }
+
+    private function resolveExistingEncryptedProductTrackPath(string $encryptedPath): ?string
+    {
+        if (Storage::disk('local')->exists($encryptedPath)) {
+            return $encryptedPath;
+        }
+
+        $basename = basename($encryptedPath);
+        if ($basename === '' || $basename === '.' || $basename === '..') {
+            return null;
+        }
+
+        $slugBase = preg_replace('/-[0-9a-f]{32}\.enc$/i', '', $basename);
+        $searchRoots = array_values(array_unique(array_filter([
+            dirname(dirname(dirname($encryptedPath))),
+            dirname(dirname($encryptedPath)),
+            dirname($encryptedPath),
+            'audio/encrypted/tts-products',
+        ], static fn ($value) => is_string($value) && trim($value) !== '')));
+
+        foreach ($searchRoots as $root) {
+            if (!Storage::disk('local')->exists($root)) {
+                continue;
+            }
+
+            foreach (Storage::disk('local')->allFiles($root) as $candidate) {
+                $candidateBase = basename($candidate);
+                if ($candidateBase === $basename) {
+                    Log::info('Recovered moved encrypted product track path for signed URL refresh', [
+                        'requested_path' => $encryptedPath,
+                        'resolved_path' => $candidate,
+                        'recovery' => 'exact-basename',
+                    ]);
+                    return $candidate;
+                }
+
+                if ($slugBase && str_starts_with($candidateBase, $slugBase . '-')) {
+                    Log::info('Recovered moved encrypted product track path for signed URL refresh', [
+                        'requested_path' => $encryptedPath,
+                        'resolved_path' => $candidate,
+                        'recovery' => 'slug-prefix',
+                    ]);
+                    return $candidate;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    private function recoverSignedProductTrackUrlFromMetadata(TtsAudioProduct $product, array $track): ?string
+    {
+        $searchRoots = array_values(array_unique(array_filter([
+            'audio/encrypted/tts-products/' . strtolower(str_replace('-', '_', $product->language)) . '/' . Str::slug($product->category),
+            'audio/encrypted/tts-products',
+        ], static fn ($value) => is_string($value) && trim($value) !== '')));
+
+        $metadataCandidates = array_values(array_unique(array_filter([
+            $track['message_text'] ?? null,
+            $track['title'] ?? null,
+        ], static fn ($value) => is_string($value) && trim($value) !== '')));
+
+        foreach ($metadataCandidates as $text) {
+            $slug = Str::slug((string) $text);
+            if ($slug === '') {
+                continue;
+            }
+
+            foreach ($searchRoots as $root) {
+                if (!Storage::disk('local')->exists($root)) {
+                    continue;
+                }
+
+                foreach (Storage::disk('local')->allFiles($root) as $candidate) {
+                    $candidateBase = basename($candidate);
+                    $candidateSlug = preg_replace('/-[0-9a-f]{32}\.enc$/i', '', $candidateBase) ?? '';
+                    if ($candidateSlug === '') {
+                        continue;
+                    }
+
+                    $matches = str_starts_with($candidateSlug, $slug)
+                        || str_starts_with($slug, $candidateSlug)
+                        || str_contains($candidateSlug, $slug)
+                        || str_contains($slug, $candidateSlug);
+                    if (!$matches) {
+                        continue;
+                    }
+
+                    Log::info('Recovered signed product track URL from track metadata', [
+                        'product_id' => $product->id,
+                        'index' => $track['index'] ?? null,
+                        'message_text' => Str::limit((string) $text, 120),
+                        'resolved_path' => $candidate,
+                    ]);
+
+                    return $this->audioSecurityService->generateSignedUrl(
+                        $candidate,
+                        null,
+                        60 * 24 * 365 * 5
+                    );
+                }
+            }
+        }
+
+        return null;
     }
 
     private function getPersistablePreviewUrl(?string $candidate, ?string $fallback = null): ?string

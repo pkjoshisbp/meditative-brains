@@ -64,6 +64,29 @@
                                         </div>
                                     </div>
 
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Product Format *</label>
+                                            <select wire:model.live="content_type" class="form-control @error('content_type') is-invalid @enderror">
+                                                <option value="audio">Audio product</option>
+                                                <option value="pdf_book">PDF-only book</option>
+                                                <option value="book_with_audio">Book with audio</option>
+                                            </select>
+                                            @error('content_type') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Related Audio Product</label>
+                                            <select wire:model="related_audio_product_id" class="form-control @error('related_audio_product_id') is-invalid @enderror">
+                                                <option value="">No related audio product</option>
+                                                @foreach($audioProducts as $audioProduct)
+                                                    <option value="{{ $audioProduct->id }}">{{ $audioProduct->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('related_audio_product_id') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                            <small class="text-muted">Use this for a PDF book that has a separate audio edition.</small>
+                                        </div>
+                                    </div>
+
                                     <div class="mb-3">
                                         <label class="form-label">Short Description</label>
                                         <input type="text" wire:model="short_description" class="form-control @error('short_description') is-invalid @enderror" maxlength="500">
@@ -77,42 +100,59 @@
                                     </div>
 
                                     <div class="row mb-3">
-                                        <div class="col-md-4">
-                                            <label class="form-label">Price *</label>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Price USD *</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">$</span>
-                                                <input type="number" wire:model="price" class="form-control @error('price') is-invalid @enderror" step="0.01" min="0">
+                                                <input type="text" wire:model="price" class="form-control @error('price') is-invalid @enderror" inputmode="decimal" placeholder="2.89">
                                             </div>
                                             @error('price') <span class="invalid-feedback">{{ $message }}</span> @enderror
                                         </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label">Sale Price</label>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Sale Price USD</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">$</span>
-                                                <input type="number" wire:model="sale_price" class="form-control @error('sale_price') is-invalid @enderror" step="0.01" min="0">
+                                                <input type="text" wire:model="sale_price" class="form-control @error('sale_price') is-invalid @enderror" inputmode="decimal">
                                             </div>
                                             @error('sale_price') <span class="invalid-feedback">{{ $message }}</span> @enderror
                                         </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Price INR</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">₹</span>
+                                                <input type="text" wire:model="inr_price" class="form-control @error('inr_price') is-invalid @enderror" inputmode="decimal" placeholder="Auto">
+                                            </div>
+                                            @error('inr_price') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                            <small class="text-muted">Blank uses USD x 100.</small>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Sale Price INR</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">₹</span>
+                                                <input type="text" wire:model="inr_sale_price" class="form-control @error('inr_sale_price') is-invalid @enderror" inputmode="decimal" placeholder="Auto">
+                                            </div>
+                                            @error('inr_sale_price') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
                                         <div class="col-md-4">
                                             <label class="form-label">Preview Duration (seconds) *</label>
                                             <input type="number" wire:model="preview_duration" class="form-control @error('preview_duration') is-invalid @enderror" min="10" max="1800">
                                             @error('preview_duration') <span class="invalid-feedback">{{ $message }}</span> @enderror
                                         </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <label class="form-label">Student Price USD</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">$</span>
-                                                <input type="number" wire:model="student_price" class="form-control @error('student_price') is-invalid @enderror" step="0.01" min="0">
+                                                <input type="text" wire:model="student_price" class="form-control @error('student_price') is-invalid @enderror" inputmode="decimal">
                                             </div>
                                             @error('student_price') <span class="invalid-feedback">{{ $message }}</span> @enderror
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-4">
                                             <label class="form-label">Student Price INR</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">₹</span>
-                                                <input type="number" wire:model="student_inr_price" class="form-control @error('student_inr_price') is-invalid @enderror" step="0.01" min="0">
+                                                <input type="text" wire:model="student_inr_price" class="form-control @error('student_inr_price') is-invalid @enderror" inputmode="decimal" placeholder="Auto from student USD">
                                             </div>
                                             @error('student_inr_price') <span class="invalid-feedback">{{ $message }}</span> @enderror
                                         </div>
@@ -126,6 +166,11 @@
                                     <h5>Audio Files</h5>
                                 </div>
                                 <div class="card-body">
+                                    @if($content_type === 'pdf_book')
+                                        <div class="alert alert-info py-2">
+                                            This is a PDF-only book. Audio file, audiobook link, and preview are optional.
+                                        </div>
+                                    @endif
                                     <!-- Selected Original File -->
                                     <div class="mb-3">
                                         <label class="form-label">Main Audio File</label>
@@ -157,9 +202,10 @@
 
                                     <!-- Preview File -->
                                     <div class="mb-3">
-                                        <label class="form-label">Preview Image</label>
+                                        <label class="form-label">Cover / Preview Image</label>
                                         <input type="file" wire:model="preview_file" class="form-control @error('preview_file') is-invalid @enderror" accept="image/*">
                                         @error('preview_file') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                        <small class="text-muted">Upload JPG, PNG, WebP, or GIF artwork up to 10 MB.</small>
                                         @if($preview_file)
                                             <div class="mt-2">
                                                 <img src="{{ $preview_file->temporaryUrl() }}" alt="Preview image upload" class="img-thumbnail" style="max-width: 220px; max-height: 160px; object-fit: cover;">
@@ -208,18 +254,50 @@
                                         <label class="form-label">PDF Book</label>
                                         <input type="file" wire:model="pdf_book" class="form-control @error('pdf_book') is-invalid @enderror" accept="application/pdf,.pdf">
                                         @error('pdf_book') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                                        <small class="text-muted">Upload the PDF book linked to this product.</small>
+                                        <small class="text-muted">Upload the PDF book linked to this product. Maximum size: 50 MB.</small>
+                                        <div wire:loading wire:target="pdf_book" class="alert alert-info py-2 mt-2 mb-0">
+                                            <i class="fas fa-spinner fa-spin me-1"></i> Uploading PDF...
+                                        </div>
+                                        @if($pdf_book)
+                                            <div class="alert alert-success py-2 mt-2 mb-0">
+                                                <i class="fas fa-file-pdf me-1"></i>
+                                                Ready to save:
+                                                <strong>{{ $pdf_book->getClientOriginalName() }}</strong>
+                                                <span class="text-muted">({{ number_format($pdf_book->getSize() / 1024 / 1024, 2) }} MB)</span>
+                                            </div>
+                                        @endif
                                     </div>
 
-                                    @if($pdf_file_url)
+                                    @if($pdf_file_url || $pdf_file_path)
                                         <div class="mb-3 p-3 border rounded bg-light">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <strong>Current PDF</strong>
-                                                <a href="{{ $pdf_file_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Open PDF</a>
+                                                <strong><i class="fas fa-check-circle text-success me-1"></i>Current PDF attached</strong>
+                                                @if($pdf_file_url)
+                                                    <a href="{{ $pdf_file_url }}" target="_blank" class="btn btn-sm btn-outline-primary">Open PDF</a>
+                                                @endif
                                             </div>
-                                            <iframe src="{{ $pdf_file_url }}#toolbar=0&navpanes=0" style="width: 100%; height: 320px; border: 1px solid #ddd;"></iframe>
+                                            @if($pdf_file_url)
+                                                <iframe src="{{ $pdf_file_url }}#toolbar=0&navpanes=0" style="width: 100%; height: 320px; border: 1px solid #ddd;"></iframe>
+                                            @else
+                                                <div class="small text-muted">{{ $pdf_file_path }}</div>
+                                            @endif
                                         </div>
                                     @endif
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">HTML Book Path</label>
+                                            <input type="text" wire:model="html_book_path" class="form-control @error('html_book_path') is-invalid @enderror" placeholder="ebook/book-folder/index.html">
+                                            @error('html_book_path') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                            <small class="text-muted">Local readable HTML entry file, if available.</small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">HTML Book URL</label>
+                                            <input type="text" wire:model="html_book_url" class="form-control @error('html_book_url') is-invalid @enderror" placeholder="https://...">
+                                            @error('html_book_url') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                            <small class="text-muted">Optional external/public reader URL.</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -378,8 +456,11 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($product->pdf_file_path)
+                                        @if($product->pdf_file_path || $product->pdf_file_url)
                                             <span class="badge bg-primary">Attached</span>
+                                            @if($product->pdf_file_url)
+                                                <div><a href="{{ $product->pdf_file_url }}" target="_blank" class="small">Open</a></div>
+                                            @endif
                                         @else
                                             <span class="badge bg-secondary">None</span>
                                         @endif

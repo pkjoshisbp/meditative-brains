@@ -15,7 +15,6 @@ class TtsWebSocketServe extends Command
                             {--no-tls          : Disable TLS (plain ws://, for local dev only)}
                             {--cert=           : Path to TLS certificate file}
                             {--key=            : Path to TLS private key file}';
-
     protected $description = 'Start the TTS Reverb compatibility WebSocket server (wss:// via Let\'s Encrypt)';
 
     /** Default cert paths — ISPConfig Let's Encrypt location for mentalfitness.store */
@@ -63,22 +62,49 @@ class TtsWebSocketServe extends Command
             ];
         }
 
-        try {
-            $server = CompatibilityServerFactory::make(
-                '0.0.0.0',
-                (string) $port,
-                $noTls ? null : parse_url(config('app.url', 'https://mentalfitness.store'), PHP_URL_HOST),
-                10_000,
-                ['tls' => $tlsOptions],
-                $loop,
-            );
-        } catch (\RuntimeException $e) {
-            if (str_contains($e->getMessage(), 'EADDRINUSE') || str_contains($e->getMessage(), 'Address already in use')) {
-                $this->error("Port {$port} is already in use. Is another instance running?");
-                $this->line("Run: fuser -k {$port}/tcp   to free it, then restart the service.");
-                return self::FAILURE;
+        $hostname = $noTls ? null : parse_url(config('app.url', 'https://mentalfitness.store'), PHP_URL_HOST);
+        $servers = [];
+        $listenHosts = ['[::]', '0.0.0.0'];
+
+        foreach ($listenHosts as $listenHost) {
+            try {
+                $server = CompatibilityServerFactory::make(
+                    $listenHost,
+                    (string) $port,
+                    $hostname,
+                    10_000,
+                    ['tls' => $tlsOptions],
+                    $loop,
+                );
+                $servers[] = $server;
+                $this->line("Listening on {$listenHost}:{$port}");
+            } catch (\RuntimeException $e) {
+                $message = $e->getMessage();
+                $alreadyInUse = str_contains($message, 'EADDRINUSE') || str_contains($message, 'Address already in use');
+
+                if ($alreadyInUse && !empty($servers)) {
+                    $this->warn("Skipping {$listenHost}:{$port} because an existing listener already covers it.");
+                    continue;
+                }
+
+                if ($alreadyInUse) {
+                    $this->error("Port {$port} is already in use. Is another instance running?");
+                    $this->line("Run: fuser -k {$port}/tcp   to free it, then restart the service.");
+                    return self::FAILURE;
+                }
+
+                if ($listenHost === '[::]') {
+                    $this->warn("IPv6 listener unavailable: {$message}");
+                    continue;
+                }
+
+                throw $e;
             }
-            throw $e;
+        }
+
+        if (empty($servers)) {
+            $this->error('Could not start any websocket listener.');
+            return self::FAILURE;
         }
 
         $this->line('Press Ctrl+C to stop.');
@@ -109,7 +135,21 @@ class TtsWebSocketServe extends Command
             $this->warn("Could not bind SMS push port {$pushPort}: " . $e->getMessage());
         }
 
-        $server->start();
+        if ((bool) env('WS_LEGACY_CATALOG_PUSH_ENABLED', false)) {
+            $loop->addPeriodicTimer(5, function () use ($wsHandler) {
+                try {
+                    $wsHandler->broadcastCatalogUpdatesIfNeeded();
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('[WS][CATALOG] Periodic broadcast check failed: ' . $e->getMessage());
+                }
+            });
+        } else {
+            \Illuminate\Support\Facades\Log::info('[WS][CATALOG] Legacy websocket catalog push disabled; using Reverb only');
+        }
+
+        foreach ($servers as $server) {
+            $server->start();
+        }
 
         return self::SUCCESS;
     }

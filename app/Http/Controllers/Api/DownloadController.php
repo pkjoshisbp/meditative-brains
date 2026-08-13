@@ -17,12 +17,13 @@ class DownloadController extends Controller
         if(! $request->hasValidSignature()) abort(401);
 
         // Resolve file path
+        $format = $request->query('format', 'pdf');
         $disk = null; $path = null; $name = 'download.pdf';
         if ($download->product_id && $download->product) {
-            [$disk, $path, $name] = $this->resolveProductDownload($download->product);
+            [$disk, $path, $name] = $this->resolveProductDownload($download->product, $format);
         }
         if ($download->tts_audio_product_id && $download->ttsProduct) {
-            [$disk, $path, $name] = $this->resolveTtsDownload($download->ttsProduct);
+            [$disk, $path, $name] = $this->resolveTtsDownload($download->ttsProduct, $format);
         }
         if(!$path) abort(404);
         $abs = Storage::disk($disk)->path($path);
@@ -78,29 +79,57 @@ class DownloadController extends Controller
         return $response;
     }
 
-    private function resolveProductDownload($product): array
+    private function resolveProductDownload($product, string $format = 'pdf'): array
     {
+        if ($format === 'mobile' && $product->mobile_pdf_file_path) {
+            return [
+                $this->diskContaining($product->mobile_pdf_file_path),
+                $product->mobile_pdf_file_path,
+                ($product->slug ?: 'product-' . $product->id) . '-mobile.pdf',
+            ];
+        }
+
         if (!$product->pdf_file_path) {
             return [null, null, null];
         }
 
         return [
-            'public',
+            $this->diskContaining($product->pdf_file_path),
             $product->pdf_file_path,
             ($product->slug ?: 'product-' . $product->id) . '.pdf',
         ];
     }
 
-    private function resolveTtsDownload($product): array
+    private function resolveTtsDownload($product, string $format = 'pdf'): array
     {
+        if ($format === 'mobile' && $product->mobile_pdf_file_path) {
+            return [
+                $this->diskContaining($product->mobile_pdf_file_path),
+                $product->mobile_pdf_file_path,
+                ($product->slug ?: 'tts-product-' . $product->id) . '-mobile.pdf',
+            ];
+        }
+
         if (!$product->pdf_file_path) {
             return [null, null, null];
         }
 
         return [
-            'public',
+            $this->diskContaining($product->pdf_file_path),
             $product->pdf_file_path,
             ($product->slug ?: 'tts-product-' . $product->id) . '.pdf',
         ];
+    }
+
+    /**
+     * Licensed book PDFs live on the non-web "private" disk; admin-uploaded
+     * PDFs live on the "public" disk. Serve from whichever actually holds it.
+     */
+    private function diskContaining(string $path): string
+    {
+        if (Storage::disk('private')->exists($path)) {
+            return 'private';
+        }
+        return 'public';
     }
 }

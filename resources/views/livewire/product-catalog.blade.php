@@ -129,7 +129,14 @@
                                         {{ $product->name }}
                                     </a>
                                 </h6>
-                                <p class="card-text text-muted small mb-2">{{ $product->category->name }}</p>
+                                <p class="card-text text-muted small mb-2">
+                                    {{ $product->category->name }}
+                                    @if($product->isPdfOnlyBook())
+                                        <span class="badge bg-danger ms-1">PDF</span>
+                                    @elseif($product->isBookWithAudio())
+                                        <span class="badge bg-info ms-1">Book + Audio</span>
+                                    @endif
+                                </p>
                                 
                                 @if($product->short_description)
                                     <p class="card-text small">{{ Str::limit($product->short_description, 80) }}</p>
@@ -178,16 +185,23 @@
                                         @endif
                                     </div>
 
-                                    <!-- Preview Duration -->
-                                    <p class="small text-muted mb-2">
-                                        <i class="fas fa-clock"></i> {{ $product->preview_duration }}s preview
-                                    </p>
+                                    @if($product->hasAudioPreviewSource())
+                                        <p class="small text-muted mb-2">
+                                            <i class="fas fa-clock"></i> {{ $product->preview_duration }}s preview
+                                        </p>
+                                    @elseif($product->isPdfOnlyBook())
+                                        <p class="small text-muted mb-2">
+                                            <i class="fas fa-file-pdf text-danger"></i> PDF book
+                                        </p>
+                                    @endif
 
                                     <!-- Action Buttons -->
                                     <div class="d-grid gap-2">
-                                        <button class="btn btn-outline-primary btn-sm" onclick="playPreview({{ $product->id }})">
-                                            <i class="fas fa-play"></i> Preview
-                                        </button>
+                                        @if($product->hasAudioPreviewSource())
+                                            <button class="btn btn-outline-primary btn-sm" onclick="playPreview({{ $product->id }})">
+                                                <i class="fas fa-play"></i> Preview
+                                            </button>
+                                        @endif
                                         <a href="{{ route('products.show', $product->slug) }}" class="btn btn-outline-secondary btn-sm">
                                             <i class="fas fa-eye"></i> Details
                                         </a>
